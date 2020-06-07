@@ -31,5 +31,5 @@ application.use('/api/users', userRoutes);
 application.use('/', (req, res) => {res.json({'status': 'Salve Família'})});
 application.use(errors());
 
-let port = 3333;
+let port = process.env.ENVIRONMENT == 'development' ? 3333 : 443;
 application.listen(port, () => console.log(`Server up and running on port ${port}`));
