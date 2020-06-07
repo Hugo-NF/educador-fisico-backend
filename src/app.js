@@ -28,6 +28,7 @@ application.use(express.json());
 
 // Routes middleware configuration
 application.use('/api/users', userRoutes);
+application.use('/', (req, res) => {res.json({'status': 'Salve Família'})});
 application.use(errors());
 
 let port = 3333;
