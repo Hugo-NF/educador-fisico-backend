@@ -3,7 +3,7 @@ const jwt = require('jsonwebtoken');
 const User = require ('../models/User');
 
 module.exports = {
-    async authorize(user, claim) {
+    async authorize(claim) {
         return function(request, response, next) {
 
             const token = request.header('auth-token');
