@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const { v4: uuidv4 } = require('uuid');
 
 // Defining User Schema
 const userSchema = new mongoose.Schema({
@@ -96,7 +97,9 @@ const userSchema = new mongoose.Schema({
 userSchema.pre('save', function(next) {
     let user = this;
     const SALT_FACTOR = 10;
-  
+    
+    if(user.isNew()) user._id = uuidv4();
+
     // Password has not changed
     if (!user.isModified('password')) return next();
   

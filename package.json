@@ -2,11 +2,11 @@
   "name": "educador-fisico-api",
   "version": "1.0.0",
   "description": "Node server that will serve both Website and Mobile applications",
-  "main": "src/app.js",
+  "main": "src/server.js",
   "scripts": {
-    "start": "node src/app.js",
-    "development": "nodemon src/app.js",
-    "test": "jest"
+    "start": "node src/server.js",
+    "development": "nodemon src/server.js",
+    "test": "NODE_ENV=test node database/seed.js && jest --detectOpenHandles --forceExit"
   },
   "repository": {
     "type": "git",
@@ -31,6 +31,7 @@
   },
   "devDependencies": {
     "jest": "^26.0.1",
-    "nodemon": "^2.0.4"
+    "nodemon": "^2.0.4",
+    "supertest": "^4.0.2"
   }
 }

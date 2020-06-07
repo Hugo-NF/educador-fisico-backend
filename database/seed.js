@@ -1,9 +1,11 @@
 const dotenv = require('dotenv').config();
 const seeder = require('mongoose-seed');
 const mongoose = require('mongoose');
- 
+
+const connection = process.env.NODE_ENV == 'test' ? process.env.TESTDB_CONN_STRING : process.env.COSMOSDB_CONN_STRING;
+
 // Connect to MongoDB via Mongoose
-seeder.connect(process.env.COSMOSDB_CONN_STRING, { useNewUrlParser: true, useUnifiedTopology: true }, function() {
+seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, function() {
  
   // Load Mongoose models
   seeder.loadModels([
