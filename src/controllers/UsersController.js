@@ -1,6 +1,8 @@
 const { v4: uuidv4 } = require('uuid');
+
 const logger = require('../config/configLogging');
 const User = require('../models/User');
+const Role = require('../models/Role');
 
 /**
  * Parameters:
@@ -15,7 +17,16 @@ module.exports = {
     // Login method 
     async login(request, response) {
         logger.info("Inbound request to /users/login");
-        return response.json({status: "Logado fdp"})
+
+
+
+        return response.json({
+            statusCode: 200,
+            message: "Logged in successfully",
+            data: {
+                'auth-token': 'token'
+            }
+        });
     },
 
     // Register method
@@ -24,15 +35,27 @@ module.exports = {
 
         const { name, email, password, birthDate, sex, phones, city, state } = request.body;
 
-        const user = new User({ name, email, password, birthDate, sex, phones, city, state });
-        user._id = uuidv4();
-        await user.save();
+        try {
+            const user = new User({ name, email, password, birthDate, sex, phones, city, state });
+            const role = await Role.findOne({name: 'Student'});
 
-        return response.json({ 
-            status: "success",
-            data: {
-                _id: user._id
-            } 
-        });
+            user._id = uuidv4();
+            user.roles = [role._id];
+            await user.save();
+
+            return response.json({ 
+                statusCode: 200,
+                data: {
+                    _id: user._id
+                } 
+            });
+        }
+        catch(exc) {
+            return response.status(400).json({
+                statusCode: 400,
+                message: "Could not register a new user",
+                error: exc
+            });
+        }
     },
 };

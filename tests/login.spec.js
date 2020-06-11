@@ -12,8 +12,7 @@ describe('Login', () => {
             });
 
         expect(response.status).toBe(200);
-        expect(response.body.status).toBe("success");
-        expect(response.body.data).toHaveProperty("token");
+        expect(response.body.data).toHaveProperty("auth-token");
         done();
     }),
 
@@ -25,8 +24,7 @@ describe('Login', () => {
                 password: "12345678"
             });
 
-        expect(response.status).toBe(200);
-        expect(response.body.status).toBe("failed");
+        expect(response.status).toBe(400);
         expect(response.body).toHaveProperty("error");
         expect(response.body.error).toBe("Wrong credentials");
         done();
