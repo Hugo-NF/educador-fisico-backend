@@ -1,5 +1,6 @@
 const bcrypt = require('bcryptjs');
 
+const logger = require('../config/configLogging');
 const User = require('../models/User');
 
 /**
@@ -14,11 +15,13 @@ module.exports = {
 
     // Login method 
     async login(request, response) {
+        logger.info("Inbound request to /users/login");
         return response.json({status: "Logado fdp"})
     },
 
     // Register method
     async create(request, response) {
+        logger.info("Inbound request to /users/login");
         return response.json({ status: "Salve" });
     },
 };

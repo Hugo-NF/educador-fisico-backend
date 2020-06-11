@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/Hugo-NF/educador-fisico-backend#readme",
   "dependencies": {
+    "app-root-path": "^3.0.0",
     "bcryptjs": "^2.4.3",
     "celebrate": "^12.1.1",
     "cors": "^2.8.5",
@@ -27,7 +28,8 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.18",
     "mongoose-seed": "^0.6.0",
-    "uuid": "^8.1.0"
+    "uuid": "^8.1.0",
+    "winston": "^3.2.1"
   },
   "devDependencies": {
     "jest": "^26.0.1",
