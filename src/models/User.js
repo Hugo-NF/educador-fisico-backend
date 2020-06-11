@@ -86,7 +86,12 @@ const userSchema = new mongoose.Schema({
             type: Date
         },
         roles: [{type: mongoose.Schema.Types.ObjectId}],
-        claims: [{type: mongoose.Schema.Types.ObjectId}]
+        claims: [{type: mongoose.Schema.Types.ObjectId}],
+        trainings: [{type: mongoose.Schema.Types.ObjectId}],
+        activeTraining: {
+            type: Number,
+            required: false
+        }
     },
     {
         timestamps: true

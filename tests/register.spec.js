@@ -1,7 +1,7 @@
 const request = require('supertest');
 const app = require('../src/app');
 
-// Login feature
+// Register feature
 describe('Register', () => {
     it('should register a new user successfully', async (done) => {
         const response = await request(app)

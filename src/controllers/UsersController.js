@@ -12,6 +12,11 @@ const User = require('../models/User');
 
 module.exports = {
 
+    // Login method 
+    async login(request, response) {
+        return response.json({status: "Logado fdp"})
+    },
+
     // Register method
     async create(request, response) {
         return response.json({ status: "Salve" });
