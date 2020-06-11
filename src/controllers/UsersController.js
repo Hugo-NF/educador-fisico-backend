@@ -1,5 +1,4 @@
-const bcrypt = require('bcryptjs');
-
+const { v4: uuidv4 } = require('uuid');
 const logger = require('../config/configLogging');
 const User = require('../models/User');
 
@@ -21,7 +20,19 @@ module.exports = {
 
     // Register method
     async create(request, response) {
-        logger.info("Inbound request to /users/login");
-        return response.json({ status: "Salve" });
+        logger.info("Inbound request to /users/register");
+
+        const { name, email, password, birthDate, sex, phones, city, state } = request.body;
+
+        const user = new User({ name, email, password, birthDate, sex, phones, city, state });
+        user._id = uuidv4();
+        await user.save();
+
+        return response.json({ 
+            status: "success",
+            data: {
+                _id: user._id
+            } 
+        });
     },
 };
