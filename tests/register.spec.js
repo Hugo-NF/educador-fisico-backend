@@ -11,7 +11,7 @@ describe('Register', () => {
                 email: "hugonfonseca@gmail.com",
                 password: "123456789",
                 birthDate: new Date(1998, 6, 15),
-                sex: "Masculino",
+                sex: "Male",
                 phones: [
                     { type: "Mobile", number: "+55(61)99110-1515" }
                 ],
@@ -20,7 +20,6 @@ describe('Register', () => {
             });
 
         expect(response.status).toBe(200);
-        expect(response.body.status).toBe("success");
         expect(response.body.data).toHaveProperty("_id");
         done();
     }),
@@ -33,14 +32,14 @@ describe('Register', () => {
                 email: "hugonfonseca@hotmail.com",
                 password: "123456789",
                 birthDate: new Date(1998, 6, 15),
-                sex: "Masculino",
+                sex: "Male",
                 phones: [
                     { type: "Mobile", number: "+55(61)99110-1515" }
                 ],
                 city: "Ceilândia",
                 state: "DF"
             });
-
+        
         expect(response.status).toBe(400);
         done();
     }),
@@ -75,7 +74,67 @@ describe('Register', () => {
                 birthDate: new Date(1998, 6, 15),
                 sex: "Masculino",
                 phones: [
+                    { type: "Movel", number: "+55(61)99110-1515" }
+                ],
+                city: "Ceilândia",
+                state: "DF"
+            });
+
+        expect(response.status).toBe(400);
+        done();
+    }),
+
+    it('should return validation error', async (done) => {
+        const response = await request(app)
+            .post('/api/users/register')
+            .send({
+                name: "Hugo Fonseca",
+                email: "hugonfonseca@gmail.com",
+                password: "123456789",
+                birthDate: new Date(1998, 6, 15),
+                sex: "",
+                phones: [
                     { type: "Mobile", number: "+55(61)99110-1515" }
+                ],
+                city: "Ceilândia",
+                state: "DF"
+            });
+
+        expect(response.status).toBe(400);
+        done();
+    }),
+
+    it('should return validation error', async (done) => {
+        const response = await request(app)
+            .post('/api/users/register')
+            .send({
+                name: "Hugo Fonseca",
+                email: "hugonfonseca@gmail.com",
+                password: "123456789",
+                birthDate: new Date(1998, 6, 15),
+                sex: "Male",
+                phones: [
+                    { type: "Mobile", number: "+55(61)99110-1515" }
+                ],
+                city: "Ceilândia",
+                state: "AR"
+            });
+
+        expect(response.status).toBe(400);
+        done();
+    }),
+
+    it('should return validation error', async (done) => {
+        const response = await request(app)
+            .post('/api/users/register')
+            .send({
+                name: "Hugo Fonseca",
+                email: "hugonfonseca@gmail.com",
+                password: "123456789",
+                birthDate: new Date(1998, 6, 15),
+                sex: "Male",
+                phones: [
+                    { type: "Mobiles", number: "+55(61)99110-1515" }
                 ],
                 city: "Ceilândia",
                 state: "DF"

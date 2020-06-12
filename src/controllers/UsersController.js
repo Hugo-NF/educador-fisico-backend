@@ -1,6 +1,14 @@
+const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
+
+const logger = require('../config/configLogging');
+const errors = require('../config/errorsEnum');
 
 const User = require('../models/User');
+const Role = require('../models/Role');
+
+const { updateLockout } = require('../helpers/UsersHelper');
 
 /**
  * Parameters:
@@ -14,11 +22,94 @@ module.exports = {
 
     // Login method 
     async login(request, response) {
-        return response.json({status: "Logado fdp"})
+        logger.info("Inbound request to /users/login");
+        const currentUTC = new Date(new Date().toUTCString());
+        
+        const { email, password } = request.body;
+
+        try {
+            // Find user
+            const user = await User.findOne({ email: email });
+            if(!user) {
+                return response.status(409).json({
+                    statusCode: 409,
+                    errorCode: errors.USER_NOT_IN_DATABASE,
+                    message: "User is not in database"
+                });
+            }
+
+            // Check lockout
+            if(user.lockoutUntil > currentUTC) {
+                return response.status(401).json({
+                    statusCode: 401,
+                    errorCode: errors.ACCOUNT_LOCK_OUT,
+                    message: `Your account is locked until ${user.lockoutUntil}`,
+                    error: {
+                        lockoutReason: user.lockoutReason
+                    }
+                });
+            }
+
+            // Check password
+            const passwordCorrect = await bcrypt.compare(password, user.password);
+            if(!passwordCorrect) {
+                // Update lockout settings
+                const lockout = await updateLockout(user, currentUTC);
+                return response.status(lockout.statusCode).json(lockout);
+            }
+
+            // Resets lockout count    
+            if(user.accessFailedCount != 0) await user.update({ accessFailedCount: 0 });
+            
+            const authToken = jwt.sign({_id: user._id}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFESPAN })
+
+            return response.json({
+                statusCode: 200,
+                message: "Logged in successfully",
+                data: {
+                    name: user.name,
+                    email: user.email,
+                    'auth-token': authToken
+                }
+            });
+        }
+        catch (exc) {
+            return response.status(400).json({
+                statusCode: 400,
+                message: "Login unavailable",
+                error: exc
+            });
+        }
     },
 
     // Register method
     async create(request, response) {
-        return response.json({ status: "Salve" });
+        logger.info("Inbound request to /users/register");
+
+        const { name, email, password, birthDate, sex, phones, city, state } = request.body;
+
+        try {
+            const user = new User({ name, email, password, birthDate, sex, phones, city, state });
+            const role = await Role.findOne({ name: 'Student' });
+
+            user._id = uuidv4();
+            user.roles = [role._id];
+            await user.save();
+
+            return response.json({ 
+                statusCode: 200,
+                data: {
+                    _id: user._id
+                } 
+            });
+        }
+        catch(exc) {
+            return response.status(400).json({
+                statusCode: exc.code == 11000 ? 400 : 500,
+                errorCode: exc.code == 11000 ? errors.VALIDATION_ERROR : errors.UNKNOWN_ERROR,
+                message: "Could not register a new user",
+                error: exc
+            });
+        }
     },
 };
