@@ -59,6 +59,10 @@ const userSchema = new mongoose.Schema({
             required: true,
             default: true
         },
+        lockoutReason: {
+            type: String,
+            required: false
+        },
         lockoutUntil: {
             type: Date,
             default: Date.now

@@ -32,6 +32,8 @@ let manageStudentsId = mongoose.Types.ObjectId();
 let managePermissionsId = mongoose.Types.ObjectId();
 let adminId = mongoose.Types.ObjectId();
 
+const currentUTC = new Date(new Date().toUTCString());
+
 // Data array containing seed data - documents organized by Model
 let data = [
     {
@@ -66,6 +68,51 @@ let data = [
             ],
             "city": "Ceilândia",
             "state": "DF",
+            roles: [adminId]
+          },
+          {
+            '_id': '879a0055-715f-4230-ae25-a4e89fac7aa5',
+            "name": "Hugo Fonseca",
+            "email": "hugolockado@hotmail.com",
+            "password": "123456789",
+            "birthDate": "1998-06-15T00:00:00.000Z",
+            "sex": "Male",
+            "phones": [
+                { "type": "Mobile", "number": "+55(61)99110-1515" }
+            ],
+            "city": "Ceilândia",
+            "state": "DF",
+            "lockoutUntil": new Date(currentUTC.getFullYear() + 200, 1, 1),
+            roles: [adminId]
+          },
+          {
+            '_id': '9792a3ce-aa6c-4c8e-b9d6-69b988e16d60',
+            "name": "Hugo Fonseca",
+            "email": "hugoquaselockado@hotmail.com",
+            "password": "123456789",
+            "birthDate": "1998-06-15T00:00:00.000Z",
+            "sex": "Male",
+            "phones": [
+                { "type": "Mobile", "number": "+55(61)99110-1515" }
+            ],
+            "city": "Ceilândia",
+            "state": "DF",
+            "accessFailedCount": 9,
+            roles: [adminId]
+          },
+          {
+            '_id': '86094390-89e8-4fee-a238-33a42808c29d',
+            "name": "Hugo Fonseca",
+            "email": "hugomatchespassword@hotmail.com",
+            "password": "123456789",
+            "birthDate": "1998-06-15T00:00:00.000Z",
+            "sex": "Male",
+            "phones": [
+                { "type": "Mobile", "number": "+55(61)99110-1515" }
+            ],
+            "city": "Ceilândia",
+            "state": "DF",
+            "accessFailedCount": 9,
             roles: [adminId]
           }
       ]

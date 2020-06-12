@@ -1,5 +1,5 @@
-const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const errors = require('../config/errorsEnum');
 const User = require ('../models/User');
 
 module.exports = {
@@ -37,5 +37,38 @@ module.exports = {
                 return response.status(500).json(error);
             }
         }
+    },
+
+    async updateLockout(user, currentUTC) {
+        user.accessFailedCount += 1;
+                
+        if(user.accessFailedCount >= user.accessFailedLimit) {
+            let lockoutUntil = currentUTC;
+            lockoutUntil = lockoutUntil.setFullYear(lockoutUntil.getFullYear() + 200);
+
+            await user.update({
+                accessFailedCount: user.accessFailedCount,
+                lockoutUntil: lockoutUntil,
+                lockoutReason: 'ACCESS_FAILED'
+            });
+
+            return {
+                statusCode: 401,
+                errorCode: errors.ACCESS_FAILED_LIMIT_REACHED,
+                message: `Access Failed limit reached`,
+                error: {
+                    lockoutUntil: lockoutUntil,
+                    lockoutReason: 'ACCESS_FAILED'
+                }
+            };
+        }
+
+        await user.update({ accessFailedCount: user.accessFailedCount });
+        
+        return {
+            statusCode: 401,
+            errorCode: errors.WRONG_PASSWORD,
+            message: `Passwords do not match`
+        };
     }
 }

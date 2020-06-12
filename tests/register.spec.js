@@ -82,5 +82,65 @@ describe('Register', () => {
 
         expect(response.status).toBe(400);
         done();
+    }),
+
+    it('should return validation error', async (done) => {
+        const response = await request(app)
+            .post('/api/users/register')
+            .send({
+                name: "Hugo Fonseca",
+                email: "hugonfonseca@gmail.com",
+                password: "123456789",
+                birthDate: new Date(1998, 6, 15),
+                sex: "",
+                phones: [
+                    { type: "Mobile", number: "+55(61)99110-1515" }
+                ],
+                city: "Ceilândia",
+                state: "DF"
+            });
+
+        expect(response.status).toBe(400);
+        done();
+    }),
+
+    it('should return validation error', async (done) => {
+        const response = await request(app)
+            .post('/api/users/register')
+            .send({
+                name: "Hugo Fonseca",
+                email: "hugonfonseca@gmail.com",
+                password: "123456789",
+                birthDate: new Date(1998, 6, 15),
+                sex: "Male",
+                phones: [
+                    { type: "Mobile", number: "+55(61)99110-1515" }
+                ],
+                city: "Ceilândia",
+                state: "AR"
+            });
+
+        expect(response.status).toBe(400);
+        done();
+    }),
+
+    it('should return validation error', async (done) => {
+        const response = await request(app)
+            .post('/api/users/register')
+            .send({
+                name: "Hugo Fonseca",
+                email: "hugonfonseca@gmail.com",
+                password: "123456789",
+                birthDate: new Date(1998, 6, 15),
+                sex: "Male",
+                phones: [
+                    { type: "Mobiles", number: "+55(61)99110-1515" }
+                ],
+                city: "Ceilândia",
+                state: "DF"
+            });
+
+        expect(response.status).toBe(400);
+        done();
     })
 });
