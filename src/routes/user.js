@@ -14,5 +14,6 @@ const { registerValidation, loginValidation } = require('../validations/authVali
 
 router.post('/login', celebrate(loginValidation), UsersController.login);
 router.post('/register', celebrate(registerValidation), UsersController.create);
+router.post('/password/recover', UsersController.sendRecoverEmail);
 
 module.exports = router;

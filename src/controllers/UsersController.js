@@ -1,9 +1,10 @@
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
 
 const logger = require('../config/configLogging');
 const errors = require('../config/errorsEnum');
+
+const mailer = require('../services/mailjet');
 
 const User = require('../models/User');
 const Role = require('../models/Role');
@@ -112,4 +113,34 @@ module.exports = {
             });
         }
     },
+
+    async sendRecoverEmail(request, response) {
+        const { email } = request.body;
+
+        const user = User.find({ email: email });
+        if(!user) {
+            return response.status(409).json({
+                statusCode: 409,
+                errorCode: errors.USER_NOT_IN_DATABASE,
+                message: "User is not in database"
+            });
+        } 
+
+        mailer.sendSingleEmail(email, user.name, "Password Recovery E-mail", "Pega na minha kaceta")
+        .then((result) => {
+            console.log(result);
+            return response.json({
+                statusCode: 200,
+                message: `E-mail sent successfully to ${user.email}`
+            });
+        })
+        .catch((error) => {
+            console.log(error);
+            return response.status(503).json({
+                statusCode: 503,
+                errorCode: errors.MAILJET_UNAVAILABLE,
+                message: `Could not send e-mail to ${user.email}`
+            });
+        });
+    }
 };
