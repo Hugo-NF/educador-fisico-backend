@@ -1,15 +1,55 @@
 const jwt = require('jsonwebtoken');
 const errors = require('../config/errorsEnum');
 const User = require ('../models/User');
+const Role = require ('../models/Role');
+const Claim = require ('../models/Claim');
 
-module.exports = {
-    async authorize(claim) {
+class UsersHelper {
+    static async generateJWT(user) {
+        return jwt.sign({_id: user._id}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFESPAN })
+    }
+
+    static async hasClaim(user, claim) {
+        return false;
+    }
+
+    static async addRole(user, role) {
+        const roleObj = await Role.findOne({ name: role });
+        if(user.roles.length) {
+            user.roles.push(roleObj._id);
+        }
+        else {
+            user.roles = [roleObj._id];
+        }
+    }
+
+    static async addClaim(user, claim) {
+        const claimObj = await claim.findOne({ name: claim });
+        if(user.claims.length) {
+            user.claims.push(claimObj._id);
+        }
+        else {
+            user.claims = [claimObj._id];
+        }
+    }
+
+    static async removeRole(user, role) {
+        const roleObj = await Role.findOne({ name: role });
+        user.roles == user.roles.filter(e => e !== roleObj._id);
+    }
+
+    static async removeClaim(user, claim) {
+        const claimObj = await Claim.findOne({ name: claim });
+        user.claims == user.claims.filter(e => e !== claimObj._id);
+    }
+
+    static async authorize(claim) {
         return function(request, response, next) {
 
             const token = request.header('auth-token');
             if(!token) return response.status(401).json({
-                'status': 'error',
-                'error': "Unauthorized"
+                'statusCode': 401,
+                'errorCode': errors.MISSING_AUTH_TOKEN
             });
 
             try {
@@ -18,18 +58,35 @@ module.exports = {
                 if(verified._id != undefined) {
                     User.findById(verified._id)
                     .then((user) => {
-                        console.log(user);
-                        return next();
+                        UsersHelper.hasClaim(user, claim)
+                        .then((result) => {
+                            if(result) return next();
+
+                            return response.status(403).json({
+                                statusCode: 403,
+                                errorCode: errors.UNAUTHORIZED_ROUTE
+                            });
+                        })
+                        .catch((error) => {
+                            return response.status(500).json({
+                                statusCode: 500,
+                                errorCode: errors.UNKNOWN_ERROR,
+                                error: error
+                            });
+                        })
                     })
                     .catch((error) => {
-                        console.log(error);
-                        return response.status(500).json(error);
+                        return response.status(500).json({
+                            statusCode: 500,
+                            errorCode: errors.UNKNOWN_ERROR,
+                            error: error
+                        });
                     });
                 }
                 else {
                     return response.status(401).json({
-                        'status': 'error',
-                        'error': "Unauthorized"
+                        'statusCode': 401,
+                        'errorCode': errors.JWT_FORGED
                     });
                 }
             }
@@ -37,9 +94,9 @@ module.exports = {
                 return response.status(500).json(error);
             }
         }
-    },
+    }
 
-    async updateLockout(user, currentUTC) {
+    static async updateLockout(user, currentUTC) {
         user.accessFailedCount += 1;
                 
         if(user.accessFailedCount >= user.accessFailedLimit) {
@@ -72,3 +129,5 @@ module.exports = {
         };
     }
 }
+
+module.exports = UsersHelper;

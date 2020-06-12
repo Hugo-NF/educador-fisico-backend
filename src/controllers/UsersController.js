@@ -8,7 +8,7 @@ const errors = require('../config/errorsEnum');
 const User = require('../models/User');
 const Role = require('../models/Role');
 
-const { updateLockout } = require('../helpers/UsersHelper');
+const { generateJWT, updateLockout } = require('../helpers/UsersHelper');
 
 /**
  * Parameters:
@@ -61,8 +61,8 @@ module.exports = {
             // Resets lockout count    
             if(user.accessFailedCount != 0) await user.update({ accessFailedCount: 0 });
             
-            const authToken = jwt.sign({_id: user._id}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFESPAN })
-
+            const authToken = await generateJWT(user);
+            
             return response.json({
                 statusCode: 200,
                 message: "Logged in successfully",
