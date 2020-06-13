@@ -23,6 +23,9 @@ const userRoutes = require('./routes/user');
 
 const application = express();
 
+// Static resources setup
+application.use(express.static('public'));
+
 application.use(cors()); // Development only
 
 // Content-Type will be application/json, (this MUST come before application routes)
