@@ -1,5 +1,4 @@
 const jwt = require('jsonwebtoken');
-const mongoose = require('mongoose');
 
 const errors = require('../config/errorsEnum');
 
@@ -15,9 +14,13 @@ class UsersHelper {
     static async hasClaim(userId, claim) {
         const targetClaim = await Claim.findOne({name: claim });
         const targetUser = await User.findById(userId);
-        const userClaims = await UsersHelper.getClaims(targetUser);
-        
-        return userClaims.filter(elem => elem.equals(targetClaim._id)).length > 0;  
+
+        if(targetUser) {
+            const userClaims = await UsersHelper.getClaims(targetUser);
+            
+            return userClaims.filter(elem => elem.equals(targetClaim._id)).length > 0;  
+        }
+        return false;
     }
 
     static async getClaims(user) {
@@ -73,29 +76,24 @@ class UsersHelper {
             try {
                 const verified = jwt.verify(token, process.env.JWT_SECRET);
 
-                if(verified._id != undefined) {
-                    UsersHelper.hasClaim(verified._id, claim)
-                    .then((result) => {
-                        if(result) return next();
+                UsersHelper.hasClaim(verified._id, claim)
+                .then((result) => {
+                    if(result) return next();
 
-                        return response.status(403).json({
-                            'statusCode': 403,
-                            'errorCode': errors.UNAUTHORIZED_ROUTE
-                        });
-                    })
-                    .catch((error) => {
-                        return response.status(500).json(error);
+                    return response.status(403).json({
+                        'statusCode': 403,
+                        'errorCode': errors.UNAUTHORIZED_ROUTE
                     });
-                }
-                else {
-                    return response.status(401).json({
-                        'statusCode': 401,
-                        'errorCode': errors.JWT_FORGED
-                    });
-                }
+                })
+                .catch((error) => {
+                    return response.status(500).json(error);
+                });
             }
             catch (error) {
-                return response.status(500).json(error);
+                return response.status(401).json({
+                    'statusCode': 401,
+                    'errorCode': errors.JWT_FORGED
+                });
             }
         }
     }

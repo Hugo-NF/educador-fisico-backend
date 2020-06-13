@@ -17,6 +17,5 @@ const { registerValidation, loginValidation } = require('../validations/authVali
 router.post('/login', celebrate(loginValidation), UsersController.login);
 router.post('/register', celebrate(registerValidation), UsersController.create);
 
-router.get('/test', helpers.authorize("ManageExercises"), UsersController.routeTest);
 
 module.exports = router;

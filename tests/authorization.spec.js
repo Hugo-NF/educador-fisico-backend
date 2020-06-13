@@ -37,7 +37,26 @@ describe('Authorization', () => {
         expect(response.body.message).toBe("authorized");
 
         done();
-    })
+    }),
+
+    it('should reject - jwt missing', async (done) => {
+        const responseRoute1 = await request(app)
+            .get('/exercises')
+
+        expect(responseRoute1.status).toBe(401);
+        expect(responseRoute1.body.errorCode).toBe(errors.MISSING_AUTH_TOKEN);
+        done();
+    }),
+
+    it('should reject - jwt payload compromissed', async (done) => {
+        const responseRoute1 = await request(app)
+            .get('/exercises')
+            .set({"auth-token": 'yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI4NzE5ZDA4ZS03OGNlLTRjODAtYjkzNi03MWIyYTI1OGNiZDUiLCJpYXQiOjE1OTIwMTA4NzcsImV4cCI6MTU5NDYwMjg3N30.w5Ap6DoAIlmUolHgh5ZmsR8nNjRBOOXTtJiXBdqq1Gk'})
+
+        expect(responseRoute1.status).toBe(401);
+        expect(responseRoute1.body.errorCode).toBe(errors.JWT_FORGED);
+        done();
+    }),
 
     it('should reject 1 and authorize the remaining - claim based', async (done) => {
         const login = await request(app)
