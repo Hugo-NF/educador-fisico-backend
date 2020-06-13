@@ -12,11 +12,11 @@ const helpers = require('../helpers/UsersHelper');
 const UsersController = require('../controllers/UsersController');
 
 // Importing Validations
-const { registerValidation, loginValidation } = require('../validations/authValidations');
+const { loginValidation, registerValidation, recoverPasswordValidation } = require('../validations/authValidations');
 
 router.post('/login', celebrate(loginValidation), UsersController.login);
 router.post('/register', celebrate(registerValidation), UsersController.create);
-router.post('/password/recover', UsersController.sendRecoverEmail);
+router.post('/password/recover', celebrate(recoverPasswordValidation), UsersController.sendRecoverEmail);
 
 
 module.exports = router;

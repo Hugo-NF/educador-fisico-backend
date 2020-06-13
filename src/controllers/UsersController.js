@@ -5,6 +5,7 @@ const logger = require('../config/configLogging');
 const errors = require('../config/errorsEnum');
 
 const mailer = require('../services/mailjet');
+const emailTemplate = require('../../emails/linkAndText');
 
 const User = require('../models/User');
 const Role = require('../models/Role');
@@ -126,12 +127,25 @@ module.exports = {
             });
         } 
 
-        mailer.sendSingleEmail(email, user.name, "Password Recovery E-mail", "Pega na minha kaceta")
+        const content = await emailTemplate.render(
+            "https://mdbootstrap.com/img/logo/mdb-email.png",
+            "https://mdbootstrap.com/img/Mockups/Lightbox/Original/img (67).jpg",
+            "Password Recovery Process",
+            "Here is your password reset token",
+            "Password Recovery Process",
+            "Click on the button below to reset your password, or use this link in case the button doesn't work: link",
+            "Reset my password",
+            "google.com.br",
+            "This is an automatic e-mail, do NOT respond",
+            process.env.APP_NAME
+        );
+
+        mailer.sendEmails([{"Email": email, "Name": user.name}], "Password Recovery Process", content)
         .then((result) => {
             console.log(result);
             return response.json({
                 statusCode: 200,
-                message: `E-mail sent successfully to ${user.email}`
+                message: `E-mail sent successfully`
             });
         })
         .catch((error) => {
@@ -139,7 +153,7 @@ module.exports = {
             return response.status(503).json({
                 statusCode: 503,
                 errorCode: errors.MAILJET_UNAVAILABLE,
-                message: `Could not send e-mail to ${user.email}`
+                message: `Could not send e-mail`
             });
         });
     }

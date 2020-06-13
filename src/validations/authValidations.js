@@ -23,7 +23,14 @@ const loginValidation = {
     })
 };
 
+const recoverPasswordValidation = {
+    [Segments.BODY]: Joi.object().keys({
+        email: Joi.string().required().email()
+    })
+}
+
 module.exports = {
     registerValidation,
-    loginValidation
+    loginValidation,
+    recoverPasswordValidation
 }
