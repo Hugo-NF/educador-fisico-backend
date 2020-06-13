@@ -31,6 +31,7 @@ let manageTrainingId = mongoose.Types.ObjectId();
 let manageStudentsId = mongoose.Types.ObjectId();
 let managePermissionsId = mongoose.Types.ObjectId();
 let adminId = mongoose.Types.ObjectId();
+let teacherId = mongoose.Types.ObjectId();
 
 const currentUTC = new Date(new Date().toUTCString());
 
@@ -49,7 +50,7 @@ let data = [
         'model': 'Role',
         'documents': [
             {'_id': adminId, 'name': 'Administrator', claims: [managePermissionsId, manageStudentsId, manageTrainingId, manageExercisesId]},
-            {'name': 'Teacher', claims: [manageStudentsId, manageTrainingId, manageExercisesId]},
+            {'_id': teacherId, 'name': 'Teacher', claims: [manageStudentsId, manageTrainingId, manageExercisesId]},
             {'name': 'Student'}
         ]
     },
@@ -83,7 +84,7 @@ let data = [
             "city": "Ceilândia",
             "state": "DF",
             "lockoutUntil": new Date(currentUTC.getFullYear() + 200, 1, 1),
-            roles: [adminId]
+            claims: [manageStudentsId, manageTrainingId, manageExercisesId]
           },
           {
             '_id': '9792a3ce-aa6c-4c8e-b9d6-69b988e16d60',
@@ -98,7 +99,37 @@ let data = [
             "city": "Ceilândia",
             "state": "DF",
             "accessFailedCount": 9,
-            roles: [adminId]
+            roles: [teacherId],
+            claims: [managePermissionsId]
+          },
+          {
+            '_id': '1a76ec91-d544-4ba6-aa6f-75daaca59b42',
+            "name": "Hugo Fonseca",
+            "email": "hugomanual@hotmail.com",
+            "password": "123456789",
+            "birthDate": "1998-06-15T00:00:00.000Z",
+            "sex": "Male",
+            "phones": [
+                { "type": "Mobile", "number": "+55(61)99110-1515" }
+            ],
+            "city": "Ceilândia",
+            "state": "DF",
+            claims: [manageStudentsId, manageTrainingId, manageExercisesId]
+          },
+          {
+            '_id': '5bae7622-9d0e-47c1-b693-cafca194f8d5',
+            "name": "Hugo Fonseca",
+            "email": "hugomixado@hotmail.com",
+            "password": "123456789",
+            "birthDate": "1998-06-15T00:00:00.000Z",
+            "sex": "Male",
+            "phones": [
+                { "type": "Mobile", "number": "+55(61)99110-1515" }
+            ],
+            "city": "Ceilândia",
+            "state": "DF",
+            roles: [teacherId],
+            claims: [managePermissionsId]
           },
           {
             '_id': '86094390-89e8-4fee-a238-33a42808c29d',
