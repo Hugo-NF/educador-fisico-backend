@@ -105,7 +105,7 @@ module.exports = {
             });
         }
         catch(exc) {
-            return response.status(400).json({
+            return response.status(exc.code == 11000 ? 400 : 500).json({
                 statusCode: exc.code == 11000 ? 400 : 500,
                 errorCode: exc.code == 11000 ? errors.VALIDATION_ERROR : errors.UNKNOWN_ERROR,
                 message: "Could not register a new user",
