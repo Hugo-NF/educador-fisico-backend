@@ -112,4 +112,8 @@ module.exports = {
             });
         }
     },
+
+    async routeTest(request, response) {
+        return response.json({'Auth': 'Tá autorizado carai'});
+    }
 };

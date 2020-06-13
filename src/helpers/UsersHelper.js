@@ -1,5 +1,8 @@
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+
 const errors = require('../config/errorsEnum');
+
 const User = require ('../models/User');
 const Role = require ('../models/Role');
 const Claim = require ('../models/Claim');
@@ -9,8 +12,23 @@ class UsersHelper {
         return jwt.sign({_id: user._id}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFESPAN })
     }
 
-    static async hasClaim(user, claim) {
-        return false;
+    static async hasClaim(userId, claim) {
+        const targetClaim = await Claim.findOne({name: claim });
+        const targetUser = await User.findById(userId);
+        const userClaims = await UsersHelper.getClaims(targetUser);
+        
+        return userClaims.filter(elem => elem.equals(targetClaim._id)).length > 0;  
+    }
+
+    static async getClaims(user) {
+        let claims = user.claims;
+        const roles = await Role.find({ _id: user.roles });
+
+        roles.forEach(role => {
+            claims.push(...role.claims);
+        });
+
+        return claims;
     }
 
     static async addRole(user, role) {
@@ -43,7 +61,7 @@ class UsersHelper {
         user.claims == user.claims.filter(e => e !== claimObj._id);
     }
 
-    static async authorize(claim) {
+    static authorize(claim) {
         return function(request, response, next) {
 
             const token = request.header('auth-token');
@@ -56,31 +74,17 @@ class UsersHelper {
                 const verified = jwt.verify(token, process.env.JWT_SECRET);
 
                 if(verified._id != undefined) {
-                    User.findById(verified._id)
-                    .then((user) => {
-                        UsersHelper.hasClaim(user, claim)
-                        .then((result) => {
-                            if(result) return next();
+                    UsersHelper.hasClaim(verified._id, claim)
+                    .then((result) => {
+                        if(result) return next();
 
-                            return response.status(403).json({
-                                statusCode: 403,
-                                errorCode: errors.UNAUTHORIZED_ROUTE
-                            });
-                        })
-                        .catch((error) => {
-                            return response.status(500).json({
-                                statusCode: 500,
-                                errorCode: errors.UNKNOWN_ERROR,
-                                error: error
-                            });
-                        })
+                        return response.status(403).json({
+                            'statusCode': 403,
+                            'errorCode': errors.UNAUTHORIZED_ROUTE
+                        });
                     })
                     .catch((error) => {
-                        return response.status(500).json({
-                            statusCode: 500,
-                            errorCode: errors.UNKNOWN_ERROR,
-                            error: error
-                        });
+                        return response.status(500).json(error);
                     });
                 }
                 else {

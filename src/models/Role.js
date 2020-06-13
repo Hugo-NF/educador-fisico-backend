@@ -6,7 +6,8 @@ const roleSchema = new mongoose.Schema({
             required: true
         },
         claims: [{
-            type: mongoose.Schema.Types.ObjectId
+            type: mongoose.Schema.Types.ObjectId,
+            ref: 'Claim'
         }]
     },
     {
