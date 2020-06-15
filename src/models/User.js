@@ -89,9 +89,9 @@ const userSchema = new mongoose.Schema({
         twoFactorAuthTokenExpiration: {
             type: Date
         },
-        roles: [{type: mongoose.Schema.Types.ObjectId}],
-        claims: [{type: mongoose.Schema.Types.ObjectId}],
-        trainings: [{type: mongoose.Schema.Types.ObjectId}],
+        roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'Role'}],
+        claims: [{type: mongoose.Schema.Types.ObjectId, ref: 'Claim'}],
+        trainings: [{type: mongoose.Schema.Types.ObjectId, ref: 'Training'}],
         activeTraining: {
             type: Number,
             required: false
