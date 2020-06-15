@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const bcrypt = require('bcryptjs');
 
 // Defining User Schema
 const userSchema = new mongoose.Schema({
@@ -58,9 +59,13 @@ const userSchema = new mongoose.Schema({
             required: true,
             default: true
         },
+        lockoutReason: {
+            type: String,
+            required: false
+        },
         lockoutUntil: {
             type: Date,
-            default: Date.UTC
+            default: Date.now
         },
         accessFailedCount: {
             type: Number,
@@ -84,8 +89,13 @@ const userSchema = new mongoose.Schema({
         twoFactorAuthTokenExpiration: {
             type: Date
         },
-        roles: [{type: mongoose.Schema.Types.ObjectId}],
-        claims: [{type: mongoose.Schema.Types.ObjectId}]
+        roles: [{type: mongoose.Schema.Types.ObjectId, ref: 'Role'}],
+        claims: [{type: mongoose.Schema.Types.ObjectId, ref: 'Claim'}],
+        trainings: [{type: mongoose.Schema.Types.ObjectId, ref: 'Training'}],
+        activeTraining: {
+            type: Number,
+            required: false
+        }
     },
     {
         timestamps: true
@@ -93,24 +103,16 @@ const userSchema = new mongoose.Schema({
 );
 
 // Mongoose callback - Password Hashing
-userSchema.pre('save', function(next) {
+userSchema.pre('save', async function(next) {
     let user = this;
-    const SALT_FACTOR = 10;
-  
+
     // Password has not changed
     if (!user.isModified('password')) return next();
   
-
-    bcrypt.genSalt(SALT_FACTOR, function(err, salt) {
-      if (err) return next(err);
-  
-      bcrypt.hash(user.password, salt, null, function(err, hash) {
-        if (err) return next(err);
-        user.password = hash;
-        next();
-      });
-    });
-
+    const salt = await bcrypt.genSalt();
+    user.password = await bcrypt.hash(user.password, salt);
+      
+    next();
 });
 
 module.exports = mongoose.model('User', userSchema);
