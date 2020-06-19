@@ -24,6 +24,12 @@ const userSchema = new mongoose.Schema({
             required: true,
             default: false
         },
+        emailConfirmationToken: {
+            type: String,
+        },
+        emailConfirmationTokenExpiration: {
+            type: Date
+        },
         password: {
             type: String,
             required: true,

@@ -29,8 +29,22 @@ const recoverPasswordValidation = {
     })
 }
 
+const tokenForgeryCheckValidation = {
+    [Segments.PARAMS]: Joi.object().keys({
+        token: Joi.string().required()
+    })
+}
+
+const resetPasswordValidation = {
+    [Segments.BODY]: Joi.object().keys({
+        password: Joi.string().required().min(8)
+    })
+}
+
 module.exports = {
     registerValidation,
     loginValidation,
-    recoverPasswordValidation
+    recoverPasswordValidation,
+    tokenForgeryCheckValidation,
+    resetPasswordValidation
 }

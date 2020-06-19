@@ -1,3 +1,4 @@
+const UIDGenerator = require('uid-generator');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 
@@ -115,8 +116,10 @@ module.exports = {
         }
     },
 
+    // Send password reset e-mail
     async sendRecoverEmail(request, response) {
         const { email } = request.body;
+        const currentUTC = new Date(new Date().toUTCString());
 
         const user = User.find({ email: email });
         if(!user) {
@@ -125,21 +128,47 @@ module.exports = {
                 errorCode: errors.USER_NOT_IN_DATABASE,
                 message: "User is not in database"
             });
-        } 
+        }
+        else if(user.lockoutUntil > currentUTC && user.lockoutReason != 'ACCESS_FAILED' && user.lockoutReason != null) {
+            return response.status(401).json({
+                statusCode: 401,
+                errorCode: errors.ACCOUNT_LOCK_OUT,
+                message: "This account is locked"
+            });
+        }
 
+        // TODO: Replace e-mail info with real data as soon as available
+
+        // Generating password reset token
+        const uidgen = new UIDGenerator();
+        const token = await uidgen.generate();
+        
+        const tokenExpiration = parseInt(process.env.RESET_PASSWORD_EXPIRATION); // In minutes
+        currentUTC.setMinutes(currentUTC.getMinutes() + tokenExpiration);
+
+        const resetUrl = `${process.env.REACTAPP_HOST}/account/password_reset/${token}`;
+
+        // Updating user in database
+        await user.update({
+            resetPasswordToken: token,
+            resetPasswordTokenExpiration: currentUTC
+        });
+
+        // Generating e-mail
         const content = await emailTemplate.render(
             "https://mdbootstrap.com/img/logo/mdb-email.png",
             "https://mdbootstrap.com/img/Mockups/Lightbox/Original/img (67).jpg",
             "Password Recovery Process",
             "Here is your password reset token",
             "Password Recovery Process",
-            "Click on the button below to reset your password, or use this link in case the button doesn't work: link",
+            `Click on the button below to reset your password, or use this link in case the button doesn't work: ${resetUrl}`,
             "Reset my password",
-            "google.com.br",
+            resetUrl,
             "This is an automatic e-mail, do NOT respond",
             process.env.APP_NAME
         );
 
+        // Dispatch e-mail
         mailer.sendEmails([{"Email": email, "Name": user.name}], "Password Recovery Process", content)
         .then((result) => {
             console.log(result);
@@ -156,5 +185,123 @@ module.exports = {
                 message: `Could not send e-mail`
             });
         });
+    },
+
+    // Checks the validity of the token
+    async checkPasswordResetToken(request, response) {
+        const { token } = request.params;
+        const currentUTC = new Date(new Date().toUTCString());
+
+        const user = User.findOne({resetPasswordToken: token});
+        if(!user) {
+            return response.status(409).json({
+                statusCode: 409,
+                errorCode: errors.TOKEN_NOT_GENERATED,
+                message: "Requested token was not emitted or active"
+            });
+        }
+        else if(user.resetPasswordTokenExpiration > currentUTC) {
+            return response.status(403).json({
+                statusCode: 403,
+                errorCode: errors.TOKEN_NOT_GENERATED,
+                message: "Token is expired or already used"
+            });
+        }
+        else {
+            return response.json({
+                statusCode: 200,
+                message: "Token is active",
+                data: {
+                    user: {
+                        name: user.name,
+                        email: user.email
+                    }
+                }
+            });
+        }
+    },
+
+    async resetPassword(request, response) {
+        const { token } = request.params;
+        const { password } = request.body;
+
+        const currentUTC = new Date(new Date().toUTCString());
+
+        const user = User.findOne({resetPasswordToken: token});
+        if(!user) {
+            return response.status(409).json({
+                statusCode: 409,
+                errorCode: errors.TOKEN_NOT_GENERATED,
+                message: "Requested token was not emitted or active"
+            });
+        }
+        else if(user.resetPasswordTokenExpiration > currentUTC) {
+            return response.status(403).json({
+                statusCode: 403,
+                errorCode: errors.TOKEN_NOT_GENERATED,
+                message: "Token is expired or was already used"
+            });
+        }
+        else {
+            try {
+                await user.update({
+                    resetPasswordTokenExpiration: currentUTC,
+                    password: password
+                });
+
+                return response.json({
+                    statusCode: 200,
+                    message: "Password successfully reset"
+                });
+            }
+            catch(error) {
+                return response.status(500).json({
+                    statusCode: 500,
+                    errorCode: errors.UNKNOWN_ERROR,
+                    message: "An unknown error occured. Open server logs for depuration"
+                });
+            }
+        }
+    },
+
+    async activateAccount(request, response) {
+        const { token } = request.params;
+        const currentUTC = new Date(new Date().toUTCString());
+
+        const user = User.findOne({emailConfirmationToken: token});
+        if(!user) {
+            return response.status(409).json({
+                statusCode: 409,
+                errorCode: errors.TOKEN_NOT_GENERATED,
+                message: "Requested token was not emitted or active"
+            });
+        }
+        else if(user.emailConfirmationTokenExpiration > currentUTC) {
+            return response.status(403).json({
+                statusCode: 403,
+                errorCode: errors.TOKEN_NOT_GENERATED,
+                message: "Token is expired or already used"
+            });
+        }
+        else {
+            try {
+                await user.update({
+                    emailConfirmationTokenExpiration: currentUTC,
+                    emailConfirmed: true
+                });
+
+                return response.json({
+                    statusCode: 200,
+                    message: "Password successfully reset"
+                });
+            }
+            catch(error) {
+                return response.status(500).json({
+                    statusCode: 500,
+                    errorCode: errors.UNKNOWN_ERROR,
+                    message: "An unknown error occured. Open server logs for depuration"
+                });
+            }
+        }
     }
 };
