@@ -6,20 +6,21 @@ const errors = require('../config/errorsEnum');
 const Volume = require('../models/Volume');
 
 module.exports = {
+    // Register method
     async create(request, response) {
         logger.info("Inbound request to /volume/register");
 
-        const { repetition, charge, exercise } = request.body;
+        const { repetition, charge, exercise, observation } = request.body;
 
         try {
-            const volume = new Volume({ repetition, charge, exercise });
+            const volume = new Volume({ repetition, charge, exercise, observation });
 
             await volume.save();
 
             return response.json({ 
                 statusCode: 200,
                 data: {
-                    _id: volume._id
+                    volume: volume
                 } 
             });
         }
@@ -32,6 +33,8 @@ module.exports = {
             });
         }
     },
+
+    // Index method
     async index(request, response) {
         logger.info("Inbound request to /volume/index");
 
@@ -53,6 +56,8 @@ module.exports = {
             });
         }
     },
+
+    // Show method
     async show(request, response) {
         logger.info("Inbound request to /volume/show");
 
@@ -60,13 +65,14 @@ module.exports = {
 
         try {
             const volume = await Volume.findById( id );
-
+            
             return response.json({ 
                 statusCode: 200,
                 data: {
                     volume: volume
-                } 
+                }
             });
+            
         } catch(exc) {
             return response.status(exc.code == 11000 ? 400 : 500).json({
                 statusCode: exc.code == 11000 ? 400 : 500,
@@ -76,10 +82,12 @@ module.exports = {
             });
         }
     },
+
+    // Edit method
     async edit(request, response) {
         logger.info("Inbound request to /volume/edit");
 
-        const { id, repetition, charge, exercise } = request.body;
+        const { id, repetition, charge, exercise, observation } = request.body;
 
         try {
             const volume = await Volume.findById( id );
@@ -87,6 +95,7 @@ module.exports = {
             volume.repetition = repetition;
             volume.charge = charge;
             volume.exercise = exercise;
+            volume.observation = observation;
 
             volume.save();
 
@@ -100,11 +109,13 @@ module.exports = {
             return response.status(exc.code == 11000 ? 400 : 500).json({
                 statusCode: exc.code == 11000 ? 400 : 500,
                 errorCode: exc.code == 11000 ? errors.VALIDATION_ERROR : errors.UNKNOWN_ERROR,
-                message: "Could not edit edit this volume",
+                message: "Could not edit this volume",
                 error: exc
             });
         }
     },
+
+    // Delete method
     async delete(request, response) {
         logger.info("Inbound request to /volume/delete");
 

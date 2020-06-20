@@ -16,7 +16,8 @@ const volumeSchema = new mongoose.Schema({
         },
         exercise: {
             type: mongoose.Schema.Types.ObjectId,
-            ref: 'Exercise'
+            ref: 'Exercise',
+            required: true
         }
     },
     {
