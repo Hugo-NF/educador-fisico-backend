@@ -11,11 +11,13 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
   seeder.loadModels([
     './src/models/Role',
     './src/models/Claim',
-    './src/models/User'
+    './src/models/User',
+    './src/models/Exercise',
+    './src/models/Volume'
   ]);
  
   // Clear specified collections
-  seeder.clearModels(['Role', 'Claim', 'User'], function() {
+  seeder.clearModels(['Role', 'Claim', 'User', 'Exercise', 'Volume'], function() {
  
     // Callback to populate DB once collections have been cleared
     seeder.populateModels(data, function() {
@@ -146,6 +148,19 @@ let data = [
             "accessFailedCount": 9,
             roles: [adminId]
           }
+      ]
+    },
+    {
+      'model': 'Exercise',
+      'documents': [
+          { '_id': "5eed3320725afd09805b72c6", 'name': 'Elevação Lateral', 'video': 'youtube.com/elevacao-lateral' },
+          { '_id': "5eed3be55d28c2255016b868", 'name': 'Elevação Frontal', 'video': 'youtube.com/elevacao-frontal' }
+      ]
+    },
+    {
+      'model': 'Volume',
+      'documents': [
+          { '_id': "5eed3357725afd09805b72c7", 'repetition': 10, 'charge': 5, exercise: "5eed3320725afd09805b72c6" }
       ]
     }
 ];
