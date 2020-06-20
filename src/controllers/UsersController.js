@@ -72,6 +72,7 @@ module.exports = {
                 data: {
                     name: user.name,
                     email: user.email,
+                    active: user.emailConfirmed,
                     'auth-token': authToken
                 }
             });
@@ -121,7 +122,7 @@ module.exports = {
         const { email } = request.body;
         const currentUTC = new Date(new Date().toUTCString());
 
-        const user = User.find({ email: email });
+        const user = User.findOne({ email: email });
         if(!user) {
             return response.status(409).json({
                 statusCode: 409,
@@ -262,6 +263,76 @@ module.exports = {
                 });
             }
         }
+    },
+
+    async sendAccountActivationEmail(request, response) {
+        const { email } = request.body;
+        const currentUTC = new Date(new Date().toUTCString());
+
+        const user = User.findOne({ email: email });
+        if(!user) {
+            return response.status(409).json({
+                statusCode: 409,
+                errorCode: errors.USER_NOT_IN_DATABASE,
+                message: "User is not in database"
+            });
+        }
+        else if(user.lockoutUntil > currentUTC && user.lockoutReason != null) {
+            return response.status(401).json({
+                statusCode: 401,
+                errorCode: errors.ACCOUNT_LOCK_OUT,
+                message: "This account is locked"
+            });
+        }
+
+        // TODO: Replace e-mail info with real data as soon as available
+
+        // Generating password reset token
+        const uidgen = new UIDGenerator();
+        const token = await uidgen.generate();
+        
+        const tokenExpiration = parseInt(process.env.ACCOUNT_ACTIVATION_EXPIRATION); // In minutes
+        currentUTC.setMinutes(currentUTC.getMinutes() + tokenExpiration);
+
+        const activationUrl = `${process.env.REACTAPP_HOST}/account/activation/${token}`;
+
+        // Updating user in database
+        await user.update({
+            emailConfirmationToken: token,
+            emailConfirmationTokenExpiration: currentUTC
+        });
+
+        // Generating e-mail
+        const content = await emailTemplate.render(
+            "https://mdbootstrap.com/img/logo/mdb-email.png",
+            "https://mdbootstrap.com/img/Mockups/Lightbox/Original/img (67).jpg",
+            "Confirm Your Account",
+            "Thank you for subscribing on our platform",
+            "Confirm your account",
+            `Click on the button below to activate your account, or use this link in case the button doesn't work: ${activationUrl}`,
+            "Reset my password",
+            activationUrl,
+            "This is an automatic e-mail, do NOT respond",
+            process.env.APP_NAME
+        );
+
+        // Dispatch e-mail
+        mailer.sendEmails([{"Email": email, "Name": user.name}], "Confirm Your Account", content)
+        .then((result) => {
+            console.log(result);
+            return response.json({
+                statusCode: 200,
+                message: `E-mail sent successfully`
+            });
+        })
+        .catch((error) => {
+            console.log(error);
+            return response.status(503).json({
+                statusCode: 503,
+                errorCode: errors.MAILJET_UNAVAILABLE,
+                message: `Could not send e-mail`
+            });
+        });
     },
 
     async activateAccount(request, response) {
