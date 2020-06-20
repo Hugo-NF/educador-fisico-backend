@@ -23,7 +23,7 @@ const { generateJWT, updateLockout } = require('../helpers/UsersHelper');
 
 module.exports = {
 
-    // Login method 
+    // Login method
     async login(request, response) {
         logger.info("Inbound request to /users/login");
         const currentUTC = new Date(new Date().toUTCString());
@@ -34,6 +34,8 @@ module.exports = {
             // Find user
             const user = await User.findOne({ email: email });
             if(!user) {
+                logger.warn(`An unregistered e-mail (${email}) tried to log in`);
+
                 return response.status(409).json({
                     statusCode: 409,
                     errorCode: errors.USER_NOT_IN_DATABASE,
@@ -43,6 +45,8 @@ module.exports = {
 
             // Check lockout
             if(user.lockoutUntil > currentUTC) {
+                logger.warn(`A blocked/banned user (${email}) tried to log in`);
+
                 return response.status(401).json({
                     statusCode: 401,
                     errorCode: errors.ACCOUNT_LOCK_OUT,
@@ -56,6 +60,8 @@ module.exports = {
             // Check password
             const passwordCorrect = await bcrypt.compare(password, user.password);
             if(!passwordCorrect) {
+                logger.warn(`User (${email}) typed wrong password. Updating lockout settings`);
+
                 // Update lockout settings
                 const lockout = await updateLockout(user, currentUTC);
                 return response.status(lockout.statusCode).json(lockout);
@@ -66,6 +72,7 @@ module.exports = {
             
             const authToken = await generateJWT(user);
             
+            logger.info(`User ${email} logged in successfully`);
             return response.json({
                 statusCode: 200,
                 message: "Logged in successfully",
@@ -100,6 +107,7 @@ module.exports = {
             user.roles = [role._id];
             await user.save();
 
+            logger.info(`A new user with e-mail (${email}) was registered`);
             return response.json({ 
                 statusCode: 200,
                 data: {
@@ -108,9 +116,21 @@ module.exports = {
             });
         }
         catch(exc) {
-            return response.status(exc.code == 11000 ? 400 : 500).json({
-                statusCode: exc.code == 11000 ? 400 : 500,
-                errorCode: exc.code == 11000 ? errors.VALIDATION_ERROR : errors.UNKNOWN_ERROR,
+            if(exc.hasOwnProperty('driver')){
+                logger.warn(`Someone tried to register the e-mail (${email}) again`);
+
+                return response.status(400).json({
+                    statusCode: 400,
+                    errorCode: errors.DATABASE_CONFLICT,
+                    message: "User info uniqueness conflict",
+                    error: exc
+                });
+            }
+            
+            logger.error(`An unforeseen exception occurred: Details: ${exc}`);
+            return response.status(500).json({
+                statusCode: 500,
+                errorCode: errors.UNKNOWN_ERROR,
                 message: "Could not register a new user",
                 error: exc
             });
@@ -119,11 +139,13 @@ module.exports = {
 
     // Send password reset e-mail
     async sendRecoverEmail(request, response) {
-        const { email } = request.body;
+        logger.info("Inbound request to /users/password/recover");
+        const { email, sandboxMode = false } = request.body;
         const currentUTC = new Date(new Date().toUTCString());
 
         const user = User.findOne({ email: email });
         if(!user) {
+            logger.warn(`An unregistered e-mail (${email}) tried to get password reset token`);
             return response.status(409).json({
                 statusCode: 409,
                 errorCode: errors.USER_NOT_IN_DATABASE,
@@ -131,6 +153,8 @@ module.exports = {
             });
         }
         else if(user.lockoutUntil > currentUTC && user.lockoutReason != 'ACCESS_FAILED' && user.lockoutReason != null) {
+            logger.warn(`A blocked/banned user (${email}) tried to get password reset token`);
+
             return response.status(401).json({
                 statusCode: 401,
                 errorCode: errors.ACCOUNT_LOCK_OUT,
@@ -154,6 +178,7 @@ module.exports = {
             resetPasswordToken: token,
             resetPasswordTokenExpiration: currentUTC
         });
+        logger.info(`Password reset token generated to account (${email})`);
 
         // Generating e-mail
         const content = await emailTemplate.render(
@@ -170,16 +195,18 @@ module.exports = {
         );
 
         // Dispatch e-mail
-        mailer.sendEmails([{"Email": email, "Name": user.name}], "Password Recovery Process", content)
+        mailer.sendEmails([{"Email": email, "Name": user.name}], "Password Recovery Process", content, sandboxMode)
         .then((result) => {
-            console.log(result);
+            logger.info(`E-mail with password reset token sent successfully to account (${email})`);
+
             return response.json({
                 statusCode: 200,
                 message: `E-mail sent successfully`
             });
         })
         .catch((error) => {
-            console.log(error);
+            logger.error(`E-mail with password reset token failed to send to (${email})`);
+
             return response.status(503).json({
                 statusCode: 503,
                 errorCode: errors.MAILJET_UNAVAILABLE,
@@ -190,11 +217,15 @@ module.exports = {
 
     // Checks the validity of the token
     async checkPasswordResetToken(request, response) {
+        logger.info("Inbound request to GET /users/password/reset/:token");
+
         const { token } = request.params;
         const currentUTC = new Date(new Date().toUTCString());
 
         const user = User.findOne({resetPasswordToken: token});
         if(!user) {
+            logger.warn(`Validation checked for unrecognized token: ${token}`);
+
             return response.status(409).json({
                 statusCode: 409,
                 errorCode: errors.TOKEN_NOT_GENERATED,
@@ -202,6 +233,8 @@ module.exports = {
             });
         }
         else if(user.resetPasswordTokenExpiration > currentUTC) {
+            logger.warn(`User (${user.email}) tried to use invalid password reset token`);
+
             return response.status(403).json({
                 statusCode: 403,
                 errorCode: errors.TOKEN_NOT_GENERATED,
@@ -209,6 +242,8 @@ module.exports = {
             });
         }
         else {
+            logger.info(`User (${user.email}) checked a valid password reset token`);
+
             return response.json({
                 statusCode: 200,
                 message: "Token is active",
@@ -223,6 +258,8 @@ module.exports = {
     },
 
     async resetPassword(request, response) {
+        logger.info("Inbound request to POST /users/password/reset/:token");
+
         const { token } = request.params;
         const { password } = request.body;
 
@@ -230,6 +267,8 @@ module.exports = {
 
         const user = User.findOne({resetPasswordToken: token});
         if(!user) {
+            logger.warn(`Validation checked for unrecognized token: ${token}`);
+
             return response.status(409).json({
                 statusCode: 409,
                 errorCode: errors.TOKEN_NOT_GENERATED,
@@ -237,6 +276,8 @@ module.exports = {
             });
         }
         else if(user.resetPasswordTokenExpiration > currentUTC) {
+            logger.warn(`User (${user.email}) tried to use invalid password reset token`);
+
             return response.status(403).json({
                 statusCode: 403,
                 errorCode: errors.TOKEN_NOT_GENERATED,
@@ -249,13 +290,16 @@ module.exports = {
                     resetPasswordTokenExpiration: currentUTC,
                     password: password
                 });
-
+                
+                
+                logger.info(`User (${user.email}) updated password successfully`);
                 return response.json({
                     statusCode: 200,
                     message: "Password successfully reset"
                 });
             }
             catch(error) {
+                logger.error(`An unforeseen exception occurred while ${user.email} was trying to reset password. Details: ${error}`);
                 return response.status(500).json({
                     statusCode: 500,
                     errorCode: errors.UNKNOWN_ERROR,
@@ -266,11 +310,15 @@ module.exports = {
     },
 
     async sendAccountActivationEmail(request, response) {
-        const { email } = request.body;
+        logger.info("Inbound request to POST /users/activate/:token");
+
+        const { email, sandboxMode = false } = request.body;
         const currentUTC = new Date(new Date().toUTCString());
 
         const user = User.findOne({ email: email });
         if(!user) {
+            logger.warn(`An unregistered e-mail (${email}) tried to activate account`);
+
             return response.status(409).json({
                 statusCode: 409,
                 errorCode: errors.USER_NOT_IN_DATABASE,
@@ -278,6 +326,8 @@ module.exports = {
             });
         }
         else if(user.lockoutUntil > currentUTC && user.lockoutReason != null) {
+            logger.warn(`A banned/blocked user (${email}) tried to activate account`);
+
             return response.status(401).json({
                 statusCode: 401,
                 errorCode: errors.ACCOUNT_LOCK_OUT,
@@ -317,7 +367,7 @@ module.exports = {
         );
 
         // Dispatch e-mail
-        mailer.sendEmails([{"Email": email, "Name": user.name}], "Confirm Your Account", content)
+        mailer.sendEmails([{"Email": email, "Name": user.name}], "Confirm Your Account", content, sandboxMode)
         .then((result) => {
             console.log(result);
             return response.json({
@@ -336,11 +386,15 @@ module.exports = {
     },
 
     async activateAccount(request, response) {
+        logger.info("Inbound request to /users/activate");
+
         const { token } = request.params;
         const currentUTC = new Date(new Date().toUTCString());
 
         const user = User.findOne({emailConfirmationToken: token});
         if(!user) {
+            logger.warn(`Validation checked for unrecognized token: ${token}`);
+
             return response.status(409).json({
                 statusCode: 409,
                 errorCode: errors.TOKEN_NOT_GENERATED,
@@ -348,6 +402,8 @@ module.exports = {
             });
         }
         else if(user.emailConfirmationTokenExpiration > currentUTC) {
+            logger.warn(`User (${user.email}) tried to use invalid account activation token`);
+
             return response.status(403).json({
                 statusCode: 403,
                 errorCode: errors.TOKEN_NOT_GENERATED,
@@ -360,13 +416,16 @@ module.exports = {
                     emailConfirmationTokenExpiration: currentUTC,
                     emailConfirmed: true
                 });
-
+                
+                logger.info(`User (${user.email}) activated account successfully`);
                 return response.json({
                     statusCode: 200,
                     message: "Password successfully reset"
                 });
             }
             catch(error) {
+                logger.error(`An unforeseen exception occurred while ${user.email} was trying to activate account. Details: ${error}`);
+
                 return response.status(500).json({
                     statusCode: 500,
                     errorCode: errors.UNKNOWN_ERROR,

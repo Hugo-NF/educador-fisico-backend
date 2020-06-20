@@ -23,7 +23,7 @@ const loginValidation = {
     })
 };
 
-const recoverPasswordValidation = {
+const emailRequestValidation = {
     [Segments.BODY]: Joi.object().keys({
         email: Joi.string().required().email()
     })
@@ -31,7 +31,8 @@ const recoverPasswordValidation = {
 
 const tokenForgeryCheckValidation = {
     [Segments.PARAMS]: Joi.object().keys({
-        token: Joi.string().required()
+        token: Joi.string().required(),
+        sandboxMode: Joi.boolean()
     })
 }
 
@@ -44,7 +45,7 @@ const resetPasswordValidation = {
 module.exports = {
     registerValidation,
     loginValidation,
-    recoverPasswordValidation,
+    emailRequestValidation,
     tokenForgeryCheckValidation,
     resetPasswordValidation
 }

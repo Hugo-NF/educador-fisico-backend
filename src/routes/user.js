@@ -15,7 +15,7 @@ const UsersController = require('../controllers/UsersController');
 const { 
     loginValidation,
     registerValidation, 
-    recoverPasswordValidation,
+    emailRequestValidation,
     tokenForgeryCheckValidation,
     resetPasswordValidation
 } = require('../validations/authValidations');
@@ -27,7 +27,7 @@ router.post('/login', celebrate(loginValidation), UsersController.login);
 router.post('/register', celebrate(registerValidation), UsersController.create);
 
 // Send password recovery e-mail
-router.post('/password/recover', celebrate(recoverPasswordValidation), UsersController.sendRecoverEmail);
+router.post('/password/recover', celebrate(emailRequestValidation), UsersController.sendRecoverEmail);
 
 // Checks reset password token
 router.get('/password/reset/:token', celebrate(tokenForgeryCheckValidation), UsersController.checkPasswordResetToken);
@@ -35,7 +35,10 @@ router.get('/password/reset/:token', celebrate(tokenForgeryCheckValidation), Use
 // Reset user password
 router.post('/password/reset/:token', celebrate(tokenForgeryCheckValidation), celebrate(resetPasswordValidation), UsersController.resetPassword);
 
-// Active account
+// Send account activation e-mail
+router.post('/activate', celebrate(emailRequestValidation), UsersController.sendAccountActivationEmail);
+
+// Activate account
 router.get('/activate/:token', celebrate(tokenForgeryCheckValidation), UsersController.activateAccount);
 
 
