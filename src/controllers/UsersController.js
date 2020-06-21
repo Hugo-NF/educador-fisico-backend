@@ -303,19 +303,19 @@ module.exports = {
                     "Recently, the password for your account was successfully reset. If it was you, just ignore this e-mail",
                     "Your password was successfully reset",
                     `Recently, the password for your account was successfully reset. If it was you, just ignore this e-mail. In case it was NOT, click on the button below or use this link: ${challengeUrl}`,
-                    "I PROMISE THAT I WILL NOT USE WEAK PASSWORDS EVER MORE",
+                    "I WILL NOT USE WEAK PASSWORDS EVER MORE",
                     challengeUrl,
                     "This is an automatic e-mail, do NOT respond",
                     process.env.APP_NAME
                 );
 
                 // Dispatch e-mail
-                mailer.sendEmails([{"Email": email, "Name": user.name}], "Your password was successfully reset", content, sandboxMode)
+                mailer.sendEmails([{"Email": user.email, "Name": user.name}], "Your password was successfully reset", content, sandboxMode)
                 .then((result) => {
-                    logger.info(`E-mail notifying password reset sent successfully to account (${email})`);
+                    logger.info(`E-mail notifying password reset sent successfully to account (${user.email})`);
                 })
                 .catch((error) => {
-                    logger.error(`E-mail notifying password reset failed to send to (${email}). Details: ${error}`);
+                    logger.error(`E-mail notifying password reset failed to send to (${user.email}). Details: ${error}`);
                 });
                 
                 logger.info(`User (${user.email}) updated password successfully`);
@@ -420,7 +420,9 @@ module.exports = {
     async activateAccount(request, response) {
         logger.info("Inbound request to /users/activate");
 
-        const { token, sandboxMode = false } = request.params;
+        const { token } = request.params;
+        const { sandboxMode = false } = request.query;
+
         const currentUTC = new Date(new Date().toUTCString());
         
         const user = await User.findOne({emailConfirmationToken: token});
@@ -467,12 +469,12 @@ module.exports = {
                 );
 
                 // Dispatch e-mail
-                mailer.sendEmails([{"Email": email, "Name": user.name}], `Welcome to ${process.env.APP_NAME}, your workout companion`, content, sandboxMode)
+                mailer.sendEmails([{"Email": user.email, "Name": user.name}], `Welcome to ${process.env.APP_NAME}, your workout companion`, content, sandboxMode)
                 .then((result) => {
-                    logger.info(`Welcome e-mail sent successfully to account (${email})`);
+                    logger.info(`Welcome e-mail sent successfully to account (${user.email})`);
                 })
                 .catch((error) => {
-                    logger.error(`Welcome e-mail failed to send to (${email}). Details: ${error}`);
+                    logger.error(`Welcome e-mail failed to send to (${user.email}). Details: ${error}`);
                 });
                 
                 logger.info(`User (${user.email}) activated account successfully`);
