@@ -68,7 +68,7 @@ module.exports = {
             }
 
             // Resets lockout count    
-            if(user.accessFailedCount != 0) await user.update({ accessFailedCount: 0 });
+            if(user.accessFailedCount != 0) await user.updateOne({ accessFailedCount: 0 });
             
             const authToken = await generateJWT(user);
             
@@ -143,7 +143,7 @@ module.exports = {
         const { email, sandboxMode = false } = request.body;
         const currentUTC = new Date(new Date().toUTCString());
 
-        const user = User.findOne({ email: email });
+        const user = await User.findOne({ email: email });
         if(!user) {
             logger.warn(`An unregistered e-mail (${email}) tried to get password reset token`);
             return response.status(409).json({
@@ -174,7 +174,7 @@ module.exports = {
         const resetUrl = `${process.env.REACTAPP_HOST}/account/password_reset/${token}`;
 
         // Updating user in database
-        await user.update({
+        await user.updateOne({
             resetPasswordToken: token,
             resetPasswordTokenExpiration: currentUTC
         });
@@ -222,7 +222,7 @@ module.exports = {
         const { token } = request.params;
         const currentUTC = new Date(new Date().toUTCString());
 
-        const user = User.findOne({resetPasswordToken: token});
+        const user = await User.findOne({resetPasswordToken: token});
         if(!user) {
             logger.warn(`Validation checked for unrecognized token: ${token}`);
 
@@ -232,12 +232,12 @@ module.exports = {
                 message: "Requested token was not emitted or active"
             });
         }
-        else if(user.resetPasswordTokenExpiration > currentUTC) {
+        else if(user.resetPasswordTokenExpiration < currentUTC) {
             logger.warn(`User (${user.email}) tried to use invalid password reset token`);
 
             return response.status(403).json({
                 statusCode: 403,
-                errorCode: errors.TOKEN_NOT_GENERATED,
+                errorCode: errors.TOKEN_EXPIRED,
                 message: "Token is expired or already used"
             });
         }
@@ -257,15 +257,16 @@ module.exports = {
         }
     },
 
+    // Reset user password given valid token
     async resetPassword(request, response) {
         logger.info("Inbound request to POST /users/password/reset/:token");
 
         const { token } = request.params;
-        const { password } = request.body;
+        const { password, sandboxMode = false } = request.body;
 
         const currentUTC = new Date(new Date().toUTCString());
 
-        const user = User.findOne({resetPasswordToken: token});
+        const user = await User.findOne({resetPasswordToken: token});
         if(!user) {
             logger.warn(`Validation checked for unrecognized token: ${token}`);
 
@@ -275,7 +276,7 @@ module.exports = {
                 message: "Requested token was not emitted or active"
             });
         }
-        else if(user.resetPasswordTokenExpiration > currentUTC) {
+        else if(user.resetPasswordTokenExpiration < currentUTC) {
             logger.warn(`User (${user.email}) tried to use invalid password reset token`);
 
             return response.status(403).json({
@@ -286,11 +287,36 @@ module.exports = {
         }
         else {
             try {
-                await user.update({
+                await user.updateOne({
                     resetPasswordTokenExpiration: currentUTC,
                     password: password
                 });
                 
+                // TODO: Replace e-mail info with real data as soon as available
+                // Generating e-mail
+                const challengeUrl = `${process.env.REACTAPP_HOST}/account/password_reset/challenge/${token}`;
+
+                const content = await emailTemplate.render(
+                    "https://mdbootstrap.com/img/logo/mdb-email.png",
+                    null,
+                    "Your password was successfully reset",
+                    "Recently, the password for your account was successfully reset. If it was you, just ignore this e-mail",
+                    "Your password was successfully reset",
+                    `Recently, the password for your account was successfully reset. If it was you, just ignore this e-mail. In case it was NOT, click on the button below or use this link: ${challengeUrl}`,
+                    "I PROMISE THAT I WILL NOT USE WEAK PASSWORDS EVER MORE",
+                    challengeUrl,
+                    "This is an automatic e-mail, do NOT respond",
+                    process.env.APP_NAME
+                );
+
+                // Dispatch e-mail
+                mailer.sendEmails([{"Email": email, "Name": user.name}], "Your password was successfully reset", content, sandboxMode)
+                .then((result) => {
+                    logger.info(`E-mail notifying password reset sent successfully to account (${email})`);
+                })
+                .catch((error) => {
+                    logger.error(`E-mail notifying password reset failed to send to (${email}). Details: ${error}`);
+                });
                 
                 logger.info(`User (${user.email}) updated password successfully`);
                 return response.json({
@@ -309,13 +335,14 @@ module.exports = {
         }
     },
 
+    // Send account activation e-mail
     async sendAccountActivationEmail(request, response) {
         logger.info("Inbound request to POST /users/activate/:token");
 
         const { email, sandboxMode = false } = request.body;
         const currentUTC = new Date(new Date().toUTCString());
 
-        const user = User.findOne({ email: email });
+        const user = await User.findOne({ email: email });
         if(!user) {
             logger.warn(`An unregistered e-mail (${email}) tried to activate account`);
 
@@ -347,10 +374,11 @@ module.exports = {
         const activationUrl = `${process.env.REACTAPP_HOST}/account/activation/${token}`;
 
         // Updating user in database
-        await user.update({
+        await user.updateOne({
             emailConfirmationToken: token,
             emailConfirmationTokenExpiration: currentUTC
         });
+        logger.info(`Account confirmation token generated to account (${email})`);
 
         // Generating e-mail
         const content = await emailTemplate.render(
@@ -369,14 +397,17 @@ module.exports = {
         // Dispatch e-mail
         mailer.sendEmails([{"Email": email, "Name": user.name}], "Confirm Your Account", content, sandboxMode)
         .then((result) => {
-            console.log(result);
+            logger.info(`E-mail with account activation token sent successfully to account (${email})`);
+            
+
             return response.json({
                 statusCode: 200,
                 message: `E-mail sent successfully`
             });
         })
         .catch((error) => {
-            console.log(error);
+            logger.error(`E-mail with account activation token failed to send to (${email}). Details: ${error}`);
+
             return response.status(503).json({
                 statusCode: 503,
                 errorCode: errors.MAILJET_UNAVAILABLE,
@@ -385,13 +416,14 @@ module.exports = {
         });
     },
 
+    // Activate account given valid token
     async activateAccount(request, response) {
         logger.info("Inbound request to /users/activate");
 
-        const { token } = request.params;
+        const { token, sandboxMode = false } = request.params;
         const currentUTC = new Date(new Date().toUTCString());
-
-        const user = User.findOne({emailConfirmationToken: token});
+        
+        const user = await User.findOne({emailConfirmationToken: token});
         if(!user) {
             logger.warn(`Validation checked for unrecognized token: ${token}`);
 
@@ -401,26 +433,52 @@ module.exports = {
                 message: "Requested token was not emitted or active"
             });
         }
-        else if(user.emailConfirmationTokenExpiration > currentUTC) {
+        else if(user.emailConfirmationTokenExpiration < currentUTC) {
             logger.warn(`User (${user.email}) tried to use invalid account activation token`);
 
             return response.status(403).json({
                 statusCode: 403,
-                errorCode: errors.TOKEN_NOT_GENERATED,
+                errorCode: errors.TOKEN_EXPIRED,
                 message: "Token is expired or already used"
             });
         }
         else {
             try {
-                await user.update({
+                await user.updateOne({
                     emailConfirmationTokenExpiration: currentUTC,
                     emailConfirmed: true
+                });
+
+                // TODO: Replace e-mail info with real data as soon as available
+                // Generating e-mail
+                const welcomeUrl = `${process.env.REACTAPP_HOST}/auth/login`;
+
+                const content = await emailTemplate.render(
+                    "https://mdbootstrap.com/img/logo/mdb-email.png",
+                    null,
+                    `Welcome to ${process.env.APP_NAME}, your workout companion`,
+                    "Congrats! You're now part of a fantastic project among with a bunch of fantastic people, all of them hunting a healthier life",
+                    `Welcome to ${process.env.APP_NAME}, your workout companion`,
+                    `Congrats! You're now part of a fantastic project among with a bunch of fantastic people, all of them hunting a healthier life. Let's start exploring! Login to your brand new account: ${welcomeUrl}`,
+                    "Let's Go",
+                    welcomeUrl,
+                    "This is an automatic e-mail, do NOT respond",
+                    process.env.APP_NAME
+                );
+
+                // Dispatch e-mail
+                mailer.sendEmails([{"Email": email, "Name": user.name}], `Welcome to ${process.env.APP_NAME}, your workout companion`, content, sandboxMode)
+                .then((result) => {
+                    logger.info(`Welcome e-mail sent successfully to account (${email})`);
+                })
+                .catch((error) => {
+                    logger.error(`Welcome e-mail failed to send to (${email}). Details: ${error}`);
                 });
                 
                 logger.info(`User (${user.email}) activated account successfully`);
                 return response.json({
                     statusCode: 200,
-                    message: "Password successfully reset"
+                    message: "Account successfully activated"
                 });
             }
             catch(error) {

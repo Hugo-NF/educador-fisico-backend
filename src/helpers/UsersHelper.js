@@ -105,7 +105,7 @@ class UsersHelper {
             let lockoutUntil = currentUTC;
             lockoutUntil = lockoutUntil.setFullYear(lockoutUntil.getFullYear() + 200);
 
-            await user.update({
+            await user.updateOne({
                 accessFailedCount: user.accessFailedCount,
                 lockoutUntil: lockoutUntil,
                 lockoutReason: 'ACCESS_FAILED'
@@ -122,7 +122,7 @@ class UsersHelper {
             };
         }
 
-        await user.update({ accessFailedCount: user.accessFailedCount });
+        await user.updateOne({ accessFailedCount: user.accessFailedCount });
         
         return {
             statusCode: 401,

@@ -25,14 +25,14 @@ const loginValidation = {
 
 const emailRequestValidation = {
     [Segments.BODY]: Joi.object().keys({
-        email: Joi.string().required().email()
+        email: Joi.string().required().email(),
+        sandboxMode: Joi.boolean()
     })
 }
 
 const tokenForgeryCheckValidation = {
     [Segments.PARAMS]: Joi.object().keys({
         token: Joi.string().required(),
-        sandboxMode: Joi.boolean()
     })
 }
 

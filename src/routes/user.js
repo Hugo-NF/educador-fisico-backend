@@ -27,7 +27,7 @@ router.post('/login', celebrate(loginValidation), UsersController.login);
 router.post('/register', celebrate(registerValidation), UsersController.create);
 
 // Send password recovery e-mail
-router.post('/password/recover', celebrate(emailRequestValidation), UsersController.sendRecoverEmail);
+router.post('/password/reset', celebrate(emailRequestValidation), UsersController.sendRecoverEmail);
 
 // Checks reset password token
 router.get('/password/reset/:token', celebrate(tokenForgeryCheckValidation), UsersController.checkPasswordResetToken);

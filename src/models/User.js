@@ -121,4 +121,15 @@ userSchema.pre('save', async function(next) {
     next();
 });
 
+userSchema.pre('updateOne', async function(next) {
+    let user = this;
+    
+    // Password has not changed
+    if (!user._update.hasOwnProperty('password')) return next();
+  
+    const salt = await bcrypt.genSalt();
+    user._update.password = await bcrypt.hash(user._update.password, salt);
+      
+    next();
+});
 module.exports = mongoose.model('User', userSchema);

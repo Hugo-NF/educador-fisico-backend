@@ -198,7 +198,7 @@ module.exports = {
                         <table border="0" align="center" width="590" cellpadding="0" cellspacing="0" class="container590">
                             <tr>
                                 <td align="center" class="section-img">
-                                    <a href="" style=" border-style: none !important; display: block; border: 0 !important;"><img src="${bannerSrc}" style="display: block; width: 590px;" width="590" border="0" alt="Banner" /></a>
+                                    <a href="" style=" border-style: none !important; display: block; border: 0 !important;"><img src="${bannerSrc}" style="display: block; width: 590px;" width="590" border="0" /></a>
                                 </td>
                             </tr>
                             <tr>
