@@ -91,5 +91,29 @@ describe('Volume', () => {
         expect(response3.body.data.volume).toBe(null);
 
         done();
+    }),
+
+    it('should not create volume without attr required', async (done) => {
+
+        const response = await request(app)
+        .post('/api/volume/create')
+        .send({
+            repetition: 20,
+            charge: 2,
+            observation: "Mandando sem exercício"
+        });
+
+        expect(response.status).toBe(400);
+
+        const response2 = await request(app)
+            .post('/api/volume/create')
+            .send({
+                charge: 2,
+                exercise: "5eed3320725afd09805b72c6",
+                observation: "Fazer a última até cansar"
+            });
+
+        expect(response2.status).toBe(400);
+        done();
     })
 });
