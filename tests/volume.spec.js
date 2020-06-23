@@ -24,10 +24,7 @@ describe('Volume', () => {
     it('should return the volume successfully', async (done) => {
 
         const response = await request(app)
-            .get('/api/volume/')
-            .send({
-                id: "5eed3357725afd09805b72c7"
-            });
+            .get('/api/volume/5eed3357725afd09805b72c7');
 
         expect(response.status).toBe(200);
         expect(response.body.data).toHaveProperty("volume");
@@ -37,17 +34,13 @@ describe('Volume', () => {
     it('should edit the volume successfully', async (done) => {
 
         const response = await request(app)
-            .get('/api/volume/')
-            .send({
-                id: "5eed3357725afd09805b72c7"
-            });
+            .get('/api/volume/5eed3357725afd09805b72c7');
 
         expect(response.status).toBe(200);
 
         const response2 = await request(app)
-            .put('/api/volume/')
+            .put('/api/volume/5eed3357725afd09805b72c7')
             .send({
-                id: response.body.data.volume._id,
                 repetition: response.body.data.volume.repetition + 10,
                 charge: response.body.data.volume.charge + 5,
                 observation: "Trocou o exercício",
@@ -66,26 +59,17 @@ describe('Volume', () => {
     it('should delete the volume successfully', async (done) => {
 
         const response = await request(app)
-            .get('/api/volume/')
-            .send({
-                id: "5eed3357725afd09805b72c7"
-            });
+            .get('/api/volume/5eed3357725afd09805b72c7');
 
         expect(response.status).toBe(200);
 
         const response2 = await request(app)
-            .delete('/api/volume/')
-            .send({
-                id: "5eed3357725afd09805b72c7"
-            });
+            .delete('/api/volume/5eed3357725afd09805b72c7');
 
         expect(response2.status).toBe(200);
 
         const response3 = await request(app)
-            .get('/api/volume/')
-            .send({
-                id: "5eed3357725afd09805b72c7"
-            });
+            .get('/api/volume/5eed3357725afd09805b72c7');
 
         expect(response3.status).toBe(200);
         expect(response3.body.data.volume).toBe(null);
@@ -110,7 +94,7 @@ describe('Volume', () => {
             .send({
                 charge: 2,
                 exercise: "5eed3320725afd09805b72c6",
-                observation: "Fazer a última até cansar"
+                observation: "Mandando sem repetição"
             });
 
         expect(response2.status).toBe(400);

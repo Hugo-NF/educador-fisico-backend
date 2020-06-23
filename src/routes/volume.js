@@ -12,13 +12,13 @@ const { celebrate } = require('celebrate');
 const VolumesController = require('../controllers/VolumesController');
 
 // Importing Validations
-const { createValidation, editValidation, deleteValidation } = require('../validations/volumeValidations');
+const { createValidation, editValidation, idValidation } = require('../validations/volumeValidations');
 
 router.get('/index', VolumesController.index);
 router.post('/create', celebrate(createValidation), VolumesController.create);
-router.get('/', VolumesController.show);
-router.put('/', celebrate(editValidation), VolumesController.edit);
-router.delete('/', celebrate(deleteValidation), VolumesController.delete);
+router.get('/:id', celebrate(idValidation), VolumesController.show);
+router.put('/:id', celebrate(editValidation), VolumesController.edit);
+router.delete('/:id', celebrate(idValidation), VolumesController.delete);
 
 
 module.exports = router;

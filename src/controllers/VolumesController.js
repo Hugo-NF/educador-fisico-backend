@@ -61,7 +61,7 @@ module.exports = {
     async show(request, response) {
         logger.info("Inbound request to /volume/show");
 
-        const { id } = request.body;
+        const { id } = request.params;
 
         try {
             const volume = await Volume.findById( id );
@@ -87,7 +87,8 @@ module.exports = {
     async edit(request, response) {
         logger.info("Inbound request to /volume/edit");
 
-        const { id, repetition, charge, exercise, observation } = request.body;
+        const { id } = request.params;
+        const { repetition, charge, exercise, observation } = request.body;
 
         try {
             const volume = await Volume.findById( id );
@@ -119,7 +120,7 @@ module.exports = {
     async delete(request, response) {
         logger.info("Inbound request to /volume/delete");
 
-        const { id } = request.body;
+        const { id } = request.params;
 
         try {
             const volume = await Volume.findByIdAndDelete( id );
