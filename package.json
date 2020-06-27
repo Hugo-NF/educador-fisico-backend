@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "development": "nodemon src/server.js",
-    "test": "cross-env NODE_ENV=test node database/seed.js && jest --detectOpenHandles --forceExit --silent"
+    "test": "cross-env NODE_ENV=test node database/seed.js && jest --detectOpenHandles --forceExit --silent",
+    "seed": "node database/initialSeed.js"
   },
   "repository": {
     "type": "git",

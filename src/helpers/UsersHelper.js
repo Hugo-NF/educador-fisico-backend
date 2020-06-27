@@ -36,35 +36,27 @@ class UsersHelper {
     return claims;
   }
 
-  static async addRole(user, role) {
+  static async addRole(userId, role) {
     const roleObj = await Role.findOne({ name: role });
-    if (user.roles.length) {
-      user.roles.push(roleObj._id);
-    } else {
-      user.roles = [roleObj._id];
-    }
+    await User.findOneAndUpdate({ _id: userId }, { $push: { roles: roleObj._id } });
   }
 
-  static async addClaim(user, claim) {
-    const claimObj = await claim.findOne({ name: claim });
-    if (user.claims.length) {
-      user.claims.push(claimObj._id);
-    } else {
-      user.claims = [claimObj._id];
-    }
-  }
-
-  static async removeRole(user, role) {
-    const roleObj = await Role.findOne({ name: role });
-    user.roles == user.roles.filter((e) => e !== roleObj._id);
-  }
-
-  static async removeClaim(user, claim) {
+  static async addClaim(userId, claim) {
     const claimObj = await Claim.findOne({ name: claim });
-    user.claims == user.claims.filter((e) => e !== claimObj._id);
+    await User.findOneAndUpdate({ _id: userId }, { $push: { claims: claimObj._id } });
   }
 
-  static authorize(claim) {
+  static async removeRole(userId, role) {
+    const roleObj = await Role.findOne({ name: role });
+    await User.findOneAndUpdate({ _id: userId }, { $pullAll: { roles: [roleObj._id] } });
+  }
+
+  static async removeClaim(userId, claim) {
+    const claimObj = await Claim.findOne({ name: claim });
+    await User.findOneAndUpdate({ _id: userId }, { $pullAll: { claims: [claimObj._id] } });
+  }
+
+  static authorize(claim = null) {
     return (request, response, next) => {
       const token = request.header('auth-token');
       if (!token) {
@@ -76,6 +68,7 @@ class UsersHelper {
 
       try {
         const verified = jwt.verify(token, process.env.JWT_SECRET);
+        if (claim === null) return next();
 
         UsersHelper.hasClaim(verified._id, claim)
           .then((result) => {
@@ -97,14 +90,12 @@ class UsersHelper {
   }
 
   static async updateLockout(user, currentUTC) {
-    user.accessFailedCount += 1;
-
-    if (user.accessFailedCount >= user.accessFailedLimit) {
+    if (user.accessFailedCount + 1 >= user.accessFailedLimit) {
       let lockoutUntil = currentUTC;
       lockoutUntil = lockoutUntil.setFullYear(lockoutUntil.getFullYear() + 200);
 
       await user.updateOne({
-        accessFailedCount: user.accessFailedCount,
+        accessFailedCount: user.accessFailedCount + 1,
         lockoutUntil,
         lockoutReason: 'ACCESS_FAILED',
       });

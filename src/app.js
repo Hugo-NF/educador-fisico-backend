@@ -12,6 +12,7 @@ mongoose.connect(
   {
     useNewUrlParser: true,
     useUnifiedTopology: true,
+    useFindAndModify: false,
   },
   () => {
     logger.info('Successfully connected to database');
