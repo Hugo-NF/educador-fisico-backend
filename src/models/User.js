@@ -97,11 +97,6 @@ const userSchema = new mongoose.Schema({
   },
   roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }],
   claims: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Claim' }],
-  trainings: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Training' }],
-  activeTraining: {
-    type: Number,
-    required: false,
-  },
 },
 {
   timestamps: true,
