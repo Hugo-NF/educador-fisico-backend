@@ -1,6 +1,6 @@
 /**
  * This file contains all the routes related to the volume entity
- * 
+ *
  */
 
 const router = require('express').Router();
@@ -16,9 +16,8 @@ const { createValidation, editValidation, idValidation } = require('../validatio
 
 router.get('/index', VolumesController.index);
 router.post('/create', celebrate(createValidation), VolumesController.create);
-router.get('/:id', celebrate(idValidation), VolumesController.show);
+router.get('/:id', VolumesController.show);
 router.put('/:id', celebrate(editValidation), VolumesController.edit);
-router.delete('/:id', celebrate(idValidation), VolumesController.delete);
-
+router.delete('/:id', celebrate(deleteValidation), VolumesController.delete);
 
 module.exports = router;
