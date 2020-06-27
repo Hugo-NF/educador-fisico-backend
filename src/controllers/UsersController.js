@@ -44,7 +44,7 @@ module.exports = {
       }
 
       // Check lockout
-      if (user.lockoutUntil >= currentUTC) {
+      if (user.lockoutUntil > currentUTC) {
         logger.warn(`A blocked/banned user (${email}) tried to log in`);
 
         return response.status(401).json({
@@ -84,8 +84,8 @@ module.exports = {
         },
       });
     } catch (exc) {
-      return response.status(400).json({
-        statusCode: 400,
+      return response.status(500).json({
+        statusCode: 500,
         message: 'Login unavailable',
         error: exc,
       });
@@ -154,7 +154,7 @@ module.exports = {
         message: 'User is not in database',
       });
     }
-    if (user.lockoutUntil >= currentUTC && user.lockoutReason !== 'ACCESS_FAILED' && user.lockoutReason !== null) {
+    if (user.lockoutUntil > currentUTC && user.lockoutReason !== 'ACCESS_FAILED' && user.lockoutReason !== null) {
       logger.warn(`A blocked/banned user (${email}) tried to get password reset token`);
 
       return response.status(401).json({
@@ -351,7 +351,7 @@ module.exports = {
         message: 'User is not in database',
       });
     }
-    if (user.lockoutUntil >= currentUTC && user.lockoutReason != null) {
+    if (user.lockoutUntil > currentUTC && user.lockoutReason != null) {
       logger.warn(`A banned/blocked user (${email}) tried to activate account`);
 
       return response.status(401).json({

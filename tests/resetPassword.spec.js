@@ -10,13 +10,13 @@ describe('Reset Password', () => {
     let response = await request(app)
       .post('/api/users/password/reset')
       .send({
-        email: 'hugonfonseca@hotmail.com',
+        email: 'hugoresetpw@hotmail.com',
         sandboxMode: true,
       });
 
     expect(response.status).toBe(200);
 
-    const user = await User.findOne({ email: 'hugonfonseca@hotmail.com' });
+    const user = await User.findOne({ email: 'hugoresetpw@hotmail.com' });
     response = await request(app)
       .post(`/api/users/password/reset/${user.resetPasswordToken}`)
       .send({
@@ -27,7 +27,7 @@ describe('Reset Password', () => {
     response = await request(app)
       .post('/api/users/login')
       .send({
-        email: 'hugonfonseca@hotmail.com',
+        email: 'hugoresetpw@hotmail.com',
         password: 'ABCDEFGH',
       });
 
@@ -64,13 +64,13 @@ describe('Reset Password', () => {
     let response = await request(app)
       .post('/api/users/password/reset')
       .send({
-        email: 'hugomixado@hotmail.com',
+        email: 'hugoresetpwtwice@hotmail.com',
         sandboxMode: true,
       });
 
     expect(response.status).toBe(200);
 
-    const user = await User.findOne({ email: 'hugomixado@hotmail.com' });
+    const user = await User.findOne({ email: 'hugoresetpwtwice@hotmail.com' });
     response = await request(app)
       .post(`/api/users/password/reset/${user.resetPasswordToken}`)
       .send({
@@ -81,7 +81,7 @@ describe('Reset Password', () => {
     response = await request(app)
       .post('/api/users/login')
       .send({
-        email: 'hugomixado@hotmail.com',
+        email: 'hugoresetpwtwice@hotmail.com',
         password: 'ABCDEFGH',
       });
 
