@@ -3,7 +3,7 @@ const seeder = require('mongoose-seed');
 const mongoose = require('mongoose');
 
 // Connect to MongoDB via Mongoose
-seeder.connect(process.env.COSMOSDB_CONN_STRING, { useNewUrlParser: true, useUnifiedTopology: true }, function() {
+seeder.connect(process.env.DB_CONN_STRING, { useNewUrlParser: true, useUnifiedTopology: true }, function() {
  
   // Load Mongoose models
   seeder.loadModels([

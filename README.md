@@ -14,10 +14,12 @@ This project is intended to help people that can not afford a gym membership, bu
 - APP_NAME - Commercial application name
 - REACTAPP_HOST = Url of the web application
 - PORT - network port which the server should listen
-- COSMOSDB_CONN_STRING - MongoDB connection string to Microsoft Azure Cosmos DB
+- DB_CONN_STRING - MongoDB connection string to Microsoft Azure Cosmos DB
 - TESTDB_CONN_STRING - MongoDB connection string to local MongoDB docker image - used as test database
 - JWT_SECRET - JWT decoding secret key
 - JWT_LIFESPAN - Determines JWT expiresIn field
+- RESET_PASSWORD_EXPIRATION = Token validity in minutes
+- ACCOUNT_ACTIVATION_EXPIRATION = Token validity in minutes
 - MAILJET_EMAIL - Mailjet sender e-mail
 - MAILJET_PUBLIC_KEY - Mailjet API public key
 - MAILJET_PRIVATE_KEY - Mailjet API private key

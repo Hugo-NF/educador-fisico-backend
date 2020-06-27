@@ -2,7 +2,7 @@ const dotenv = require('dotenv').config();
 const seeder = require('mongoose-seed');
 const mongoose = require('mongoose');
 
-const connection = process.env.NODE_ENV == 'test' ? process.env.TESTDB_CONN_STRING : process.env.COSMOSDB_CONN_STRING;
+const connection = process.env.NODE_ENV == 'test' ? process.env.TESTDB_CONN_STRING : process.env.DB_CONN_STRING;
 
 // Connect to MongoDB via Mongoose
 seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, function() {
@@ -33,7 +33,7 @@ let managePermissionsId = mongoose.Types.ObjectId();
 let adminId = mongoose.Types.ObjectId();
 let teacherId = mongoose.Types.ObjectId();
 
-const currentUTC = new Date(new Date().toUTCString());
+const currentUTC = new Date();
 
 // Data array containing seed data - documents organized by Model
 let data = [

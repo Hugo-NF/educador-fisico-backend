@@ -26,7 +26,7 @@ module.exports = {
     // Login method
     async login(request, response) {
         logger.info("Inbound request to /users/login");
-        const currentUTC = new Date(new Date().toUTCString());
+        const currentUTC = new Date();
         
         const { email, password } = request.body;
 
@@ -44,7 +44,7 @@ module.exports = {
             }
 
             // Check lockout
-            if(user.lockoutUntil > currentUTC) {
+            if(user.lockoutUntil >= currentUTC) {
                 logger.warn(`A blocked/banned user (${email}) tried to log in`);
 
                 return response.status(401).json({
@@ -141,7 +141,7 @@ module.exports = {
     async sendRecoverEmail(request, response) {
         logger.info("Inbound request to /users/password/recover");
         const { email, sandboxMode = false } = request.body;
-        const currentUTC = new Date(new Date().toUTCString());
+        const currentUTC = new Date();
 
         const user = await User.findOne({ email: email });
         if(!user) {
@@ -152,7 +152,7 @@ module.exports = {
                 message: "User is not in database"
             });
         }
-        else if(user.lockoutUntil > currentUTC && user.lockoutReason != 'ACCESS_FAILED' && user.lockoutReason != null) {
+        else if(user.lockoutUntil >= currentUTC && user.lockoutReason != 'ACCESS_FAILED' && user.lockoutReason != null) {
             logger.warn(`A blocked/banned user (${email}) tried to get password reset token`);
 
             return response.status(401).json({
@@ -220,7 +220,7 @@ module.exports = {
         logger.info("Inbound request to GET /users/password/reset/:token");
 
         const { token } = request.params;
-        const currentUTC = new Date(new Date().toUTCString());
+        const currentUTC = new Date();
 
         const user = await User.findOne({resetPasswordToken: token});
         if(!user) {
@@ -232,7 +232,7 @@ module.exports = {
                 message: "Requested token was not emitted or active"
             });
         }
-        else if(user.resetPasswordTokenExpiration < currentUTC) {
+        else if(user.resetPasswordTokenExpiration <= currentUTC) {
             logger.warn(`User (${user.email}) tried to use invalid password reset token`);
 
             return response.status(403).json({
@@ -264,7 +264,7 @@ module.exports = {
         const { token } = request.params;
         const { password, sandboxMode = false } = request.body;
 
-        const currentUTC = new Date(new Date().toUTCString());
+        const currentUTC = new Date();
 
         const user = await User.findOne({resetPasswordToken: token});
         if(!user) {
@@ -276,7 +276,7 @@ module.exports = {
                 message: "Requested token was not emitted or active"
             });
         }
-        else if(user.resetPasswordTokenExpiration < currentUTC) {
+        else if(user.resetPasswordTokenExpiration <= currentUTC) {
             logger.warn(`User (${user.email}) tried to use invalid password reset token`);
 
             return response.status(403).json({
@@ -340,7 +340,7 @@ module.exports = {
         logger.info("Inbound request to POST /users/activate/:token");
 
         const { email, sandboxMode = false } = request.body;
-        const currentUTC = new Date(new Date().toUTCString());
+        const currentUTC = new Date();
 
         const user = await User.findOne({ email: email });
         if(!user) {
@@ -352,7 +352,7 @@ module.exports = {
                 message: "User is not in database"
             });
         }
-        else if(user.lockoutUntil > currentUTC && user.lockoutReason != null) {
+        else if(user.lockoutUntil >= currentUTC && user.lockoutReason != null) {
             logger.warn(`A banned/blocked user (${email}) tried to activate account`);
 
             return response.status(401).json({
@@ -423,9 +423,10 @@ module.exports = {
         const { token } = request.params;
         const { sandboxMode = false } = request.query;
 
-        const currentUTC = new Date(new Date().toUTCString());
+        const currentUTC = new Date();
         
         const user = await User.findOne({emailConfirmationToken: token});
+      
         if(!user) {
             logger.warn(`Validation checked for unrecognized token: ${token}`);
 
@@ -435,7 +436,7 @@ module.exports = {
                 message: "Requested token was not emitted or active"
             });
         }
-        else if(user.emailConfirmationTokenExpiration < currentUTC) {
+        else if(user.emailConfirmationTokenExpiration <= currentUTC) {
             logger.warn(`User (${user.email}) tried to use invalid account activation token`);
 
             return response.status(403).json({
