@@ -12,11 +12,11 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
     './src/models/Claim',
     './src/models/User',
     './src/models/Exercise',
-    './src/models/Volume',
+    './src/models/Circuit',
   ]);
 
   // Clear specified collections
-  seeder.clearModels(['Role', 'Claim', 'User', 'Exercise', 'Volume'], () => {
+  seeder.clearModels(['Role', 'Claim', 'User', 'Exercise', 'Circuit'], () => {
     // Callback to populate DB once collections have been cleared
     seeder.populateModels(data, () => {
       seeder.disconnect();
@@ -193,10 +193,16 @@ let data = [
     ],
   },
   {
-    model: 'Volume',
+    model: 'Circuit',
     documents: [
       {
-        _id: '5eed3357725afd09805b72c7', repetition: 10, charge: 5, exercise: '5eed3320725afd09805b72c6',
+        _id: '5eed3357725afd09805b72c7',
+        name: 'Bodybuilder Avançado',
+        exercises: [{
+          exercise: '5ef790361968bd468a6f9ddb',
+          repetitions: 15,
+          charge: 120,
+        }],
       },
     ],
   },

@@ -1,34 +1,29 @@
 const { Segments, Joi } = require('celebrate');
 
-const createValidation = {
+const indexValidation = {
+  [Segments.QUERY]: Joi.object().keys({
+    page: Joi.number().min(1),
+    max: Joi.number().min(1),
+  }),
   [Segments.BODY]: Joi.object().keys({
-    repetition: Joi.number().required(),
-    charge: Joi.number(),
-    exercise: Joi.string().required(),
-    observation: Joi.string(),
+    name: Joi.string(),
   }),
 };
 
-const editValidation = {
-  [Segments.PARAMS]: Joi.object().keys({
-    id: Joi.string().required(),
-  }),
+const circuitValidation = {
   [Segments.BODY]: Joi.object().keys({
-    repetition: Joi.number().required(),
-    charge: Joi.number(),
-    exercise: Joi.string().required(),
-    observation: Joi.string(),
-  }),
-};
-
-const deleteValidation = {
-  [Segments.PARAMS]: Joi.object().keys({
-    id: Joi.string().required(),
+    name: Joi.string(),
+    exercises: Joi.array().items(Joi.object().keys({
+      exercise: Joi.string().required(),
+      repetitions: Joi.number().min(1),
+      weight: Joi.number().min(0),
+      duration: Joi.number().min(0),
+      observation: Joi.string(),
+    })),
   }),
 };
 
 module.exports = {
-  createValidation,
-  editValidation,
-  deleteValidation,
+  indexValidation,
+  circuitValidation,
 };

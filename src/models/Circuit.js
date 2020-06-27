@@ -9,7 +9,7 @@ const circuitSchema = new mongoose.Schema({
       required: true,
     },
     repetitions: { type: Number },
-    charge: { type: Number },
+    weight: { type: Number },
     duration: { type: Number },
     observation: { type: String },
   }],
