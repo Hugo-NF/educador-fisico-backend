@@ -110,7 +110,6 @@ const userSchema = new mongoose.Schema({
 // Mongoose callback - Password Hashing
 userSchema.pre('save', async function (next) {
   const user = this;
-  console.log(this);
   // Password has not changed
   if (!this.isModified('password')) return next();
 
