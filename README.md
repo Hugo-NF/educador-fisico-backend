@@ -5,11 +5,16 @@
 [![Commit History](https://img.shields.io/github/last-commit/Hugo-NF/educador-fisico-backend)](https://github.com/Hugo-NF/educador-fisico-backend/commits/master)
 [![Open Issues](https://img.shields.io/github/issues/Hugo-NF/educador-fisico-backend)](https://github.com/Hugo-NF/educador-fisico-backend/issues)
 
-Training and exercise manager between students and instructors.
-This project is intended to help people that can not afford a gym membership, but want to stay healthy,
- exercising from home and receiving assistance of professional trainers.
+Node.JS API project
 
-## Environments
+### Scripts
+- npm start: Run the server with node
+- npm run development: Run the server with nodemon
+- npm test: Run all tests with jest
+    - You can use (npm test -- file.spec.js to run a single test file)
+- npm seed: Seed the database with initial data
+
+## Environment
 ### .env Variables
 - APP_NAME - Commercial application name
 - REACTAPP_HOST = Url of the web application
@@ -25,7 +30,7 @@ This project is intended to help people that can not afford a gym membership, bu
 - MAILJET_PRIVATE_KEY - Mailjet API private key
 
 ### Testing
-1. Database: Mongo container
+1. Setup Database: Mongo container (or install the MongoDB itself)
     - Run: ```sudo docker run --name mongotests -p 27017:27017 -d mongo```
     - Restart: ```sudo docker container restart [ID | Name]```
     - Docker PS: ```sudo docker ps -a```
