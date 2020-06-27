@@ -38,7 +38,8 @@ const tokenForgeryCheckValidation = {
 
 const resetPasswordValidation = {
     [Segments.BODY]: Joi.object().keys({
-        password: Joi.string().required().min(8)
+        password: Joi.string().required().min(8),
+        sandboxMode: Joi.boolean()
     })
 }
 

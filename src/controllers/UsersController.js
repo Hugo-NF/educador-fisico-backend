@@ -139,7 +139,7 @@ module.exports = {
 
     // Send password reset e-mail
     async sendRecoverEmail(request, response) {
-        logger.info("Inbound request to /users/password/recover");
+        logger.info("Inbound request to /users/password/reset");
         const { email, sandboxMode = false } = request.body;
         const currentUTC = new Date();
 
@@ -281,7 +281,7 @@ module.exports = {
 
             return response.status(403).json({
                 statusCode: 403,
-                errorCode: errors.TOKEN_NOT_GENERATED,
+                errorCode: errors.TOKEN_EXPIRED,
                 message: "Token is expired or was already used"
             });
         }
