@@ -5,78 +5,75 @@ const errors = require('../src/config/errorsEnum');
 const User = require('../src/models/User');
 
 describe('Account Activation', () => {
+  it('should activate account successfully', async (done) => {
+    // Request e-mail to be sent
+    let response = await request(app)
+      .post('/api/users/activate')
+      .send({
+        email: 'hugonfonseca@hotmail.com',
+        sandboxMode: true, // Prevents the email dispatch, thus preventing consumption while testing
+      });
 
-    it('should activate account successfully', async (done) => {
-        // Request e-mail to be sent
-        let response = await request(app)
-            .post('/api/users/activate')
-            .send({
-                email: "hugonfonseca@hotmail.com",
-                sandboxMode: true // Prevents the email dispatch, thus preventing consumption while testing
-            });
+    expect(response.status).toBe(200);
 
-        expect(response.status).toBe(200);
-        
-        let user = await User.findOne({email: 'hugonfonseca@hotmail.com'});
-        expect(user.emailConfirmed).toBe(false);
+    let user = await User.findOne({ email: 'hugonfonseca@hotmail.com' });
+    expect(user.emailConfirmed).toBe(false);
 
-        response = await request(app)
-            .get(`/api/users/activate/${user.emailConfirmationToken}?sandboxMode=true`);
+    response = await request(app)
+      .get(`/api/users/activate/${user.emailConfirmationToken}?sandboxMode=true`);
 
-        user = await User.findOne({email: 'hugonfonseca@hotmail.com'});
-        expect(user.emailConfirmed).toBe(true);
+    user = await User.findOne({ email: 'hugonfonseca@hotmail.com' });
+    expect(user.emailConfirmed).toBe(true);
 
-        done();
-    });
+    done();
+  });
 
-    it('should return unknown token', async (done) => {
-        // Request e-mail to be sent
-        let response = await request(app)
-            .post('/api/users/activate')
-            .send({
-                email: "hugomanual@hotmail.com",
-                sandboxMode: true // Prevents the email dispatch, thus preventing consumption while testing
-            });
+  it('should return unknown token', async (done) => {
+    // Request e-mail to be sent
+    let response = await request(app)
+      .post('/api/users/activate')
+      .send({
+        email: 'hugomanual@hotmail.com',
+        sandboxMode: true, // Prevents the email dispatch, thus preventing consumption while testing
+      });
 
-        expect(response.status).toBe(200);
-        
-        let user = await User.findOne({email: 'hugomanual@hotmail.com'});
-        expect(user.emailConfirmed).toBe(false);
+    expect(response.status).toBe(200);
 
-        response = await request(app)
-            .get(`/api/users/activate/${user.emailConfirmationToken}wrong?sandboxMode=true`);
+    const user = await User.findOne({ email: 'hugomanual@hotmail.com' });
+    expect(user.emailConfirmed).toBe(false);
 
-        expect(response.status).toBe(409);
-        expect(response.body.errorCode).toBe(errors.TOKEN_NOT_GENERATED);
+    response = await request(app)
+      .get(`/api/users/activate/${user.emailConfirmationToken}wrong?sandboxMode=true`);
 
-        done();
-    });
+    expect(response.status).toBe(409);
+    expect(response.body.errorCode).toBe(errors.TOKEN_NOT_GENERATED);
 
-    it('should return invalid token', async (done) => {
-        let response = await request(app)
-            .post('/api/users/activate')
-            .send({
-                email: "hugomixado@hotmail.com",
-                sandboxMode: true // Prevents the email dispatch, thus preventing consumption while testing
-            });
+    done();
+  });
 
-        expect(response.status).toBe(200);
+  it('should return invalid token', async (done) => {
+    let response = await request(app)
+      .post('/api/users/activate')
+      .send({
+        email: 'hugomixado@hotmail.com',
+        sandboxMode: true, // Prevents the email dispatch, thus preventing consumption while testing
+      });
 
-        let user = await User.findOne({email: 'hugomixado@hotmail.com'});
-        expect(user.emailConfirmed).toBe(false);
+    expect(response.status).toBe(200);
 
-        response = await request(app)
-            .get(`/api/users/activate/${user.emailConfirmationToken}?sandboxMode=true`);
+    const user = await User.findOne({ email: 'hugomixado@hotmail.com' });
+    expect(user.emailConfirmed).toBe(false);
 
-        expect(response.status).toBe(200);
+    response = await request(app)
+      .get(`/api/users/activate/${user.emailConfirmationToken}?sandboxMode=true`);
 
-        response = await request(app)
-            .get(`/api/users/activate/${user.emailConfirmationToken}?sandboxMode=true`);
+    expect(response.status).toBe(200);
 
-        expect(response.status).toBe(403);
+    response = await request(app)
+      .get(`/api/users/activate/${user.emailConfirmationToken}?sandboxMode=true`);
 
-        done();
+    expect(response.status).toBe(403);
 
-    });
-
+    done();
+  });
 });

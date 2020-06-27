@@ -1,10 +1,21 @@
 module.exports = {
-    render(logoSrc, bannerSrc, titleHTML, preHeader, title, text, fallbackBtnText, fallbackUrl, socialMediaText, footerText) {
-        title = title.split(/\s/);
-        colorWord = title.pop();
-        title = title.join(' ');
+  render(
+    logoSrc,
+    bannerSrc,
+    titleHTML,
+    preHeader,
+    title,
+    text,
+    fallbackBtnText,
+    fallbackUrl,
+    socialMediaText,
+    footerText,
+  ) {
+    let titleWords = title.split(/\s/);
+    const colorWord = titleWords.pop();
+    titleWords = titleWords.join(' ');
 
-        return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+    return `<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
         <html xmlns:v="urn:schemas-microsoft-com:vml">
 
         <head>
@@ -210,7 +221,7 @@ module.exports = {
 
                                     <div style="line-height: 35px">
 
-                                        ${title} <span style="color: #5caad2;">${colorWord}</span>
+                                        ${titleWords} <span style="color: #5caad2;">${colorWord}</span>
 
                                     </div>
                                 </td>
@@ -429,6 +440,6 @@ module.exports = {
 
         </body>
 
-        </html>`
-    }
-}
+        </html>`;
+  },
+};

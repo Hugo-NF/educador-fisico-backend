@@ -1,23 +1,21 @@
 /**
  * This file contains all the routes related to the user entity
- * 
+ *
  */
 
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
 
-const helpers = require('../helpers/UsersHelper');
-
 // Importing Controllers
 const UsersController = require('../controllers/UsersController');
 
 // Importing Validations
-const { 
-    loginValidation,
-    registerValidation, 
-    emailRequestValidation,
-    tokenForgeryCheckValidation,
-    resetPasswordValidation
+const {
+  loginValidation,
+  registerValidation,
+  emailRequestValidation,
+  tokenForgeryCheckValidation,
+  resetPasswordValidation,
 } = require('../validations/authValidations');
 
 // Login existing user
@@ -40,6 +38,5 @@ router.post('/activate', celebrate(emailRequestValidation), UsersController.send
 
 // Activate account
 router.get('/activate/:token', celebrate(tokenForgeryCheckValidation), UsersController.activateAccount);
-
 
 module.exports = router;
