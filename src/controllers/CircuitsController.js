@@ -73,6 +73,13 @@ module.exports = {
 
     try {
       const circuit = await Circuit.findById(id).populate('exercises.exercise');
+      if (!circuit) {
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Circuit could not be found',
+        });
+      }
 
       return response.json({
         statusCode: 200,
@@ -98,12 +105,19 @@ module.exports = {
     const { name, exercises } = request.body;
 
     try {
-      await Circuit.findByIdAndUpdate(id, { name, exercises });
+      const circuit = await Circuit.findByIdAndUpdate(id, { name, exercises }, { new: true }).populate('exercises.exercise');
+      if (!circuit) {
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Circuit could not be found',
+        });
+      }
 
       return response.json({
         statusCode: 200,
         data: {
-          circuit: await Circuit.findById(id).populate('exercises.exercise'),
+          circuit,
         },
       });
     } catch (exc) {
@@ -123,10 +137,18 @@ module.exports = {
     const { id } = request.params;
 
     try {
-      await Circuit.findByIdAndDelete(id);
+      const circuit = await Circuit.findByIdAndDelete(id);
+      if (!circuit) {
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Circuit could not be found',
+        });
+      }
 
       return response.json({
         statusCode: 200,
+        data: { circuit },
       });
     } catch (exc) {
       return response.status(500).json({

@@ -12,7 +12,7 @@ beforeAll(async () => {
 });
 
 // Exercise feature
-describe('Exercise', () => {
+describe('Exercise CRUD', () => {
   it('should register a new exercise successfully', async (done) => {
     const response = await request(app)
       .post('/api/exercises/create')
@@ -90,8 +90,7 @@ describe('Exercise', () => {
         'auth-token': authToken,
       });
 
-    expect(response3.status).toBe(200);
-    expect(response3.body.data.exercise).toBe(null);
+    expect(response3.status).toBe(404);
 
     done();
   });

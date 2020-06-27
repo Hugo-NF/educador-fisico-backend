@@ -75,6 +75,13 @@ module.exports = {
 
     try {
       const exercise = await Exercise.findById(id);
+      if (!exercise) {
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Exercise could not be found',
+        });
+      }
 
       return response.json({
         statusCode: 200,
@@ -100,12 +107,18 @@ module.exports = {
     const { id } = request.params;
 
     try {
-      await Exercise.findByIdAndUpdate(id, { name, video });
-
+      const exercise = await Exercise.findByIdAndUpdate(id, { name, video }, { new: true });
+      if (!exercise) {
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Exercise could not be found',
+        });
+      }
       return response.json({
         statusCode: 200,
         data: {
-          exercise: await Exercise.findById(id),
+          exercise,
         },
       });
     } catch (exc) {
@@ -125,10 +138,18 @@ module.exports = {
     const { id } = request.params;
 
     try {
-      await Exercise.findByIdAndDelete(id);
+      const exercise = await Exercise.findByIdAndDelete(id);
+      if (!exercise) {
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Exercise could not be found',
+        });
+      }
 
       return response.json({
         statusCode: 200,
+        data: { exercise },
       });
     } catch (exc) {
       return response.status(500).json({
