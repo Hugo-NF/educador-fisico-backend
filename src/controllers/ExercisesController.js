@@ -1,6 +1,8 @@
 const logger = require('../config/configLogging');
 const errors = require('../config/errorsEnum');
 
+const escapeRegex = require('../helpers/escapeRegex');
+
 const Exercise = require('../models/Exercise');
 
 module.exports = {
@@ -8,11 +10,22 @@ module.exports = {
   async index(request, response) {
     logger.info('Inbound request to /exercise/index');
 
+    const { page = 1, max = null } = request.query;
+    const { name = '' } = request.body;
+
     try {
-      const exercises = await Exercise.find();
+      const searchRegex = new RegExp(escapeRegex(name), 'gi');
+
+      const count = await Exercise.count({ name: searchRegex });
+      const maxPage = max === null ? count : max;
+
+      const exercises = await Exercise.find({ name: searchRegex })
+        .skip((maxPage * page) - maxPage)
+        .limit(maxPage);
 
       return response.json({
         statusCode: 200,
+        count,
         data: {
           exercises,
         },

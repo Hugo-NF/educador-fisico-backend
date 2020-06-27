@@ -1,5 +1,12 @@
 const { Segments, Joi } = require('celebrate');
 
+const indexValidation = {
+  [Segments.QUERY]: Joi.object().keys({
+    page: Joi.number().min(1),
+    max: Joi.number().min(1),
+  }),
+};
+
 const createValidation = {
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string().required(),
@@ -24,6 +31,7 @@ const deleteValidation = {
 };
 
 module.exports = {
+  indexValidation,
   createValidation,
   editValidation,
   deleteValidation,

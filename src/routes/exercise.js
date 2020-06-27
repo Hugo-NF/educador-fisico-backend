@@ -10,9 +10,11 @@ const { celebrate } = require('celebrate');
 const ExercisesController = require('../controllers/ExercisesController');
 
 // Importing Validations
-const { createValidation, editValidation, deleteValidation } = require('../validations/exerciseValidations');
+const {
+  indexValidation, createValidation, editValidation, deleteValidation,
+} = require('../validations/exerciseValidations');
 
-router.get('/index', ExercisesController.index);
+router.post('/index', celebrate(indexValidation), ExercisesController.index);
 router.post('/create', celebrate(createValidation), ExercisesController.create);
 router.get('/:id', ExercisesController.show);
 router.put('/:id', celebrate(editValidation), ExercisesController.edit);
