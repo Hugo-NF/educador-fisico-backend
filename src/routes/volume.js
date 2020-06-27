@@ -16,9 +16,9 @@ const { createValidation, editValidation, deleteValidation } = require('../valid
 
 router.get('/index', VolumesController.index);
 router.post('/create', celebrate(createValidation), VolumesController.create);
-router.get('/', VolumesController.show);
-router.put('/', celebrate(editValidation), VolumesController.edit);
-router.delete('/', celebrate(deleteValidation), VolumesController.delete);
+router.get('/:id', VolumesController.show);
+router.put('/:id', celebrate(editValidation), VolumesController.edit);
+router.delete('/:id', celebrate(deleteValidation), VolumesController.delete);
 
 
 module.exports = router;

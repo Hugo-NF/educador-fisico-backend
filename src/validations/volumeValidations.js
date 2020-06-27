@@ -10,8 +10,10 @@ const createValidation = {
 }
  
 const editValidation = {
+    [Segments.PARAMS]: Joi.object().keys({
+        id: Joi.string().required()
+    }),
     [Segments.BODY]: Joi.object().keys({
-        id: Joi.string().required(),
         repetition: Joi.number().required(),
         charge: Joi.number(),
         exercise: Joi.string().required(),
@@ -20,7 +22,7 @@ const editValidation = {
 }
 
 const deleteValidation = {
-    [Segments.BODY]: Joi.object().keys({
+    [Segments.PARAMS]: Joi.object().keys({
         id: Joi.string().required()
     })
 }

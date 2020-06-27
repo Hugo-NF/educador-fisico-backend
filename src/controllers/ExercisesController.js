@@ -38,7 +38,7 @@ module.exports = {
         logger.info("Inbound request to /exercise/index");
 
         try {
-            const exercises = await exercise.find()
+            const exercises = await Exercise.find()
 
             return response.json({
                 statusCode: 200,
@@ -60,10 +60,10 @@ module.exports = {
     async show(request, response) {
         logger.info("Inbound request to /exercise/show");
 
-        const { id } = request.body;
+        const { id } = request.params;
 
         try {
-            const exercise = await exercise.findById( id );
+            const exercise = await Exercise.findById( id );
             
             return response.json({ 
                 statusCode: 200,
@@ -86,10 +86,11 @@ module.exports = {
     async edit(request, response) {
         logger.info("Inbound request to /exercise/edit");
 
-        const { id, name, video } = request.body;
-
+        const { name, video } = request.body;
+        const { id } = request.params;
+        
         try {
-            const exercise = await exercise.findById( id );
+            const exercise = await Exercise.findById( id );
 
             exercise.name = name;
             exercise.video = video;
@@ -116,10 +117,10 @@ module.exports = {
     async delete(request, response) {
         logger.info("Inbound request to /exercise/delete");
 
-        const { id } = request.body;
+        const { id } = request.params;
 
         try {
-            const exercise = await exercise.findByIdAndDelete( id );
+            const exercise = await Exercise.findByIdAndDelete( id );
 
             return response.json({ 
                 statusCode: 200
