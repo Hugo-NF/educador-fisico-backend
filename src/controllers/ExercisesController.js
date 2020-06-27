@@ -16,7 +16,7 @@ module.exports = {
     try {
       const searchRegex = new RegExp(escapeRegex(name), 'gi');
 
-      const count = await Exercise.count({ name: searchRegex });
+      const count = await Exercise.countDocuments({ name: searchRegex });
       const maxPage = max === null ? count : max;
 
       const exercises = await Exercise.find({ name: searchRegex })
