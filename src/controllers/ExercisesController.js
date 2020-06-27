@@ -1,7 +1,7 @@
 const logger = require('../config/configLogging');
 const errors = require('../config/errorsEnum');
 
-const escapeRegex = require('../helpers/escapeRegex');
+const escapeRegex = require('../helpers/EscapeRegex');
 
 const Exercise = require('../models/Exercise');
 

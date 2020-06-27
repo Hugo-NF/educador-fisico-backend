@@ -1,58 +1,65 @@
 const logger = require('../config/configLogging');
 const errors = require('../config/errorsEnum');
 
-const Volume = require('../models/Volume');
+const escapeRegex = require('../helpers/EscapeRegex');
+
+const Circuit = require('../models/Circuit');
 
 module.exports = {
-  // Register method
-  async create(request, response) {
-    logger.info('Inbound request to /volume/create');
+  // Index method
+  async index(request, response) {
+    logger.info('Inbound request to /volume/index');
 
-    const {
-      repetition, charge, exercise, observation,
-    } = request.body;
+    const { page = 1, max = null } = request.query;
+    const { name = '' } = request.body;
 
     try {
-      const volume = new Volume({
-        repetition, charge, exercise, observation,
-      });
+      const searchRegex = new RegExp(escapeRegex(name), 'gi');
 
-      await volume.save();
+      const count = await Circuit.countDocuments({ name: searchRegex });
+      const maxPage = max === null ? count : max;
+
+      const circuits = await Circuit.find({ name: searchRegex })
+        .populate('exercises.exercise')
+        .skip((maxPage * page) - maxPage)
+        .limit(maxPage);
 
       return response.json({
         statusCode: 200,
+        count,
         data: {
-          volume,
+          circuits,
         },
       });
     } catch (exc) {
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: 'Could not create a new volume',
+        message: 'Could not retrieve the circuits',
         error: exc,
       });
     }
   },
 
-  // Index method
-  async index(request, response) {
-    logger.info('Inbound request to /volume/index');
+  async create(request, response) {
+    logger.info('Inbound request to /circuit/create');
+
+    const { name, exercises } = request.body;
 
     try {
-      const volumes = await Volume.find();
+      const circuit = new Circuit({ name, exercises });
 
       return response.json({
         statusCode: 200,
         data: {
-          volumes,
+          circuit: await (await circuit.save()).populate('exercises.exercise').execPopulate(),
         },
       });
     } catch (exc) {
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: 'Could not retrieve the volumes',
+        message: 'Could not create a new circuit',
         error: exc,
       });
     }
@@ -60,24 +67,24 @@ module.exports = {
 
   // Show method
   async show(request, response) {
-    logger.info('Inbound request to /volume/show');
+    logger.info('Inbound request to /circuit/show');
 
     const { id } = request.params;
 
     try {
-      const volume = await Volume.findById(id);
+      const circuit = await Circuit.findById(id).populate('exercises.exercise');
 
       return response.json({
         statusCode: 200,
         data: {
-          volume,
+          circuit,
         },
       });
     } catch (exc) {
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: 'Could not show this volume',
+        message: `Could not show circuit with id: ${id}`,
         error: exc,
       });
     }
@@ -85,34 +92,25 @@ module.exports = {
 
   // Edit method
   async edit(request, response) {
-    logger.info('Inbound request to /volume/edit');
+    logger.info('Inbound request to /circuit/edit');
 
     const { id } = request.params;
-    const {
-      repetition, charge, exercise, observation,
-    } = request.body;
+    const { name, exercises } = request.body;
 
     try {
-      const volume = await Volume.findById(id);
-
-      volume.repetition = repetition;
-      volume.charge = charge;
-      volume.exercise = exercise;
-      volume.observation = observation;
-
-      volume.save();
+      await Circuit.findByIdAndUpdate(id, { name, exercises });
 
       return response.json({
         statusCode: 200,
         data: {
-          volume,
+          circuit: await Circuit.findById(id).populate('exercises.exercise'),
         },
       });
     } catch (exc) {
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: 'Could not edit this volume',
+        message: `Could not edit circuit with ${id}`,
         error: exc,
       });
     }
@@ -125,7 +123,7 @@ module.exports = {
     const { id } = request.params;
 
     try {
-      await Volume.findByIdAndDelete(id);
+      await Circuit.findByIdAndDelete(id);
 
       return response.json({
         statusCode: 200,
@@ -134,7 +132,7 @@ module.exports = {
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: 'Could not delete this volume',
+        message: `Could not delete circuit with ${id}`,
         error: exc,
       });
     }

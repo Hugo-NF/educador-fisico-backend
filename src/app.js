@@ -22,7 +22,7 @@ mongoose.connect(
 // Importing routes
 const userRoutes = require('./routes/user');
 const exerciseRoutes = require('./routes/exercise');
-const volumeRoutes = require('./routes/volume');
+const circuitRoutes = require('./routes/circuit');
 
 const { authorize } = require('./helpers/UsersHelper');
 
@@ -38,8 +38,8 @@ application.use(express.json());
 
 // Routes middleware configuration
 application.use('/api/users', userRoutes);
-application.use('/api/exercises', authorize('ManageExercises'), exerciseRoutes);
-application.use('/api/volume', volumeRoutes);
+application.use('/api/exercises', authorize('ManageTraining'), exerciseRoutes);
+application.use('/api/circuits', authorize('ManageTraining'), circuitRoutes);
 application.use(errors());
 
 module.exports = application;

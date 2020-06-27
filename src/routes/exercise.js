@@ -14,7 +14,7 @@ const {
   indexValidation, createValidation, editValidation, deleteValidation,
 } = require('../validations/exerciseValidations');
 
-router.post('/index', celebrate(indexValidation), ExercisesController.index);
+router.post('/', celebrate(indexValidation), ExercisesController.index);
 router.post('/create', celebrate(createValidation), ExercisesController.create);
 router.get('/:id', ExercisesController.show);
 router.put('/:id', celebrate(editValidation), ExercisesController.edit);
