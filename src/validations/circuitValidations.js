@@ -13,7 +13,7 @@ const indexValidation = {
 const circuitValidation = {
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string(),
-    exercises: Joi.array().items(Joi.object().keys({
+    exercises: Joi.array().required().items(Joi.object().keys({
       exercise: Joi.string().required(),
       repetitions: Joi.number().min(1),
       weight: Joi.number().min(0),

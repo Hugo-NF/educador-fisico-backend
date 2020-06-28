@@ -1,5 +1,6 @@
 const request = require('supertest');
 const app = require('../src/app');
+const errors = require('../src/config/errorsEnum');
 
 beforeAll(async () => {
   const response = await request(app)
@@ -29,6 +30,21 @@ describe('Exercise CRUD', () => {
     done();
   });
 
+  it('should state bad request on create', async (done) => {
+    const response = await request(app)
+      .post('/api/exercises/create')
+      .set({
+        'auth-token': authToken,
+      })
+      .send({
+        video: 'youtube.com/elevacao-lateral',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('validation');
+    done();
+  });
+
   it('should return the exercise successfully', async (done) => {
     const response = await request(app)
       .get('/api/exercises/5eed3320725afd09805b72c6')
@@ -38,6 +54,18 @@ describe('Exercise CRUD', () => {
 
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveProperty('exercise');
+    done();
+  });
+
+  it('should return route not found (aka 404)', async (done) => {
+    const response = await request(app)
+      .get('/api/exercises/5eed3320725afd09805b72c5')
+      .set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
     done();
   });
 
@@ -67,6 +95,31 @@ describe('Exercise CRUD', () => {
     done();
   });
 
+  it('should return route not found (aka 404)', async (done) => {
+    const response = await request(app)
+      .get('/api/exercises/5eed3320725afd09805b72c6')
+      .set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(200);
+
+    const response2 = await request(app)
+      .put('/api/exercises/5eed3320725afd09805b72c5')
+      .set({
+        'auth-token': authToken,
+      })
+      .send({
+        name: response.body.data.exercise.name + 10,
+        video: response.body.data.exercise.video + 5,
+      });
+
+    expect(response2.status).toBe(404);
+    expect(response2.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
+
+    done();
+  });
+
   it('should delete the exercise successfully', async (done) => {
     const response = await request(app)
       .get('/api/exercises/5eed3320725afd09805b72c6')
@@ -91,7 +144,31 @@ describe('Exercise CRUD', () => {
       });
 
     expect(response3.status).toBe(404);
+    expect(response3.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
+    done();
+  });
 
+  it('should return route not found (aka 404)', async (done) => {
+    const response = await request(app)
+      .delete('/api/exercises/5eed3320725afd09805b72c9')
+      .set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
+    done();
+  });
+
+  it('should return route not found (aka 404)', async (done) => {
+    const response = await request(app)
+      .get('/api/exercises/5eed3320725afd09805b72c6')
+      .set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
     done();
   });
 });

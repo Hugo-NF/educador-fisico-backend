@@ -1,5 +1,6 @@
 const request = require('supertest');
 const app = require('../src/app');
+const errors = require('../src/config/errorsEnum');
 
 beforeAll(async () => {
   const response = await request(app)
@@ -33,7 +34,22 @@ describe('Circuit CRUD', () => {
     done();
   });
 
-  it('should return the volume successfully', async (done) => {
+  it('should state bad request on create', async (done) => {
+    const response = await request(app)
+      .post('/api/circuits/create')
+      .set({
+        'auth-token': authToken,
+      })
+      .send({
+        name: 'Bodybuilder Avançado',
+      });
+
+    expect(response.status).toBe(400);
+    expect(response.body).toHaveProperty('validation');
+    done();
+  });
+
+  it('should return the circuit successfully', async (done) => {
     const response = await request(app)
       .get('/api/circuits/5eed3357725afd09805b72c7').set({
         'auth-token': authToken,
@@ -44,7 +60,18 @@ describe('Circuit CRUD', () => {
     done();
   });
 
-  it('should edit the volume successfully', async (done) => {
+  it('should return route not found (aka 404)', async (done) => {
+    const response = await request(app)
+      .get('/api/circuits/5eed3357725afd09805b72c4').set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
+    done();
+  });
+
+  it('should edit the circuit successfully', async (done) => {
     const response = await request(app)
       .get('/api/circuits/5eed3357725afd09805b72c7').set({
         'auth-token': authToken,
@@ -72,7 +99,33 @@ describe('Circuit CRUD', () => {
     done();
   });
 
-  it('should delete the volume successfully', async (done) => {
+  it('should return route not found (aka 404)', async (done) => {
+    const response = await request(app)
+      .get('/api/circuits/5eed3357725afd09805b72c7').set({
+        'auth-token': authToken,
+      });
+    expect(response.status).toBe(200);
+
+    const response2 = await request(app)
+      .put('/api/circuits/5eed3357725afd09805b72c9')
+      .set({
+        'auth-token': authToken,
+      })
+      .send({
+        name: 'Bodybuilder Editado',
+        exercises: [{
+          exercise: '5ef790361968bd468a6f9ddb',
+          repetitions: 25,
+          weight: 100,
+        }],
+      });
+
+    expect(response2.status).toBe(404);
+    expect(response2.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
+    done();
+  });
+
+  it('should delete the circuit successfully', async (done) => {
     const response = await request(app)
       .get('/api/circuits/5eed3357725afd09805b72c7').set({
         'auth-token': authToken,
@@ -93,6 +146,30 @@ describe('Circuit CRUD', () => {
       });
 
     expect(response3.status).toBe(404);
+
+    done();
+  });
+
+  it('should return route not found (aka 404)', async (done) => {
+    const response = await request(app)
+      .delete('/api/circuits/5eed3357725afd09805b72c4').set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
+
+    done();
+  });
+
+  it('should return route not found (aka 404)', async (done) => {
+    const response = await request(app)
+      .get('/api/circuits/5eed3357725afd09805b72c0').set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
 
     done();
   });
