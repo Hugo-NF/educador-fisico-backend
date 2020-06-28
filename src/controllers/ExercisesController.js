@@ -1,7 +1,7 @@
 const logger = require('../config/configLogging');
 const errors = require('../config/errorsEnum');
 
-const escapeRegex = require('../helpers/escapeRegex');
+const escapeRegex = require('../helpers/EscapeRegex');
 
 const Exercise = require('../models/Exercise');
 
@@ -23,6 +23,7 @@ module.exports = {
         .skip((maxPage * page) - maxPage)
         .limit(maxPage);
 
+      logger.info(`Request to /exercise/index returned ${count} records`);
       return response.json({
         statusCode: 200,
         count,
@@ -31,10 +32,11 @@ module.exports = {
         },
       });
     } catch (exc) {
+      logger.error(`Exception raised while running /exercises/index. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: 'Could not show the exercises',
+        message: 'Could not show index of exercises',
         error: exc,
       });
     }
@@ -51,6 +53,7 @@ module.exports = {
 
       await exercise.save();
 
+      logger.info(`Exercise ${exercise._id} created successfully`);
       return response.json({
         statusCode: 200,
         data: {
@@ -58,10 +61,12 @@ module.exports = {
         },
       });
     } catch (exc) {
+      logger.error(`Exception raised while running /exercises/create. Details: ${exc}`);
+
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: 'Could not register a new exercise',
+        message: 'Could not create a new exercise',
         error: exc,
       });
     }
@@ -75,7 +80,16 @@ module.exports = {
 
     try {
       const exercise = await Exercise.findById(id);
+      if (exercise == null) {
+        logger.error(`/exercise/show: Could not find exercise with ObjectId(${id})`);
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Exercise could not be found',
+        });
+      }
 
+      logger.info(`Request to /exercise/show successfully returned ObjectId(${id})`);
       return response.json({
         statusCode: 200,
         data: {
@@ -83,6 +97,7 @@ module.exports = {
         },
       });
     } catch (exc) {
+      logger.error(`Error while running /exercise/show. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
@@ -100,15 +115,26 @@ module.exports = {
     const { id } = request.params;
 
     try {
-      await Exercise.findByIdAndUpdate(id, { name, video });
+      const exercise = await Exercise.findByIdAndUpdate(id, { name, video }, { new: true });
+      if (exercise == null) {
+        logger.error(`/exercise/edit: Could not find exercise with ObjectId(${id})`);
 
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Exercise could not be found',
+        });
+      }
+
+      logger.info(`Request to /exercise/edit successfully edited ObjectId(${id})`);
       return response.json({
         statusCode: 200,
         data: {
-          exercise: await Exercise.findById(id),
+          exercise,
         },
       });
     } catch (exc) {
+      logger.error(`Error while running /exercise/edit. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
@@ -125,12 +151,24 @@ module.exports = {
     const { id } = request.params;
 
     try {
-      await Exercise.findByIdAndDelete(id);
+      const exercise = await Exercise.findByIdAndDelete(id);
+      if (exercise == null) {
+        logger.error(`/exercise/delete: Could not find exercise with ObjectId(${id})`);
 
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Exercise could not be found',
+        });
+      }
+
+      logger.info(`Request to /exercise/delete successfully deleted ObjectId(${id})`);
       return response.json({
         statusCode: 200,
+        data: { exercise },
       });
     } catch (exc) {
+      logger.error(`Error while running /exercise/delete. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,

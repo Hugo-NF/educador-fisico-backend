@@ -21,7 +21,6 @@ seeder.connect(process.env.DB_CONN_STRING, { useNewUrlParser: true, useUnifiedTo
 });
 
 // Generating ObjectId to make relationships
-const manageExercisesId = mongoose.Types.ObjectId();
 const manageTrainingId = mongoose.Types.ObjectId();
 const manageStudentsId = mongoose.Types.ObjectId();
 const managePermissionsId = mongoose.Types.ObjectId();
@@ -33,7 +32,6 @@ let data = [
   {
     model: 'Claim',
     documents: [
-      { _id: manageExercisesId, name: 'ManageExercises' },
       { _id: manageTrainingId, name: 'ManageTraining' },
       { _id: manageStudentsId, name: 'ManageStudents' },
       { _id: managePermissionsId, name: 'ManagePermissions' },
@@ -42,8 +40,8 @@ let data = [
   {
     model: 'Role',
     documents: [
-      { _id: adminId, name: 'Administrator', claims: [managePermissionsId, manageStudentsId, manageTrainingId, manageExercisesId] },
-      { _id: teacherId, name: 'Teacher', claims: [manageStudentsId, manageTrainingId, manageExercisesId] },
+      { _id: adminId, name: 'Administrator', claims: [managePermissionsId, manageStudentsId, manageTrainingId] },
+      { _id: teacherId, name: 'Teacher', claims: [manageStudentsId, manageTrainingId] },
       { name: 'Student' },
     ],
   },
