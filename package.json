@@ -6,7 +6,8 @@
   "scripts": {
     "start": "node src/server.js",
     "development": "nodemon src/server.js",
-    "test": "NODE_ENV=test node database/seed.js && jest --detectOpenHandles --forceExit"
+    "test": "cross-env NODE_ENV=test node database/seed.js && jest --detectOpenHandles --forceExit --silent --coverage",
+    "seed": "node database/initialSeed.js"
   },
   "repository": {
     "type": "git",
@@ -28,10 +29,16 @@
     "jsonwebtoken": "^8.5.1",
     "mongoose": "^5.9.18",
     "mongoose-seed": "^0.6.0",
+    "node-mailjet": "^3.3.1",
+    "uid-generator": "^2.0.0",
     "uuid": "^8.1.0",
     "winston": "^3.2.1"
   },
   "devDependencies": {
+    "cross-env": "^7.0.2",
+    "eslint": "^7.3.1",
+    "eslint-config-airbnb-base": "^14.2.0",
+    "eslint-plugin-import": "^2.22.0",
     "jest": "^26.0.1",
     "nodemon": "^2.0.4",
     "supertest": "^4.0.2"

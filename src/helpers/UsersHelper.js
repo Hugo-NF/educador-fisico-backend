@@ -2,134 +2,123 @@ const jwt = require('jsonwebtoken');
 
 const errors = require('../config/errorsEnum');
 
-const User = require ('../models/User');
-const Role = require ('../models/Role');
-const Claim = require ('../models/Claim');
+const User = require('../models/User');
+const Role = require('../models/Role');
+const Claim = require('../models/Claim');
 
 class UsersHelper {
-    static async generateJWT(user) {
-        return jwt.sign({_id: user._id}, process.env.JWT_SECRET, { expiresIn: process.env.JWT_LIFESPAN })
+  static async generateJWT(user) {
+    return jwt.sign({ _id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_LIFESPAN });
+  }
+
+  static async hasClaim(userId, claim) {
+    const targetClaim = await Claim.findOne({ name: claim });
+    const targetUser = await User.findById(userId);
+
+    if (targetUser) {
+      const userClaims = await UsersHelper.getClaims(targetUser);
+
+      return userClaims.filter((elem) => elem.equals(targetClaim._id)).length > 0;
     }
+    return false;
+  }
 
-    static async hasClaim(userId, claim) {
-        const targetClaim = await Claim.findOne({name: claim });
-        const targetUser = await User.findById(userId);
+  static async getClaims(user) {
+    const { claims } = user;
+    const roles = await Role.find({ _id: user.roles });
 
-        if(targetUser) {
-            const userClaims = await UsersHelper.getClaims(targetUser);
-            
-            return userClaims.filter(elem => elem.equals(targetClaim._id)).length > 0;  
-        }
-        return false;
-    }
+    roles.forEach((role) => {
+      claims.push(...role.claims);
+    });
 
-    static async getClaims(user) {
-        let claims = user.claims;
-        const roles = await Role.find({ _id: user.roles });
+    return claims;
+  }
 
-        roles.forEach(role => {
-            claims.push(...role.claims);
+  static async addRole(userId, role) {
+    const roleObj = await Role.findOne({ name: role });
+    await User.findOneAndUpdate({ _id: userId }, { $push: { roles: roleObj._id } });
+  }
+
+  static async addClaim(userId, claim) {
+    const claimObj = await Claim.findOne({ name: claim });
+    await User.findOneAndUpdate({ _id: userId }, { $push: { claims: claimObj._id } });
+  }
+
+  static async removeRole(userId, role) {
+    const roleObj = await Role.findOne({ name: role });
+    await User.findOneAndUpdate({ _id: userId }, { $pullAll: { roles: [roleObj._id] } });
+  }
+
+  static async removeClaim(userId, claim) {
+    const claimObj = await Claim.findOne({ name: claim });
+    await User.findOneAndUpdate({ _id: userId }, { $pullAll: { claims: [claimObj._id] } });
+  }
+
+  static authorize(claim = null) {
+    return (request, response, next) => {
+      const token = request.header('auth-token');
+      if (!token) {
+        return response.status(401).json({
+          statusCode: 401,
+          errorCode: errors.MISSING_AUTH_TOKEN,
         });
+      }
 
-        return claims;
-    }
+      try {
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+        if (claim === null) return next();
 
-    static async addRole(user, role) {
-        const roleObj = await Role.findOne({ name: role });
-        if(user.roles.length) {
-            user.roles.push(roleObj._id);
-        }
-        else {
-            user.roles = [roleObj._id];
-        }
-    }
+        UsersHelper.hasClaim(verified._id, claim)
+          .then((result) => {
+            if (result) return next();
 
-    static async addClaim(user, claim) {
-        const claimObj = await claim.findOne({ name: claim });
-        if(user.claims.length) {
-            user.claims.push(claimObj._id);
-        }
-        else {
-            user.claims = [claimObj._id];
-        }
-    }
-
-    static async removeRole(user, role) {
-        const roleObj = await Role.findOne({ name: role });
-        user.roles == user.roles.filter(e => e !== roleObj._id);
-    }
-
-    static async removeClaim(user, claim) {
-        const claimObj = await Claim.findOne({ name: claim });
-        user.claims == user.claims.filter(e => e !== claimObj._id);
-    }
-
-    static authorize(claim) {
-        return function(request, response, next) {
-
-            const token = request.header('auth-token');
-            if(!token) return response.status(401).json({
-                'statusCode': 401,
-                'errorCode': errors.MISSING_AUTH_TOKEN
+            return response.status(403).json({
+              statusCode: 403,
+              errorCode: errors.UNAUTHORIZED_ROUTE,
             });
+          })
+          .catch((error) => response.status(500).json(error));
+      } catch (error) {
+        return response.status(401).json({
+          statusCode: 401,
+          errorCode: errors.JWT_FORGED,
+        });
+      }
+    };
+  }
 
-            try {
-                const verified = jwt.verify(token, process.env.JWT_SECRET);
+  static async updateLockout(user, currentUTC) {
+    if (user.accessFailedCount + 1 >= user.accessFailedLimit) {
+      let lockoutUntil = currentUTC;
+      lockoutUntil = lockoutUntil.setFullYear(lockoutUntil.getFullYear() + 200);
 
-                UsersHelper.hasClaim(verified._id, claim)
-                .then((result) => {
-                    if(result) return next();
+      await user.updateOne({
+        accessFailedCount: user.accessFailedCount + 1,
+        lockoutUntil,
+        lockoutReason: 'ACCESS_FAILED',
+      });
 
-                    return response.status(403).json({
-                        'statusCode': 403,
-                        'errorCode': errors.UNAUTHORIZED_ROUTE
-                    });
-                })
-                .catch((error) => {
-                    return response.status(500).json(error);
-                });
-            }
-            catch (error) {
-                return response.status(401).json({
-                    'statusCode': 401,
-                    'errorCode': errors.JWT_FORGED
-                });
-            }
-        }
+      return {
+        statusCode: 401,
+        errorCode: errors.ACCESS_FAILED_LIMIT_REACHED,
+        message: 'Access Failed limit reached',
+        error: {
+          lockoutUntil,
+          lockoutReason: 'ACCESS_FAILED',
+        },
+      };
     }
 
-    static async updateLockout(user, currentUTC) {
-        user.accessFailedCount += 1;
-                
-        if(user.accessFailedCount >= user.accessFailedLimit) {
-            let lockoutUntil = currentUTC;
-            lockoutUntil = lockoutUntil.setFullYear(lockoutUntil.getFullYear() + 200);
+    await user.updateOne({ accessFailedCount: user.accessFailedCount });
 
-            await user.update({
-                accessFailedCount: user.accessFailedCount,
-                lockoutUntil: lockoutUntil,
-                lockoutReason: 'ACCESS_FAILED'
-            });
-
-            return {
-                statusCode: 401,
-                errorCode: errors.ACCESS_FAILED_LIMIT_REACHED,
-                message: `Access Failed limit reached`,
-                error: {
-                    lockoutUntil: lockoutUntil,
-                    lockoutReason: 'ACCESS_FAILED'
-                }
-            };
-        }
-
-        await user.update({ accessFailedCount: user.accessFailedCount });
-        
-        return {
-            statusCode: 401,
-            errorCode: errors.WRONG_PASSWORD,
-            message: `Passwords do not match`
-        };
-    }
+    return {
+      statusCode: 401,
+      errorCode: errors.WRONG_PASSWORD,
+      message: 'Passwords do not match',
+    };
+  }
 }
 
 module.exports = UsersHelper;
