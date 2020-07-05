@@ -26,13 +26,15 @@ jobs:
         node-version: '12.x'
         APP_NAME: ${{secrets.APP_NAME}}
         PORT: ${{secrets.PORT}}
-        COSMOSDB_CONN_STRING: ${{secrets.COSMOSDB_CONN_STRING}}
+        DB_CONN_STRING: ${{secrets.DB_CONN_STRING}}
         TESTDB_CONN_STRING: ${{secrets.TESTDB_CONN_STRING}}
         JWT_SECRET: ${{secrets.JWT_SECRET}}
         JWT_LIFESPAN: ${{secrets.JWT_LIFESPAN}}
         MAILJET_EMAIL: ${{secrets.MAILJET_EMAIL}}
         MAILJET_PUBLIC_KEY: ${{secrets.MAILJET_PUBLIC_KEY}}
         MAILJET_PRIVATE_KEY: ${{secrets.MAILJET_PRIVATE_KEY}}
+        ACCOUNT_ACTIVATION_EXPIRATION: ${{secrets.ACCOUNT_ACTIVATION_EXPIRATION}}
+        RESET_PASSWORD_EXPIRATION: ${{secrets.RESET_PASSWORD_EXPIRATION}} 
       run: |
         npm install
         npm run build --if-present
