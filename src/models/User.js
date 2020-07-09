@@ -103,21 +103,21 @@ const userSchema = new mongoose.Schema({
   },
   measures: [{
     hight: { type: Number, required: true },
-    weight:{ type: Number, required: true },
-    chest: { type: Number, required: true },     // torax
-    waist: { type: Number, required: true },     // cintura
-    abdomen: { type: Number, required: true },   
-    hip: { type: Number, required: true },       // quadril
-    forearm: { type: Number, required: true },   
-    arm: { type: Number, required: true },       
-    thigh: { type: Number, required: true },     // coxa
-    calf:  { type: Number, required: true },     // panturrilha
-    },
-  ],  
+    weight: { type: Number, required: true },
+    chest: { type: Number, required: true },    // torax
+    waist: { type: Number, required: true },    // cintura
+    abdomen: { type: Number, required: true },
+    hip: { type: Number, required: true },      // quadril
+    forearm: { type: Number, required: true },
+    arm: { type: Number, required: true },
+    thigh: { type: Number, required: true },    // coxa
+    calf: { type: Number, required: true },     // panturrilha
+  },
+  ],
   bodyComposition: [{
     imc: { type: Number, required: true },
     fatPercentage: { type: Number, required: true },
-    iac: { type: Number, required: true },    
+    iac: { type: Number, required: true },
   }],
   vo2max: {
     type: Number,
