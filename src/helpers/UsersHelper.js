@@ -89,6 +89,47 @@ class UsersHelper {
     };
   }
 
+  static authorizeOwnership(requestPart, propName) {
+    return (request, response, next) => {
+      const token = request.header('auth-token');
+      if (!token) {
+        return response.status(401).json({
+          statusCode: 401,
+          errorCode: errors.MISSING_AUTH_TOKEN,
+        });
+      }
+
+      const targetIdentity = request[requestPart][propName];
+      try {
+        const verified = jwt.verify(token, process.env.JWT_SECRET);
+
+        if (verified._id === targetIdentity) return next();
+
+        return response.status(401).json({
+          statusCode: 401,
+          errorCode: errors.RESOURCE_OWNERSHIP_MISMATCH,
+        });
+      } catch (error) {
+        return response.status(401).json({
+          statusCode: 401,
+          errorCode: errors.JWT_FORGED,
+        });
+      }
+    };
+  }
+
+  static async currentUser(request) {
+    const token = request.header('auth-token');
+    if (!token) return null;
+    try {
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
+
+      return await User.findById(verified._id);
+    } catch (error) {
+      return null;
+    }
+  }
+
   static async updateLockout(user, currentUTC) {
     if (user.accessFailedCount + 1 >= user.accessFailedLimit) {
       let lockoutUntil = currentUTC;
