@@ -6,7 +6,7 @@ const registerValidation = {
     email: Joi.string().required().email(),
     password: Joi.string().required().min(8),
     birthDate: Joi.date().required(),
-    sex: Joi.string().required().valid('Male', 'Female', 'Other'),
+    sex: Joi.string().required().valid('Male', 'Female', 'Others'),
     phones: Joi.array().items(Joi.object().keys({
       type: Joi.string().required().valid('Mobile', 'Home', 'Work', 'Other'),
       number: Joi.string().required(),

@@ -10,13 +10,9 @@ const { celebrate } = require('celebrate');
 const HealthController = require('../controllers/HealthController');
 
 // Importing Validations
-const { indexValidation, healthValidation } = require('../validations/healthValidations');
+const { healthValidation } = require('../validations/healthValidations');
 const { idValidation } = require('../validations/utilValidations');
 
-router.post('/', celebrate(indexValidation), HealthController.index);
-router.post('/create', celebrate(healthValidation), HealthController.create);
-router.get('/:id', celebrate(idValidation), HealthController.show);
-router.put('/:id', celebrate(idValidation), celebrate(healthValidation), HealthController.edit);
-router.delete('/:id', celebrate(idValidation), HealthController.delete);
+router.post('/create/:id', celebrate(idValidation), celebrate(healthValidation), HealthController.create);
 
 module.exports = router;
