@@ -44,7 +44,7 @@ module.exports = {
       const imc = calculateIMC(height, weight);
       const iac = calculateIAC(hip, height);
 
-      await user.update({
+      await user.updateOne({
         $push: {
           healthCheckpoints: {
             date: new Date(),
