@@ -197,9 +197,9 @@ let data = [
     documents: [
       {
         _id: '5eed3357725afd09805b72c7',
-        name: 'Bodybuilder Avançado',
+        name: 'Elevação Lateral - Avançado',
         exercises: [{
-          exercise: '5ef790361968bd468a6f9ddb',
+          exercise: '5eed3320725afd09805b72c6',
           repetitions: 15,
           charge: 120,
         }],
