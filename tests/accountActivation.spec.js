@@ -78,7 +78,7 @@ describe('Account Activation', () => {
     done();
   });
 
-  it('should not activate account successfully', async (done) => {
+  it('should not activate account', async (done) => {
     // Request e-mail to be sent
     let response = await request(app)
       .post('/api/users/activate')
@@ -92,4 +92,20 @@ describe('Account Activation', () => {
 
     done();
   });
+
+  it('should not activate blocked account', async (done) => {
+    // Request e-mail to be sent
+    let response = await request(app)
+      .post('/api/users/activate')
+      .send({
+        email: 'hugolockado2@hotmail.com',
+        sandboxMode: true, // Prevents the email dispatch, thus preventing consumption while testing
+      });
+
+    expect(response.status).toBe(401);
+    expect(response.body.errorCode).toBe(errors.ACCOUNT_LOCK_OUT);
+
+    done();
+  });
+  
 });

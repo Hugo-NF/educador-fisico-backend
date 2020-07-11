@@ -88,6 +88,23 @@ let data = [
         claims: [manageStudentsId, manageTrainingId, manageExercisesId],
       },
       {
+        _id: 'e036b5f4-f857-4384-8c55-39e1a58758fd',
+        name: 'Hugo Fonseca',
+        email: 'hugolockado2@hotmail.com',
+        emailConfirmed: false,
+        password: '123456789',
+        birthDate: '1998-06-15T00:00:00.000Z',
+        sex: 'Male',
+        phones: [
+          { type: 'Mobile', number: '+55(61)99110-1515' },
+        ],
+        city: 'Ceilândia',
+        state: 'DF',
+        lockoutUntil: new Date(currentUTC.getFullYear() + 200, 1, 1),
+        lockoutReason: 'conta inativa',
+        claims: [manageStudentsId, manageTrainingId, manageExercisesId],
+      },
+      {
         _id: '9792a3ce-aa6c-4c8e-b9d6-69b988e16d60',
         name: 'Hugo Fonseca',
         email: 'hugoquaselockado@hotmail.com',
