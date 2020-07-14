@@ -1,6 +1,5 @@
 const request = require('supertest');
 const app = require('../src/app');
-const logger = require('../src/config/configLogging')
 const errors = require('../src/config/errorsEnum');
 
 const User = require('../src/models/User');
@@ -80,7 +79,7 @@ describe('Account Activation', () => {
 
   it('should not activate account', async (done) => {
     // Request e-mail to be sent
-    let response = await request(app)
+    const response = await request(app)
       .post('/api/users/activate')
       .send({
         email: 'hugonfonseca.wrong@hotmail.com',
@@ -95,7 +94,7 @@ describe('Account Activation', () => {
 
   it('should not activate blocked account', async (done) => {
     // Request e-mail to be sent
-    let response = await request(app)
+    const response = await request(app)
       .post('/api/users/activate')
       .send({
         email: 'hugolockado2@hotmail.com',
@@ -107,5 +106,4 @@ describe('Account Activation', () => {
 
     done();
   });
-  
 });

@@ -198,7 +198,7 @@ module.exports = {
 
     // Dispatch e-mail
     mailer.sendEmails([{ Email: email, Name: user.name }], 'Password Recovery Process', content, sandboxMode)
-      .then((result) => {
+      .then(() => {
         logger.info(`E-mail with password reset token sent successfully to account (${email})`);
 
         return response.json({
@@ -206,7 +206,7 @@ module.exports = {
           message: 'E-mail sent successfully',
         });
       })
-      .catch((error) => {
+      .catch(() => {
         logger.error(`E-mail with password reset token failed to send to (${email})`);
 
         return response.status(503).json({
@@ -312,7 +312,7 @@ module.exports = {
 
       // Dispatch e-mail
       mailer.sendEmails([{ Email: user.email, Name: user.name }], 'Your password was successfully reset', content, sandboxMode)
-        .then((result) => {
+        .then(() => {
           logger.info(`E-mail notifying password reset sent successfully to account (${user.email})`);
         })
         .catch((error) => {
@@ -395,7 +395,7 @@ module.exports = {
 
     // Dispatch e-mail
     mailer.sendEmails([{ Email: email, Name: user.name }], 'Confirm Your Account', content, sandboxMode)
-      .then((result) => {
+      .then(() => {
         logger.info(`E-mail with account activation token sent successfully to account (${email})`);
 
         return response.json({
@@ -469,7 +469,7 @@ module.exports = {
 
       // Dispatch e-mail
       mailer.sendEmails([{ Email: user.email, Name: user.name }], `Welcome to ${process.env.APP_NAME}, your workout companion`, content, sandboxMode)
-        .then((result) => {
+        .then(() => {
           logger.info(`Welcome e-mail sent successfully to account (${user.email})`);
         })
         .catch((error) => {

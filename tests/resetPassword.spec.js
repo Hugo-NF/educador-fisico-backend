@@ -112,7 +112,7 @@ describe('Reset Password', () => {
     const user = await User.findOne({ email: 'hugoresetpw@hotmail.com' });
     response = await request(app)
       .get(`/api/users/password/reset/${user.resetPasswordToken}`);
-    
+
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveProperty('user');
 
@@ -121,8 +121,8 @@ describe('Reset Password', () => {
 
   it('should check invalid reset password token', async (done) => {
     response = await request(app)
-      .get(`/api/users/password/reset/wrong`);
-    
+      .get('/api/users/password/reset/wrong');
+
     expect(response.status).toBe(409);
     expect(response.body.errorCode).toBe(errors.TOKEN_NOT_GENERATED);
 
@@ -159,7 +159,7 @@ describe('Reset Password', () => {
 
     response = await request(app)
       .get(`/api/users/password/reset/${user.resetPasswordToken}`);
-    
+
     expect(response.status).toBe(403);
     expect(response.body.errorCode).toBe(errors.TOKEN_EXPIRED);
 

@@ -1,4 +1,3 @@
-const dotenv = require('dotenv').config();
 const application = require('./app');
 const logger = require('./config/configLogging');
 
