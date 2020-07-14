@@ -83,4 +83,42 @@ module.exports = {
       });
     }
   },
+
+  // Show method
+  async show(request, response) {
+    const { id } = request.params;
+
+    try {
+      const user = await User.findById(id);
+      if (!user) {
+        logger.error(`An unregistered user (ID: ${id}) tried to open a health checkpoint`);
+        return response.status(404).json({
+          statusCode: 404,
+          errorCode: errors.USER_NOT_IN_DATABASE,
+          message: 'User is not in database',
+        });
+      }
+
+      return response.json({
+        statusCode: 200,
+        data: {
+          healthCheckpoints: user.healthCheckpoints,
+        },
+      });
+    } catch (exc) {
+      logger.error(`Error while running /health/show. Details: ${exc}`);
+      return response.status(500).json({
+        statusCode: 500,
+        errorCode: errors.UNKNOWN_ERROR,
+        message: `Could not retrieve user with id: ${id}`,
+        error: exc,
+      });
+    }
+  },
+
+  async delete(request, response) {
+    return response.json({
+      statusCode: 200,
+    });
+  },
 };
