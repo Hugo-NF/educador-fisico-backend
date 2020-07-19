@@ -1,3 +1,4 @@
+const dotenv = require('dotenv').config();
 const seeder = require('mongoose-seed');
 const mongoose = require('mongoose');
 
