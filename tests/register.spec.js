@@ -12,9 +12,7 @@ describe('Register', () => {
         password: '123456789',
         birthDate: new Date(1998, 6, 15),
         sex: 'Male',
-        phones: [
-          { type: 'Mobile', number: '+55(61)99110-1515' },
-        ],
+        phone: { type: 'Mobile', number: '+55(61)99110-1515' },
         city: 'Ceilândia',
         state: 'DF',
       });
@@ -33,9 +31,7 @@ describe('Register', () => {
         password: '123456789',
         birthDate: new Date(1998, 6, 15),
         sex: 'Male',
-        phones: [
-          { type: 'Mobile', number: '+55(61)99110-1515' },
-        ],
+        phone: { type: 'Mobile', number: '+55(61)99110-1515' },
         city: 'Ceilândia',
         state: 'DF',
       });
@@ -53,9 +49,7 @@ describe('Register', () => {
         password: '123456789',
         birthDate: new Date(1998, 6, 15),
         sex: 'Masculino',
-        phones: [
-          { type: 'Mobile', number: '+55(61)99110-1515' },
-        ],
+        phone: { type: 'Mobile', number: '+55(61)99110-1515' },
         city: 'Ceilândia',
         state: 'DF',
       });
@@ -73,9 +67,7 @@ describe('Register', () => {
         password: '123456',
         birthDate: new Date(1998, 6, 15),
         sex: 'Masculino',
-        phones: [
-          { type: 'Movel', number: '+55(61)99110-1515' },
-        ],
+        phone: { type: 'Movel', number: '+55(61)99110-1515' },
         city: 'Ceilândia',
         state: 'DF',
       });
@@ -93,9 +85,7 @@ describe('Register', () => {
         password: '123456789',
         birthDate: new Date(1998, 6, 15),
         sex: '',
-        phones: [
-          { type: 'Mobile', number: '+55(61)99110-1515' },
-        ],
+        phone: { type: 'Mobile', number: '+55(61)99110-1515' },
         city: 'Ceilândia',
         state: 'DF',
       });
@@ -113,9 +103,7 @@ describe('Register', () => {
         password: '123456789',
         birthDate: new Date(1998, 6, 15),
         sex: 'Male',
-        phones: [
-          { type: 'Mobile', number: '+55(61)99110-1515' },
-        ],
+        phone: { type: 'Mobile', number: '+55(61)99110-1515' },
         city: 'Ceilândia',
         state: 'AR',
       });
@@ -133,9 +121,7 @@ describe('Register', () => {
         password: '123456789',
         birthDate: new Date(1998, 6, 15),
         sex: 'Male',
-        phones: [
-          { type: 'Mobiles', number: '+55(61)99110-1515' },
-        ],
+        phone: { type: 'Mobiles', number: '+55(61)99110-1515' },
         city: 'Ceilândia',
         state: 'DF',
       });

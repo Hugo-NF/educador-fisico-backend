@@ -44,13 +44,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  phones: [
-    {
-      type: { type: String, required: true },
-      number: { type: String, required: true },
-      confirmed: { type: Boolean, required: true, default: false },
-    },
-  ],
+  phone: {
+    type: { type: String, required: true },
+    number: { type: String, required: true },
+    confirmed: { type: Boolean, required: true, default: false },
+  },
   city: {
     type: String,
     required: true,
