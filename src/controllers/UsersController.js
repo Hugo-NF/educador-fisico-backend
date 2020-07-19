@@ -71,6 +71,7 @@ module.exports = {
       if (user.accessFailedCount !== 0) await user.updateOne({ accessFailedCount: 0 });
 
       const authToken = await generateJWT(user);
+      await user.populate('roles').execPopulate();
 
       logger.info(`User ${email} logged in successfully`);
       return response.json({
@@ -79,6 +80,7 @@ module.exports = {
         data: {
           name: user.name,
           email: user.email,
+          roles: user.roles.map((e) => e.name),
           active: user.emailConfirmed,
           'auth-token': authToken,
         },
@@ -97,12 +99,12 @@ module.exports = {
     logger.info('Inbound request to /users/register');
 
     const {
-      name, email, password, birthDate, sex, phones, city, state,
+      name, email, password, birthDate, sex, phone, city, state,
     } = request.body;
 
     try {
       const user = new User({
-        name, email, password, birthDate, sex, phones, city, state,
+        name, email, password, birthDate, sex, phone, city, state,
       });
       const role = await Role.findOne({ name: 'Student' });
 

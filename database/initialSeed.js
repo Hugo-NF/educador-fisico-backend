@@ -55,9 +55,7 @@ let data = [
         password: '123456789',
         birthDate: '1998-06-15T00:00:00.000Z',
         sex: 'Male',
-        phones: [
-          { type: 'Mobile', number: '+55(61)99110-1515' },
-        ],
+        phone: { type: 'Mobile', number: '+55(61)99110-1515' },
         city: 'Ceilândia',
         state: 'DF',
         roles: [adminId],
