@@ -14,6 +14,17 @@ beforeAll(async () => {
 
 // Exercise feature
 describe('Exercise CRUD', () => {
+  it('should return all exercises successfully', async (done) => {
+    const response = await request(app)
+      .post('/api/exercises/')
+      .set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.count).toBe(2);
+    done();
+  });
   it('should register a new exercise successfully', async (done) => {
     const response = await request(app)
       .post('/api/exercises/create')
