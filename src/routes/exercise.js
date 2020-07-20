@@ -13,10 +13,10 @@ const ExercisesController = require('../controllers/ExercisesController');
 const { indexValidation, exerciseValidation } = require('../validations/exerciseValidations');
 const { idValidation } = require('../validations/utilValidations');
 
-router.post('/', celebrate(indexValidation), ExercisesController.index);
-router.post('/create', celebrate(exerciseValidation), ExercisesController.create);
-router.get('/:id', celebrate(idValidation), ExercisesController.show);
-router.put('/:id', celebrate(idValidation), celebrate(exerciseValidation), ExercisesController.edit);
-router.delete('/:id', celebrate(idValidation), ExercisesController.delete);
+router.post('/', celebrate(indexValidation, { abortEarly: false }), ExercisesController.index);
+router.post('/create', celebrate(exerciseValidation, { abortEarly: false }), ExercisesController.create);
+router.get('/:id', celebrate(idValidation, { abortEarly: false }), ExercisesController.show);
+router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(exerciseValidation, { abortEarly: false }), ExercisesController.edit);
+router.delete('/:id', celebrate(idValidation, { abortEarly: false }), ExercisesController.delete);
 
 module.exports = router;
