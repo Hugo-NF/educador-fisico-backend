@@ -13,6 +13,15 @@ const ExercisesController = require('../controllers/ExercisesController');
 const { indexValidation, exerciseValidation } = require('../validations/exerciseValidations');
 const { idValidation } = require('../validations/utilValidations');
 
+/**
+ * @swagger
+ * /api/exercise/:id:
+ *  get:
+ *    description: Show the exercise
+ *    responses:
+ *      '200':
+ *          description: a successful response
+ */
 router.post('/', celebrate(indexValidation, { abortEarly: false }), ExercisesController.index);
 router.post('/create', celebrate(exerciseValidation, { abortEarly: false }), ExercisesController.create);
 router.get('/:id', celebrate(idValidation, { abortEarly: false }), ExercisesController.show);
