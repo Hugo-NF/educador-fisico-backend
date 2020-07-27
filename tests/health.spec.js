@@ -40,4 +40,53 @@ describe('Health', () => {
 
     done();
   });
+
+  // show method
+  it('should return the health checkpoint successfully', async (done) => {
+    const response = await request(app)
+      .get('/api/health/?').set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(200);
+    expect(response.body.data).toHaveProperty('health');
+    done();
+  });
+
+  it('should return health checkpoint route not found (aka 404)', async (done) => {
+    const response = await request(app)
+      .get('/api/health/?').set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(404);
+    expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
+    done();
+  });
+
+  // delete method
+  it('should delete the health checkpoint successfully', async (done) => {
+    const response = await request(app)
+      .get('/api/health/?').set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(200);
+
+    const response2 = await request(app)
+      .delete('/api/health/?').set({
+        'auth-token': authToken,
+      });
+
+    expect(response2.status).toBe(200);
+
+    const response3 = await request(app)
+      .get('/api/health/?').set({
+        'auth-token': authToken,
+      });
+
+    expect(response3.status).toBe(404);
+
+    done();
+  });
 });

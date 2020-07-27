@@ -100,12 +100,6 @@ describe('Circuit CRUD', () => {
   });
 
   it('should return route not found (aka 404)', async (done) => {
-    const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c7').set({
-        'auth-token': authToken,
-      });
-    expect(response.status).toBe(200);
-
     const response2 = await request(app)
       .put('/api/circuits/5eed3357725afd09805b72c9')
       .set({
@@ -153,18 +147,6 @@ describe('Circuit CRUD', () => {
   it('should return route not found (aka 404)', async (done) => {
     const response = await request(app)
       .delete('/api/circuits/5eed3357725afd09805b72c4').set({
-        'auth-token': authToken,
-      });
-
-    expect(response.status).toBe(404);
-    expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
-
-    done();
-  });
-
-  it('should return route not found (aka 404)', async (done) => {
-    const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c0').set({
         'auth-token': authToken,
       });
 

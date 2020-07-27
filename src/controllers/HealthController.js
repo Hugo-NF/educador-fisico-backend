@@ -4,6 +4,8 @@ const errors = require('../config/errorsEnum');
 const { calculateIMC, calculateIAC } = require('../helpers/HealthHelper');
 
 const User = require('../models/User');
+const { find } = require('../models/User');
+const Health = require('../models/Health');
 
 module.exports = {
   async create(request, response) {
@@ -44,29 +46,33 @@ module.exports = {
       const imc = calculateIMC(height, weight);
       const iac = calculateIAC(hip, height);
 
+      const healthCheckpoint = new Health({
+        date: new Date(),
+        measures: {
+          height,
+          weight,
+          chest,
+          waist,
+          abdomen,
+          hip,
+          forearm,
+          arm,
+          thigh,
+          calf,
+        },
+        bodyStats: {
+          imc,
+          iac,
+          vo2max,
+          fatPercentage,
+        },
+        objective,
+      });
+
       await user.updateOne({
         $push: {
           healthCheckpoints: {
-            date: new Date(),
-            measures: {
-              height,
-              weight,
-              chest,
-              waist,
-              abdomen,
-              hip,
-              forearm,
-              arm,
-              thigh,
-              calf,
-            },
-            bodyStats: {
-              imc,
-              iac,
-              vo2max,
-              fatPercentage,
-            },
-            objective,
+            healthCheckpoint._id,
           },
         },
       });
@@ -102,7 +108,7 @@ module.exports = {
       return response.json({
         statusCode: 200,
         data: {
-          healthCheckpoints: user.healthCheckpoints,
+          healthCheckpoint,
         },
       });
     } catch (exc) {
