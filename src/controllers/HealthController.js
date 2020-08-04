@@ -165,7 +165,8 @@ module.exports = {
       if (checkpoint == null) {
         return response.status(404).json({
           statusCode: 404,
-          data: checkpoint,
+          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
+          message: 'Health checkpoint could not be found',
         });
       }
 

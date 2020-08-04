@@ -89,7 +89,7 @@ class UsersHelper {
     };
   }
 
-  static async currentUserId(request) {
+  static currentUserId(request) {
     const token = request.header('auth-token');
     if (!token) return null;
     try {

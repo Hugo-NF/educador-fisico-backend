@@ -13,8 +13,8 @@ const HealthController = require('../controllers/HealthController');
 const { healthValidation } = require('../validations/healthValidations');
 const { idValidation, dateSpanValidation } = require('../validations/utilValidations');
 
-router.post('/create', celebrate(idValidation), celebrate(healthValidation), HealthController.create);
-router.post('/', celebrate(idValidation), celebrate(dateSpanValidation), HealthController.show);
-router.delete('/', celebrate(idValidation), HealthController.delete);
+router.post('/create', celebrate(healthValidation), HealthController.create);
+router.post('/', celebrate(dateSpanValidation), HealthController.show);
+router.delete('/:id', celebrate(idValidation), HealthController.delete);
 
 module.exports = router;

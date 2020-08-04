@@ -1,11 +1,12 @@
 const request = require('supertest');
 const app = require('../src/app');
+const User = require('../src/models/User');
 
 beforeAll(async () => {
   const response = await request(app)
     .post('/api/users/login')
     .send({
-      email: 'hugonfonseca@hotmail.com',
+      email: 'ailamar.sedentaria@hotmail.com',
       password: '123456789',
     });
   authToken = response.body.data['auth-token'];
@@ -13,9 +14,14 @@ beforeAll(async () => {
 
 // Health feature
 describe('Health', () => {
-  it('should a measures added successfully', async (done) => {
+  it('should add a checkpoint successfully', async (done) => {
+    const userBefore = await User.find({ email: 'ailamar.sedentaria@hotmail.com' });
+
     const response = await request(app)
-      .post('/api/health/create/322c582d-ed39-4f90-8e0c-5b2409736bda')
+      .post('/api/health/create')
+      .set({
+        'auth-token': authToken,
+      })
       .send({
         measures: {
           height: 180,
@@ -33,60 +39,96 @@ describe('Health', () => {
           vo2max: 5,
           fatPercentage: 20,
         },
+        ipaq: {
+          walkPerWeek1a: 3,
+          walkTimePerDay1b: 100,
+          moderateActivityPerWeek2a: 5,
+          moderateActivityTimePerDay2b: 120,
+          vigorousActivityPerWeek3a: 200,
+          vigorousActivityTimePerDay3b: 140,
+          seatedTimeWeekday4a: 210,
+          seatedTimeWeekend4b: 210,
+        },
         objective: 'Definicao corporal',
       });
 
     expect(response.status).toBe(200);
 
+    const userAfter = await User.find({ email: 'ailamar.sedentaria@hotmail.com' });
+
+    expect(userAfter.healthCheckpoints.length).toBe(userBefore.healthCheckpoints.length + 1);
+
     done();
   });
 
-  // show method
-  it('should return the health checkpoint successfully', async (done) => {
+  // Show method - No date filter
+  it('should return all checkpoints', async (done) => {
+    const user = await User.find({ email: 'ailamar.sedentaria@hotmail.com' });
+
     const response = await request(app)
-      .get('/api/health/?').set({
+      .post('/api/health/')
+      .set({
         'auth-token': authToken,
       });
 
     expect(response.status).toBe(200);
-    expect(response.body.data).toHaveProperty('health');
+    expect(response.body.data.length).toBe(user.healthCheckpoints.length);
     done();
   });
 
-  it('should return health checkpoint route not found (aka 404)', async (done) => {
+  // Para os testes com data, lembrar de colocar as entradas no seed.js para que você saiba quais datas testar
+  it('should return health checkpoints between two dates', async (done) => {
     const response = await request(app)
-      .get('/api/health/?').set({
+      .post('/api/health')
+      .set({
+        'auth-token': authToken,
+      })
+      .send({
+        startDate: new Date(1998, 6, 15), // Mudar a data
+        endDate: new Date(1998, 6, 15), // Mudar a data
+      });
+
+    // Colocar os expects de quantos checkpoints estão entre as duas datas testadas
+    done();
+  });
+
+  it('should return health checkpoints between one date and now', async (done) => {
+    const response = await request(app)
+      .post('/api/health')
+      .set({
+        'auth-token': authToken,
+      })
+      .send({
+        startDate: new Date(1998, 6, 15), // Mudar a data
+      });
+
+    // Colocar os expects de quantos checkpoints estão entre as datas testadas
+    done();
+  });
+
+  // Lembrar de colocar as entradas no seed.js para que você saiba qual IDs usar para deletar
+  // Delete method - Checkpoint exists
+  it('should delete the health checkpoint successfully', async (done) => {
+    const response = await request(app)
+      .delete('/api/health/PEGAR DO SEED.JS')
+      .set({
+        'auth-token': authToken,
+      });
+
+    // Colocar os expects para verificar se o ID sumiu da collection health e se o healthCheckpoints do usuário diminuiu em 1
+    done();
+  });
+
+  // Delete method - Checkpoint DO NOT exist
+  it('should NOT delete the health checkpoint, a.k.a Not Found (404)', async (done) => {
+    const response = await request(app)
+      .delete('/api/health/5713809576185')
+      .set({
         'auth-token': authToken,
       });
 
     expect(response.status).toBe(404);
     expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
-    done();
-  });
-
-  // delete method
-  it('should delete the health checkpoint successfully', async (done) => {
-    const response = await request(app)
-      .get('/api/health/?').set({
-        'auth-token': authToken,
-      });
-
-    expect(response.status).toBe(200);
-
-    const response2 = await request(app)
-      .delete('/api/health/?').set({
-        'auth-token': authToken,
-      });
-
-    expect(response2.status).toBe(200);
-
-    const response3 = await request(app)
-      .get('/api/health/?').set({
-        'auth-token': authToken,
-      });
-
-    expect(response3.status).toBe(404);
-
     done();
   });
 });
