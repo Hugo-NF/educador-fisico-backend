@@ -76,4 +76,34 @@ describe('Account Activation', () => {
 
     done();
   });
+
+  it('should not activate account', async (done) => {
+    // Request e-mail to be sent
+    const response = await request(app)
+      .post('/api/users/activate')
+      .send({
+        email: 'hugonfonseca.wrong@hotmail.com',
+        sandboxMode: true, // Prevents the email dispatch, thus preventing consumption while testing
+      });
+
+    expect(response.status).toBe(409);
+    expect(response.body.errorCode).toBe(errors.USER_NOT_IN_DATABASE);
+
+    done();
+  });
+
+  it('should not activate blocked account', async (done) => {
+    // Request e-mail to be sent
+    const response = await request(app)
+      .post('/api/users/activate')
+      .send({
+        email: 'hugolockado2@hotmail.com',
+        sandboxMode: true, // Prevents the email dispatch, thus preventing consumption while testing
+      });
+
+    expect(response.status).toBe(401);
+    expect(response.body.errorCode).toBe(errors.ACCOUNT_LOCK_OUT);
+
+    done();
+  });
 });

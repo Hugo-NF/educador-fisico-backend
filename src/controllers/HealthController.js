@@ -72,7 +72,7 @@ module.exports = {
       await user.updateOne({
         $push: {
           healthCheckpoints: {
-            healthCheckpoint._id,
+            // healthCheckpoint._id,
           },
         },
       });
