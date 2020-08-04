@@ -2,13 +2,14 @@ const logger = require('../config/configLogging');
 const errors = require('../config/errorsEnum');
 
 const { calculateIMC, calculateIAC } = require('../helpers/HealthHelper');
+const { currentUserId } = require('../helpers/UsersHelper');
 
 const User = require('../models/User');
 const Health = require('../models/Health');
 
 module.exports = {
   async create(request, response) {
-    const { id } = request.params;
+    const id = currentUserId(request);
     try {
       const user = await User.findById(id);
 
@@ -99,7 +100,7 @@ module.exports = {
     } catch (exc) {
       return response.status(500).json({
         statusCode: 500,
-        message: 'Error while saving new checkpoint',
+        message: `Error while saving new checkpoint to user(${id})`,
         error: exc,
       });
     }
@@ -107,7 +108,7 @@ module.exports = {
 
   // Show method
   async show(request, response) {
-    const { id } = request.params;
+    const id = currentUserId(request);
 
     let { startDate, endDate = new Date() } = request.body;
 
@@ -159,7 +160,7 @@ module.exports = {
       // Delete from Health collection
       const checkpoint = await Health.findByIdAndDelete(id);
       // Removes reference from User
-      await User.findOneAndUpdate({ _id: '8719d08e-78ce-4c80-b936-71b2a258cbd5' }, { $pullAll: { healthCheckpoints: [id] } });
+      await User.findOneAndUpdate({ _id: currentUserId(request) }, { $pullAll: { healthCheckpoints: [id] } });
 
       if (checkpoint == null) {
         return response.status(404).json({

@@ -59,7 +59,7 @@ application.use(express.json());
 application.use('/api/users', userRoutes);
 application.use('/api/exercises', authorize('ManageTraining'), exerciseRoutes);
 application.use('/api/circuits', authorize('ManageTraining'), circuitRoutes);
-application.use('/api/health', healthRoutes);
+application.use('/api/health', authorize(), healthRoutes);
 application.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 application.use(errors());
 
