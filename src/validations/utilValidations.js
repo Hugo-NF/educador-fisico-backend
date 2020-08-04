@@ -6,6 +6,14 @@ const idValidation = {
   }),
 };
 
+const dateSpanValidation = {
+  [Segments.BODY]: Joi.object().keys({
+    startDate: Joi.date(),
+    endDate: Joi.date(),
+  }),
+};
+
 module.exports = {
   idValidation,
+  dateSpanValidation,
 };

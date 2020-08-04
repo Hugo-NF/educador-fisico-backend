@@ -18,6 +18,16 @@ const healthValidation = {
       vo2max: Joi.number().positive(),
       fatPercentage: Joi.number().positive(),
     }),
+    ipaq: Joi.object().keys({
+      walkPerWeek1a: Joi.number().positive(),
+      walkTimePerDay1b: Joi.number().positive(),
+      moderateActivityPerWeek2a: Joi.number().positive(),
+      moderateActivityTimePerDay2b: Joi.number().positive(),
+      vigorousActivityPerWeek3a: Joi.number().positive(),
+      vigorousActivityTimePerDay3b: Joi.number().positive(),
+      seatedTimeWeekday4a: Joi.number().positive(),
+      seatedTimeWeekend4b: Joi.number().positive(),
+    }),
     objective: Joi.string().required(),
   }),
 };

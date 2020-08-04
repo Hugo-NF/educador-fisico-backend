@@ -40,6 +40,16 @@ module.exports = {
           vo2max,
           fatPercentage,
         },
+        ipaq: {
+          walkPerWeek1a,
+          walkTimePerDay1b,
+          moderateActivityPerWeek2a,
+          moderateActivityTimePerDay2b,
+          vigorousActivityPerWeek3a,
+          vigorousActivityTimePerDay3b,
+          seatedTimeWeekday4a,
+          seatedTimeWeekend4b,
+        },
         objective,
       } = request.body;
 
@@ -47,7 +57,6 @@ module.exports = {
       const iac = calculateIAC(hip, height);
 
       const healthCheckpoint = new Health({
-        date: new Date(),
         measures: {
           height,
           weight,
@@ -66,15 +75,22 @@ module.exports = {
           vo2max,
           fatPercentage,
         },
+        ipaq: {
+          walkPerWeek1a,
+          walkTimePerDay1b,
+          moderateActivityPerWeek2a,
+          moderateActivityTimePerDay2b,
+          vigorousActivityPerWeek3a,
+          vigorousActivityTimePerDay3b,
+          seatedTimeWeekday4a,
+          seatedTimeWeekend4b,
+        },
         objective,
       });
 
+      await healthCheckpoint.save();
       await user.updateOne({
-        $push: {
-          healthCheckpoints: {
-            // healthCheckpoint._id,
-          },
-        },
+        $push: { healthCheckpoints: healthCheckpoint._id },
       });
 
       return response.json({
@@ -94,6 +110,8 @@ module.exports = {
   async show(request, response) {
     const { id } = request.params;
 
+    let { startDate, endDate = new Date() } = request.body;
+
     try {
       const user = await User.findById(id);
       if (!user) {
@@ -105,18 +123,30 @@ module.exports = {
         });
       }
 
+      await user.populate('healthCheckpoints').execPopulate();
+
+      if (startDate !== undefined) {
+        startDate = new Date(startDate);
+        endDate = new Date(endDate);
+
+        return response.json({
+          statusCode: 200,
+          startDate,
+          endDate,
+          data: user.healthCheckpoints.filter((element) => element.createdAt >= startDate && element.createdAt < endDate),
+        });
+      }
+
       return response.json({
         statusCode: 200,
-        data: {
-          healthCheckpoint,
-        },
+        data: user.healthCheckpoints,
       });
     } catch (exc) {
       logger.error(`Error while running /health/show. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: `Could not retrieve user with id: ${id}`,
+        message: `Could not retrieve health checkpoints for user(${id})`,
         error: exc,
       });
     }
