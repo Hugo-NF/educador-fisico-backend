@@ -4,7 +4,6 @@ const errors = require('../config/errorsEnum');
 const { calculateIMC, calculateIAC } = require('../helpers/HealthHelper');
 
 const User = require('../models/User');
-const { find } = require('../models/User');
 const Health = require('../models/Health');
 
 module.exports = {
@@ -157,22 +156,21 @@ module.exports = {
     const { id } = request.params;
 
     try {
-      const user = await User.findByIdAndDelete(id);
-      if (!user) {
-        logger.error(`/healthCheckpoint/delete: Could not find an user (ID: ${id}) in database`);
+      // Delete from Health collection
+      const checkpoint = await Health.findByIdAndDelete(id);
+      // Removes reference from User
+      await User.findOneAndUpdate({ _id: '8719d08e-78ce-4c80-b936-71b2a258cbd5' }, { $pullAll: { healthCheckpoints: [id] } });
 
+      if (checkpoint == null) {
         return response.status(404).json({
           statusCode: 404,
-          errorCode: errors.RESOURCE_NOT_IN_DATABASE,
-          message: 'User could not be found',
+          data: checkpoint,
         });
       }
 
       return response.json({
         statusCode: 200,
-        data: {
-          healthCheckpoints: user.healthCheckpoints,
-        },
+        data: checkpoint,
       });
     } catch (exc) {
       logger.error(`Error while running /healthCheckpoint/delete. Details: ${exc}`);
