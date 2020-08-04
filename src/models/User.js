@@ -44,13 +44,11 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  phones: [
-    {
-      type: { type: String, required: true },
-      number: { type: String, required: true },
-      confirmed: { type: Boolean, required: true, default: false },
-    },
-  ],
+  phone: {
+    type: { type: String, required: true },
+    number: { type: String, required: true },
+    confirmed: { type: Boolean, required: true, default: false },
+  },
   city: {
     type: String,
     required: true,
@@ -97,35 +95,7 @@ const userSchema = new mongoose.Schema({
   },
   roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }],
   claims: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Claim' }],
-
-  healthCheckpoints: [{
-    date: {
-      type: Date,
-      required: true,
-    },
-    measures: {
-      height: { type: Number, required: true },
-      weight: { type: Number, required: true },
-      chest: { type: Number }, // torax
-      waist: { type: Number }, // cintura
-      abdomen: { type: Number },
-      hip: { type: Number }, // quadril
-      forearm: { type: Number },
-      arm: { type: Number },
-      thigh: { type: Number }, // coxa
-      calf: { type: Number }, // panturrilha
-    },
-    bodyStats: {
-      imc: { type: Number, required: true },
-      iac: { type: Number, required: true },
-      vo2max: { type: Number },
-      fatPercentage: { type: Number },
-    },
-    objective: {
-      type: String,
-      required: true,
-    },
-  }],
+  healthCheckpoints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Health' }],
 },
 {
   timestamps: true,

@@ -3,6 +3,8 @@ const express = require('express');
 const cors = require('cors');
 const { errors } = require('celebrate');
 const mongoose = require('mongoose');
+const swaggerJsDoc = require('swagger-jsdoc');
+const swaggerUi = require('swagger-ui-express');
 const logger = require('./config/configLogging');
 
 // Importing routes
@@ -27,6 +29,22 @@ mongoose.connect(
   },
 );
 
+const swaggerOptions = {
+  swaggerDefinition: {
+    info: {
+      title: 'Treino para Todos API',
+      description: 'Informações sobre a API do Treino para Todos',
+      contact: {
+        name: 'Mota',
+      },
+      servers: ['http://localhost:3000'],
+    },
+  },
+  apis: ['src/routes/*.js'],
+};
+
+const swaggerDocs = swaggerJsDoc(swaggerOptions);
+
 const application = express();
 
 // Static resources setup
@@ -42,6 +60,7 @@ application.use('/api/users', userRoutes);
 application.use('/api/exercises', authorize('ManageTraining'), exerciseRoutes);
 application.use('/api/circuits', authorize('ManageTraining'), circuitRoutes);
 application.use('/api/health', healthRoutes);
+application.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 application.use(errors());
 
 module.exports = application;

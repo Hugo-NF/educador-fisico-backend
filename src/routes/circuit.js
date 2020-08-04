@@ -15,10 +15,19 @@ const CircuitsController = require('../controllers/CircuitsController');
 const { indexValidation, circuitValidation } = require('../validations/circuitValidations');
 const { idValidation } = require('../validations/utilValidations');
 
-router.post('/', celebrate(indexValidation), CircuitsController.index);
-router.post('/create', celebrate(circuitValidation), CircuitsController.create);
-router.get('/:id', celebrate(idValidation), CircuitsController.show);
-router.put('/:id', celebrate(idValidation), celebrate(circuitValidation), CircuitsController.edit);
-router.delete('/:id', celebrate(idValidation), CircuitsController.delete);
+/**
+ * @swagger
+ * /api/circuits:
+ *  post:
+ *    description: Use to request all circuits
+ *    responses:
+ *      '200':
+ *          description: a successful response
+ */
+router.post('/', celebrate(indexValidation, { abortEarly: false }), CircuitsController.index);
+router.post('/create', celebrate(circuitValidation, { abortEarly: false }), CircuitsController.create);
+router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsController.show);
+router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(circuitValidation, { abortEarly: false }), CircuitsController.edit);
+router.delete('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsController.delete);
 
 module.exports = router;

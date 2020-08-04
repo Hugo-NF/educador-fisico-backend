@@ -67,7 +67,7 @@ const logger = new createLogger({
 
 // create a stream object with a 'write' function that will be used by `morgan`
 logger.stream = {
-  write(message, encoding) {
+  write(message) {
     // use 'info' log level so the output will be picked up by both transports (file and console)
     logger.info(message);
   },
