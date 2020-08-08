@@ -1,24 +1,6 @@
-const dotenv = require('dotenv').config();
+require('dotenv/config');
 const seeder = require('mongoose-seed');
 const mongoose = require('mongoose');
-
-// Connect to MongoDB via Mongoose
-seeder.connect(process.env.DB_CONN_STRING, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
-  // Load Mongoose models
-  seeder.loadModels([
-    './src/models/Role',
-    './src/models/Claim',
-    './src/models/User',
-  ]);
-
-  // Clear specified collections
-  seeder.clearModels(['Role', 'Claim', 'User'], () => {
-    // Callback to populate DB once collections have been cleared
-    seeder.populateModels(data, () => {
-      seeder.disconnect();
-    });
-  });
-});
 
 // Generating ObjectId to make relationships
 const manageTrainingId = mongoose.Types.ObjectId();
@@ -28,7 +10,7 @@ const adminId = mongoose.Types.ObjectId();
 const teacherId = mongoose.Types.ObjectId();
 
 // Data array containing seed data - documents organized by Model
-let data = [
+const data = [
   {
     model: 'Claim',
     documents: [
@@ -63,3 +45,21 @@ let data = [
     ],
   },
 ];
+
+// Connect to MongoDB via Mongoose
+seeder.connect(process.env.DB_CONN_STRING, { useNewUrlParser: true, useUnifiedTopology: true }, () => {
+  // Load Mongoose models
+  seeder.loadModels([
+    './src/models/Role',
+    './src/models/Claim',
+    './src/models/User',
+  ]);
+
+  // Clear specified collections
+  seeder.clearModels(['Role', 'Claim', 'User'], () => {
+    // Callback to populate DB once collections have been cleared
+    seeder.populateModels(data, () => {
+      seeder.disconnect();
+    });
+  });
+});

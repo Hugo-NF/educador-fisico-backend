@@ -100,6 +100,7 @@ const userSchema = new mongoose.Schema({
   timestamps: true,
 });
 
+/* eslint-disable func-names */
 // Mongoose callback - Password Hashing
 userSchema.pre('save', async function (next) {
   const user = this;
