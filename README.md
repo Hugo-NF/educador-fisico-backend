@@ -1,5 +1,6 @@
 # Educador Físico - NodeJS server
-[![Actions Status](https://github.com/Hugo-NF/educador-fisico-backend/workflows/Build%20and%20deploy%20Node.js%20app%20to%20Azure%20Web%20App%20-%20educadorfisico/badge.svg)](https://github.com/Hugo-NF/educador-fisico-backend/actions) 
+![Build, test and deploy to Azure - educadorfisico](https://github.com/Hugo-NF/educador-fisico-backend/workflows/Build,%20test%20and%20deploy%20to%20Azure%20-%20educadorfisico/badge.svg)
+![CI](https://github.com/Hugo-NF/educador-fisico-backend/workflows/CI/badge.svg)
 ![Language Count](https://img.shields.io/github/languages/count/Hugo-NF/educador-fisico-backend)
 ![Repo size](https://img.shields.io/github/repo-size/Hugo-NF/educador-fisico-backend)
 [![Commit History](https://img.shields.io/github/last-commit/Hugo-NF/educador-fisico-backend)](https://github.com/Hugo-NF/educador-fisico-backend/commits/master)
