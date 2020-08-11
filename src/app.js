@@ -27,12 +27,26 @@ const swaggerOptions = {
       title: 'Treino para Todos API',
       description: 'Informações sobre a API do Treino para Todos',
       contact: {
-        name: 'Mota',
+        name: 'Equipe Treino para todos',
+        url: 'https://github.com/Hugo-NF/educador-fisico-backend',
+        email: 'hugonfonseca@hotmail.com'
       },
       servers: ['http://localhost:3000'],
     },
   },
   apis: ['src/routes/*.js'],
+  tags: [{
+    name: 'circuit',
+    description: 'Circuits operations'
+  },
+  {
+    name: 'user',
+    description: 'Users operations'
+  },
+  {
+    name: 'exercise',
+    description: 'Exercises operations'
+  }]
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
