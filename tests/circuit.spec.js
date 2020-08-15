@@ -9,7 +9,7 @@ beforeAll(async () => {
       email: 'hugonfonseca@hotmail.com',
       password: '123456789',
     });
-  authToken = response.body.data['auth-token'];
+  authToken = response.body.data.authToken;
 });
 
 // Circuit feature
@@ -17,9 +17,7 @@ describe('Circuit CRUD', () => {
   it('should return all circuits successfully', async (done) => {
     const response = await request(app)
       .post('/api/circuits/')
-      .set({
-        'auth-token': authToken,
-      });
+      .set({ authToken });
 
     expect(response.status).toBe(200);
     expect(response.body.count).toBe(1);
@@ -29,9 +27,7 @@ describe('Circuit CRUD', () => {
   it('should register a new circuit successfully', async (done) => {
     const response = await request(app)
       .post('/api/circuits/create')
-      .set({
-        'auth-token': authToken,
-      })
+      .set({ authToken })
       .send({
         name: 'Elevação Frontal - Avançado',
         exercises: [{
@@ -49,9 +45,7 @@ describe('Circuit CRUD', () => {
   it('should state bad request on create', async (done) => {
     const response = await request(app)
       .post('/api/circuits/create')
-      .set({
-        'auth-token': authToken,
-      })
+      .set({ authToken })
       .send({
         name: 'Elevação Lateral - Avançado',
       });
@@ -63,9 +57,7 @@ describe('Circuit CRUD', () => {
 
   it('should return the circuit successfully', async (done) => {
     const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c7').set({
-        'auth-token': authToken,
-      });
+      .get('/api/circuits/5eed3357725afd09805b72c7').set({ authToken });
 
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveProperty('circuit');
@@ -74,9 +66,7 @@ describe('Circuit CRUD', () => {
 
   it('should return route not found (aka 404) on show', async (done) => {
     const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c4').set({
-        'auth-token': authToken,
-      });
+      .get('/api/circuits/5eed3357725afd09805b72c4').set({ authToken });
 
     expect(response.status).toBe(404);
     expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
@@ -85,16 +75,12 @@ describe('Circuit CRUD', () => {
 
   it('should edit the circuit successfully', async (done) => {
     const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c7').set({
-        'auth-token': authToken,
-      });
+      .get('/api/circuits/5eed3357725afd09805b72c7').set({ authToken });
     expect(response.status).toBe(200);
 
     const response2 = await request(app)
       .put('/api/circuits/5eed3357725afd09805b72c7')
-      .set({
-        'auth-token': authToken,
-      })
+      .set({ authToken })
       .send({
         name: 'Elevação Lateral - Editado',
         exercises: [{
@@ -114,9 +100,7 @@ describe('Circuit CRUD', () => {
   it('should return route not found (aka 404) on edit', async (done) => {
     const response = await request(app)
       .put('/api/circuits/5eed3357725afd09805b72c9')
-      .set({
-        'auth-token': authToken,
-      })
+      .set({ authToken })
       .send({
         name: 'Bodybuilder Editado',
         exercises: [{
@@ -133,23 +117,17 @@ describe('Circuit CRUD', () => {
 
   it('should delete the circuit successfully', async (done) => {
     const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c7').set({
-        'auth-token': authToken,
-      });
+      .get('/api/circuits/5eed3357725afd09805b72c7').set({ authToken });
 
     expect(response.status).toBe(200);
 
     const response2 = await request(app)
-      .delete('/api/circuits/5eed3357725afd09805b72c7').set({
-        'auth-token': authToken,
-      });
+      .delete('/api/circuits/5eed3357725afd09805b72c7').set({ authToken });
 
     expect(response2.status).toBe(200);
 
     const response3 = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c7').set({
-        'auth-token': authToken,
-      });
+      .get('/api/circuits/5eed3357725afd09805b72c7').set({ authToken });
 
     expect(response3.status).toBe(404);
 
@@ -158,9 +136,7 @@ describe('Circuit CRUD', () => {
 
   it('should return route not found (aka 404) on delete', async (done) => {
     const response = await request(app)
-      .delete('/api/circuits/5eed3357725afd09805b72c4').set({
-        'auth-token': authToken,
-      });
+      .delete('/api/circuits/5eed3357725afd09805b72c4').set({ authToken });
 
     expect(response.status).toBe(404);
     expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);

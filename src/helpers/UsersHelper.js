@@ -6,6 +6,7 @@ const constants = require('../config/constants');
 const User = require('../models/User');
 const Role = require('../models/Role');
 const Claim = require('../models/Claim');
+const logger = require('../config/configLogging');
 
 /* eslint-disable consistent-return */
 class UsersHelper {
@@ -60,7 +61,8 @@ class UsersHelper {
 
   static authorize(claim = null) {
     return (request, response, next) => {
-      const token = request.header('auth-token');
+      const token = request.header('authToken');
+
       if (!token) {
         return response.status(401).json({
           statusCode: 401,
@@ -92,7 +94,8 @@ class UsersHelper {
   }
 
   static currentUserId(request) {
-    const token = request.header('auth-token');
+    const token = request.header('authToken');
+
     if (!token) return null;
     try {
       const verified = jwt.verify(token, process.env.JWT_SECRET);

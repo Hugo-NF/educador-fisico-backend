@@ -85,7 +85,7 @@ module.exports = {
           email: user.email,
           roles: user.roles.map((e) => e.name),
           active: user.emailConfirmed,
-          'auth-token': authToken,
+          authToken,
         },
       });
     } catch (exc) {
