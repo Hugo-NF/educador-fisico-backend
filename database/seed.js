@@ -13,6 +13,7 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
     './src/models/User',
     './src/models/Exercise',
     './src/models/Circuit',
+    './src/models/Health',
   ]);
 
   // Generating ObjectId to make relationships
@@ -23,6 +24,7 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
   const adminId = mongoose.Types.ObjectId();
   const teacherId = mongoose.Types.ObjectId();
 
+  const healthCheckpointId = mongoose.Types.ObjectId('5f382c26c21c6b7f70227f5e');
   const currentUTC = new Date();
 
   // Data array containing seed data - documents organized by Model
@@ -173,6 +175,21 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
           accessFailedCount: 0,
           roles: [adminId],
         },
+        {
+          _id: '322c582d-ed39-4f90-8e0c-5b2409736bda',
+          name: 'Ailamar Alves',
+          email: 'ailamar.sedentaria@hotmail.com',
+          emailConfirmed: false,
+          password: '123456789',
+          birthDate: '1998-06-15T00:00:00.000Z',
+          sex: 'Female',
+          phone: { type: 'Mobile', number: '+55(61)99110-1515' },
+          city: 'Ceilândia',
+          state: 'DF',
+          accessFailedCount: 0,
+          roles: [adminId],
+          healthCheckpoints: [healthCheckpointId, mongoose.Types.ObjectId('5f382b5076119f513dcd055f')],
+        },
       ],
     },
     {
@@ -193,6 +210,42 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
             repetitions: 15,
             charge: 120,
           }],
+        },
+      ],
+    },
+    {
+      model: 'Health',
+      documents: [
+        {
+          _id: healthCheckpointId,
+          measures: {
+            height: 2.10,
+            weight: 85,
+            chest: 48,
+            abdomen: 15,
+            hip: 12,
+            forearm: 52,
+            arm: 13,
+            thigh: 54,
+            calf: 58,
+          },
+          bodyStats: {
+            vo2max: 3.5,
+            fatPercentage: 0.29,
+            iac: 10,
+            imc: 32,
+          },
+          ipaq: {
+            walkPerWeek1a: 3,
+            walkTimePerDay1b: 100,
+            moderateActivityPerWeek2a: 5,
+            moderateActivityTimePerDay2b: 120,
+            vigorousActivityPerWeek3a: 200,
+            vigorousActivityTimePerDay3b: 140,
+            seatedTimeWeekday4a: 210,
+            seatedTimeWeekend4b: 210,
+          },
+          objective: 'Ficar forte pra carai',
         },
       ],
     },

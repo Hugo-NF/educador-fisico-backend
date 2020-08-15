@@ -1,6 +1,6 @@
 const request = require('supertest');
 const app = require('../src/app');
-const errors = require('../src/config/errorsEnum');
+const errors = require('../src/config/errorCodes');
 
 const UsersHelper = require('../src/helpers/UsersHelper');
 

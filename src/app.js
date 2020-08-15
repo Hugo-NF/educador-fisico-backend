@@ -7,6 +7,14 @@ const swaggerJsDoc = require('swagger-jsdoc');
 const swaggerUi = require('swagger-ui-express');
 const logger = require('./config/configLogging');
 
+// Importing routes
+const userRoutes = require('./routes/user');
+const exerciseRoutes = require('./routes/exercise');
+const circuitRoutes = require('./routes/circuit');
+const healthRoutes = require('./routes/health');
+
+const { authorize } = require('./helpers/UsersHelper');
+
 const connection = process.env.NODE_ENV === 'test' ? process.env.TESTDB_CONN_STRING : process.env.DB_CONN_STRING;
 // Database connection
 mongoose.connect(
@@ -37,13 +45,6 @@ const swaggerOptions = {
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
 
-// Importing routes
-const userRoutes = require('./routes/user');
-const exerciseRoutes = require('./routes/exercise');
-const circuitRoutes = require('./routes/circuit');
-
-const { authorize } = require('./helpers/UsersHelper');
-
 const application = express();
 
 // Static resources setup
@@ -58,6 +59,7 @@ application.use(express.json());
 application.use('/api/users', userRoutes);
 application.use('/api/exercises', authorize('ManageTraining'), exerciseRoutes);
 application.use('/api/circuits', authorize('ManageTraining'), circuitRoutes);
+application.use('/api/health', authorize(), healthRoutes);
 application.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 application.use(errors());
 

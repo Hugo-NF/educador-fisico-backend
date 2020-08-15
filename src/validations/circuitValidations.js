@@ -6,7 +6,7 @@ const indexValidation = {
     max: Joi.number().min(1),
   }),
   [Segments.BODY]: Joi.object().keys({
-    name: Joi.string(),
+    name: Joi.string().allow(''),
   }),
 };
 
