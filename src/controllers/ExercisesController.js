@@ -1,5 +1,5 @@
 const logger = require('../config/configLogging');
-const errors = require('../config/errorsEnum');
+const errors = require('../config/errorCodes');
 
 const escapeRegex = require('../helpers/EscapeRegex');
 
@@ -8,6 +8,7 @@ const Exercise = require('../models/Exercise');
 module.exports = {
   // Index method
   async index(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /exercise/index');
 
     const { page = 1, max = null } = request.query;
@@ -44,6 +45,7 @@ module.exports = {
 
   // Register method
   async create(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /exercise/create');
 
     const { name, video } = request.body;
@@ -74,6 +76,7 @@ module.exports = {
 
   // Show method
   async show(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /exercise/show');
 
     const { id } = request.params;
@@ -109,6 +112,7 @@ module.exports = {
 
   // Edit method
   async edit(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /exercise/edit');
 
     const { name, video } = request.body;
@@ -146,6 +150,7 @@ module.exports = {
 
   // Delete method
   async delete(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /exercise/delete');
 
     const { id } = request.params;

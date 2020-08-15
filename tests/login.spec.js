@@ -1,5 +1,5 @@
 const request = require('supertest');
-const errors = require('../src/config/errorsEnum');
+const errors = require('../src/config/errorCodes');
 const app = require('../src/app');
 
 const User = require('../src/models/User');
@@ -15,7 +15,7 @@ describe('Login', () => {
       });
 
     expect(response.status).toBe(200);
-    expect(response.body.data).toHaveProperty('auth-token');
+    expect(response.body.data).toHaveProperty('authToken');
     done();
   });
 
@@ -95,7 +95,7 @@ describe('Login', () => {
       });
 
     expect(response.status).toBe(200);
-    expect(response.body.data).toHaveProperty('auth-token');
+    expect(response.body.data).toHaveProperty('authToken');
 
     user = await User.findOne({ email: 'hugomatchespassword@hotmail.com' });
     expect(user.accessFailedCount).toBe(0);
