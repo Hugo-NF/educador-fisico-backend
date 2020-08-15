@@ -8,6 +8,7 @@ const Circuit = require('../models/Circuit');
 module.exports = {
   // Index method
   async index(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /circuit/index');
 
     const { page = 1, max = null } = request.query;
@@ -44,6 +45,7 @@ module.exports = {
   },
 
   async create(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /circuit/create');
 
     const { name, exercises } = request.body;
@@ -71,6 +73,7 @@ module.exports = {
 
   // Show method
   async show(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /circuit/show');
 
     const { id } = request.params;
@@ -107,6 +110,7 @@ module.exports = {
 
   // Edit method
   async edit(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /circuit/edit');
 
     const { id } = request.params;
@@ -144,6 +148,7 @@ module.exports = {
 
   // Delete method
   async delete(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /circuit/delete');
 
     const { id } = request.params;

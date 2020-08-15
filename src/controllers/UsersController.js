@@ -26,6 +26,7 @@ module.exports = {
 
   // Login method
   async login(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /users/login');
     const currentUTC = new Date();
 
@@ -97,6 +98,7 @@ module.exports = {
 
   // Register method
   async create(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /users/register');
 
     const {
@@ -144,6 +146,7 @@ module.exports = {
 
   // Send password reset e-mail
   async sendRecoverEmail(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /users/password/reset');
     const { email, sandboxMode = false } = request.body;
     const currentUTC = new Date();
@@ -222,6 +225,7 @@ module.exports = {
 
   // Checks the validity of the token
   async checkPasswordResetToken(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to GET /users/password/reset/:token');
 
     const { token } = request.params;
@@ -263,6 +267,7 @@ module.exports = {
 
   // Reset user password given valid token
   async resetPassword(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to POST /users/password/reset/:token');
 
     const { token } = request.params;
@@ -339,6 +344,7 @@ module.exports = {
 
   // Send account activation e-mail
   async sendAccountActivationEmail(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to POST /users/activate/:token');
 
     const { email, sandboxMode = false } = request.body;
@@ -419,6 +425,7 @@ module.exports = {
 
   // Activate account given valid token
   async activateAccount(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /users/activate');
 
     const { token } = request.params;

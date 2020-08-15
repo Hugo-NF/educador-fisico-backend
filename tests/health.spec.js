@@ -1,7 +1,9 @@
 const request = require('supertest');
+const { consoleLogEnabled } = require('mongoose-seed');
 const app = require('../src/app');
 const User = require('../src/models/User');
 const errors = require('../src/config/errorCodes');
+const logger = require('../src/config/configLogging');
 
 beforeAll(async () => {
   const response = await request(app)
@@ -11,13 +13,12 @@ beforeAll(async () => {
       password: '123456789',
     });
   authToken = response.body.data['auth-token'];
+  testStarted = new Date();
 });
 
 // Health feature
 describe('Health', () => {
   it('should add a checkpoint successfully', async (done) => {
-    const userBefore = await User.find({ email: 'ailamar.sedentaria@hotmail.com' });
-
     const response = await request(app)
       .post('/api/health/create')
       .set({
@@ -54,11 +55,6 @@ describe('Health', () => {
       });
 
     expect(response.status).toBe(200);
-
-    const userAfter = await User.find({ email: 'ailamar.sedentaria@hotmail.com' });
-
-    expect(userAfter.healthCheckpoints.length).toBe(userBefore.healthCheckpoints.length + 1);
-
     done();
   });
 
@@ -73,11 +69,10 @@ describe('Health', () => {
       });
 
     expect(response.status).toBe(200);
-    expect(response.body.data.length).toBe(user.healthCheckpoints.length);
+    expect(response.body.data.length).toBe(2);
     done();
   });
 
-  // Para os testes com data, lembrar de colocar as entradas no seed.js para que você saiba quais datas testar
   it('should return health checkpoints between two dates', async (done) => {
     const response = await request(app)
       .post('/api/health')
@@ -85,11 +80,13 @@ describe('Health', () => {
         'auth-token': authToken,
       })
       .send({
-        startDate: new Date(1998, 6, 15), // Mudar a data
-        endDate: new Date(1998, 6, 15), // Mudar a data
+        startDate: new Date(1998, 6, 15), // Any very early date
+        endDate: testStarted,
       });
 
-    // Colocar os expects de quantos checkpoints estão entre as duas datas testadas
+    // Already in database
+    expect(response.body.data.length).toBe(1);
+    expect(response.body.endDate).toBe(testStarted.toISOString());
     done();
   });
 
@@ -100,10 +97,12 @@ describe('Health', () => {
         'auth-token': authToken,
       })
       .send({
-        startDate: new Date(1998, 6, 15), // Mudar a data
+        startDate: testStarted, // Mudar a data
       });
 
-    // Colocar os expects de quantos checkpoints estão entre as datas testadas
+    // Added during the test
+    expect(response.body.data.length).toBe(1);
+    expect(response.body.startDate).toBe(testStarted.toISOString());
     done();
   });
 
@@ -111,19 +110,36 @@ describe('Health', () => {
   // Delete method - Checkpoint exists
   it('should delete the health checkpoint successfully', async (done) => {
     const response = await request(app)
-      .delete('/api/health/PEGAR DO SEED.JS')
+      .delete('/api/health/5f382c26c21c6b7f70227f5e')
       .set({
         'auth-token': authToken,
       });
 
-    // Colocar os expects para verificar se o ID sumiu da collection health e se o healthCheckpoints do usuário diminuiu em 1
+    expect(response.body.data).toHaveProperty('_id');
+    expect(response.body.data).toHaveProperty('measures');
+    expect(response.body.data).toHaveProperty('bodyStats');
+    expect(response.body.data).toHaveProperty('objective');
+
     done();
   });
 
-  // Delete method - Checkpoint DO NOT exist
+  // Delete method - Checkpoint ownership
+  it('should NOT delete the health checkpoint, a.k.a Unauthorized (403)', async (done) => {
+    const response = await request(app)
+      .delete('/api/health/5eed3357725afd0980c272c7')
+      .set({
+        'auth-token': authToken,
+      });
+
+    expect(response.status).toBe(403);
+    expect(response.body.errorCode).toBe(errors.RESOURCE_OWNERSHIP_MISMATCH);
+    done();
+  });
+
+  // Delete method - Checkpoint unknown
   it('should NOT delete the health checkpoint, a.k.a Not Found (404)', async (done) => {
     const response = await request(app)
-      .delete('/api/health/5713809576185')
+      .delete('/api/health/5f382b5076119f513dcd055f')
       .set({
         'auth-token': authToken,
       });
