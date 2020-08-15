@@ -1,5 +1,5 @@
 const logger = require('../config/configLogging');
-const errors = require('../config/errorsEnum');
+const errors = require('../config/errorCodes');
 
 const { calculateIMC, calculateIAC } = require('../helpers/HealthHelper');
 const { currentUserId } = require('../helpers/UsersHelper');

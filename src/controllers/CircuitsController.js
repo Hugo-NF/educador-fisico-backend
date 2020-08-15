@@ -1,5 +1,5 @@
 const logger = require('../config/configLogging');
-const errors = require('../config/errorsEnum');
+const errors = require('../config/errorCodes');
 
 const escapeRegex = require('../helpers/EscapeRegex');
 

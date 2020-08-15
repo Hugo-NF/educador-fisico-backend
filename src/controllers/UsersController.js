@@ -3,7 +3,8 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 
 const logger = require('../config/configLogging');
-const errors = require('../config/errorsEnum');
+const errors = require('../config/errorCodes');
+const constants = require('../config/constants');
 
 const mailer = require('../services/mailjet');
 const emailTemplate = require('../../emails/linkAndText');
@@ -172,10 +173,10 @@ module.exports = {
     const uidgen = new UIDGenerator();
     const token = await uidgen.generate();
 
-    const tokenExpiration = parseInt(process.env.RESET_PASSWORD_EXPIRATION, 10); // In minutes
+    const tokenExpiration = parseInt(constants.RESET_PASSWORD_EXPIRATION, 10); // In minutes
     currentUTC.setMinutes(currentUTC.getMinutes() + tokenExpiration);
 
-    const resetUrl = `${process.env.REACTAPP_HOST}/account/password_reset/${token}`;
+    const resetUrl = `${constants.REACTAPP_HOST}/account/password_reset/${token}`;
 
     // Updating user in database
     await user.updateOne({
@@ -195,7 +196,7 @@ module.exports = {
       'Reset my password',
       resetUrl,
       'This is an automatic e-mail, do NOT respond',
-      process.env.APP_NAME,
+      constants.APP_NAME,
     );
 
     // Dispatch e-mail
@@ -297,7 +298,7 @@ module.exports = {
 
       // TODO: Replace e-mail info with real data as soon as available
       // Generating e-mail
-      const challengeUrl = `${process.env.REACTAPP_HOST}/account/password_reset/challenge/${token}`;
+      const challengeUrl = `${constants.REACTAPP_HOST}/account/password_reset/challenge/${token}`;
 
       const content = await emailTemplate.render(
         'https://mdbootstrap.com/img/logo/mdb-email.png',
@@ -309,7 +310,7 @@ module.exports = {
         'I WILL NOT USE WEAK PASSWORDS EVER MORE',
         challengeUrl,
         'This is an automatic e-mail, do NOT respond',
-        process.env.APP_NAME,
+        constants.APP_NAME,
       );
 
       // Dispatch e-mail
@@ -369,10 +370,10 @@ module.exports = {
     const uidgen = new UIDGenerator();
     const token = await uidgen.generate();
 
-    const tokenExpiration = parseInt(process.env.ACCOUNT_ACTIVATION_EXPIRATION, 10); // In minutes
+    const tokenExpiration = parseInt(constants.ACCOUNT_ACTIVATION_EXPIRATION, 10); // In minutes
     currentUTC.setMinutes(currentUTC.getMinutes() + tokenExpiration);
 
-    const activationUrl = `${process.env.REACTAPP_HOST}/account/activation/${token}`;
+    const activationUrl = `${constants.REACTAPP_HOST}/account/activation/${token}`;
 
     // Updating user in database
     await user.updateOne({
@@ -392,7 +393,7 @@ module.exports = {
       'Reset my password',
       activationUrl,
       'This is an automatic e-mail, do NOT respond',
-      process.env.APP_NAME,
+      constants.APP_NAME,
     );
 
     // Dispatch e-mail
@@ -454,23 +455,23 @@ module.exports = {
 
       // TODO: Replace e-mail info with real data as soon as available
       // Generating e-mail
-      const welcomeUrl = `${process.env.REACTAPP_HOST}/auth/login`;
+      const welcomeUrl = `${constants.REACTAPP_HOST}/auth/login`;
 
       const content = await emailTemplate.render(
         'https://mdbootstrap.com/img/logo/mdb-email.png',
         null,
-        `Welcome to ${process.env.APP_NAME}, your workout companion`,
+        `Welcome to ${constants.APP_NAME}, your workout companion`,
         "Congrats! You're now part of a fantastic project among with a bunch of fantastic people, all of them hunting a healthier life",
-        `Welcome to ${process.env.APP_NAME}, your workout companion`,
+        `Welcome to ${constants.APP_NAME}, your workout companion`,
         `Congrats! You're now part of a fantastic project among with a bunch of fantastic people, all of them hunting a healthier life. Let's start exploring! Login to your brand new account: ${welcomeUrl}`,
         "Let's Go",
         welcomeUrl,
         'This is an automatic e-mail, do NOT respond',
-        process.env.APP_NAME,
+        constants.APP_NAME,
       );
 
       // Dispatch e-mail
-      mailer.sendEmails([{ Email: user.email, Name: user.name }], `Welcome to ${process.env.APP_NAME}, your workout companion`, content, sandboxMode)
+      mailer.sendEmails([{ Email: user.email, Name: user.name }], `Welcome to ${constants.APP_NAME}, your workout companion`, content, sandboxMode)
         .then(() => {
           logger.info(`Welcome e-mail sent successfully to account (${user.email})`);
         })

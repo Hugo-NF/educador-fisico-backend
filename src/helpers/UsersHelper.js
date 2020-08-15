@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 
-const errors = require('../config/errorsEnum');
+const errors = require('../config/errorCodes');
+const constants = require('../config/constants');
 
 const User = require('../models/User');
 const Role = require('../models/Role');
@@ -10,7 +11,7 @@ class UsersHelper {
   static async generateJWT(user) {
     return jwt.sign({ _id: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_LIFESPAN });
+      { expiresIn: constants.JWT_LIFESPAN });
   }
 
   static async hasClaim(userId, claim) {
