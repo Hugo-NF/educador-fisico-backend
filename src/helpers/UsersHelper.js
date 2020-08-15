@@ -7,6 +7,7 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 const Claim = require('../models/Claim');
 
+/* eslint-disable consistent-return */
 class UsersHelper {
   static async generateJWT(user) {
     return jwt.sign({ _id: user._id },

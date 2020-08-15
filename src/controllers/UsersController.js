@@ -22,6 +22,7 @@ const { generateJWT, updateLockout } = require('../helpers/UsersHelper');
  * Body: accessible through variable request.body. POST, PUT HTTP methods
  */
 
+/* eslint-disable consistent-return */
 module.exports = {
 
   // Login method
