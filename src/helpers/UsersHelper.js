@@ -6,7 +6,6 @@ const constants = require('../config/constants');
 const User = require('../models/User');
 const Role = require('../models/Role');
 const Claim = require('../models/Claim');
-const logger = require('../config/configLogging');
 
 /* eslint-disable consistent-return */
 class UsersHelper {
