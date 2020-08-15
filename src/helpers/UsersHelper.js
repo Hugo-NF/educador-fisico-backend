@@ -16,6 +16,16 @@ class UsersHelper {
       { expiresIn: constants.JWT_LIFESPAN });
   }
 
+  static async hasRole(userId, role) {
+    const targetRole = await Role.findOne({ name: role });
+    const targetUser = await User.findById(userId);
+
+    if (targetUser) {
+      return targetUser.roles.filter((elem) => elem.equals(targetRole._id)).length > 0;
+    }
+    return false;
+  }
+
   static async hasClaim(userId, claim) {
     const targetClaim = await Claim.findOne({ name: claim });
     const targetUser = await User.findById(userId);

@@ -1,9 +1,8 @@
 const request = require('supertest');
-const { consoleLogEnabled } = require('mongoose-seed');
 const app = require('../src/app');
-const User = require('../src/models/User');
 const errors = require('../src/config/errorCodes');
-const logger = require('../src/config/configLogging');
+
+const User = require('../src/models/User');
 
 beforeAll(async () => {
   const response = await request(app)
@@ -58,8 +57,7 @@ describe('Health', () => {
 
   // Show method - No date filter
   it('should return all checkpoints', async (done) => {
-    const user = await User.find({ email: 'ailamar.sedentaria@hotmail.com' });
-
+    // The user information is retrieved from request headers
     const response = await request(app)
       .post('/api/health/')
       .set({ authToken });
