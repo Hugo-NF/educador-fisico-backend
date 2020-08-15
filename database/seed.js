@@ -252,7 +252,7 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
   ];
 
   // Clear specified collections
-  seeder.clearModels(['Role', 'Claim', 'User', 'Exercise', 'Circuit'], () => {
+  seeder.clearModels(['Role', 'Claim', 'User', 'Exercise', 'Circuit', 'Health'], () => {
     // Callback to populate DB once collections have been cleared
     seeder.populateModels(data, () => {
       seeder.disconnect();

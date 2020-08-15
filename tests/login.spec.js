@@ -15,7 +15,7 @@ describe('Login', () => {
       });
 
     expect(response.status).toBe(200);
-    expect(response.body.data).toHaveProperty('auth-token');
+    expect(response.body.data).toHaveProperty('authToken');
     done();
   });
 
@@ -95,7 +95,7 @@ describe('Login', () => {
       });
 
     expect(response.status).toBe(200);
-    expect(response.body.data).toHaveProperty('auth-token');
+    expect(response.body.data).toHaveProperty('authToken');
 
     user = await User.findOne({ email: 'hugomatchespassword@hotmail.com' });
     expect(user.accessFailedCount).toBe(0);

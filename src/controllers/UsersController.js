@@ -12,7 +12,7 @@ const emailTemplate = require('../../emails/linkAndText');
 const User = require('../models/User');
 const Role = require('../models/Role');
 
-const { generateJWT, updateLockout } = require('../helpers/UsersHelper');
+const { generateJWT, updateLockout, hasRole } = require('../helpers/UsersHelper');
 
 /**
  * Parameters:
@@ -83,9 +83,9 @@ module.exports = {
         data: {
           name: user.name,
           email: user.email,
-          roles: user.roles.map((e) => e.name),
+          layout: hasRole(user._id, 'Administrator') ? 'admin' : 'student',
           active: user.emailConfirmed,
-          'auth-token': authToken,
+          authToken,
         },
       });
     } catch (exc) {

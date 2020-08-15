@@ -1,5 +1,4 @@
 const mongoose = require('mongoose');
-const bcrypt = require('bcryptjs');
 
 // Health Schema
 const healthSchema = new mongoose.Schema({

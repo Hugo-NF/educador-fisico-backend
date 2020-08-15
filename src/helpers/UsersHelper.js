@@ -15,6 +15,16 @@ class UsersHelper {
       { expiresIn: constants.JWT_LIFESPAN });
   }
 
+  static async hasRole(userId, role) {
+    const targetRole = await Role.findOne({ name: role });
+    const targetUser = await User.findById(userId);
+
+    if (targetUser) {
+      return targetUser.roles.filter((elem) => elem.equals(targetRole._id)).length > 0;
+    }
+    return false;
+  }
+
   static async hasClaim(userId, claim) {
     const targetClaim = await Claim.findOne({ name: claim });
     const targetUser = await User.findById(userId);
@@ -60,7 +70,8 @@ class UsersHelper {
 
   static authorize(claim = null) {
     return (request, response, next) => {
-      const token = request.header('auth-token');
+      const token = request.header('authToken');
+
       if (!token) {
         return response.status(401).json({
           statusCode: 401,
@@ -92,7 +103,8 @@ class UsersHelper {
   }
 
   static currentUserId(request) {
-    const token = request.header('auth-token');
+    const token = request.header('authToken');
+
     if (!token) return null;
     try {
       const verified = jwt.verify(token, process.env.JWT_SECRET);
