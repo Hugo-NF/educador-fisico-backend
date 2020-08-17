@@ -95,11 +95,13 @@ const userSchema = new mongoose.Schema({
   },
   roles: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Role' }],
   claims: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Claim' }],
+  healthCheckpoints: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Health' }],
 },
 {
   timestamps: true,
 });
 
+/* eslint-disable func-names */
 // Mongoose callback - Password Hashing
 userSchema.pre('save', async function (next) {
   const user = this;

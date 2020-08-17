@@ -3,7 +3,8 @@ const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
 
 const logger = require('../config/configLogging');
-const errors = require('../config/errorsEnum');
+const errors = require('../config/errorCodes');
+const constants = require('../config/constants');
 
 const mailer = require('../services/mailjet');
 const emailTemplate = require('../../emails/linkAndText');
@@ -11,7 +12,7 @@ const emailTemplate = require('../../emails/linkAndText');
 const User = require('../models/User');
 const Role = require('../models/Role');
 
-const { generateJWT, updateLockout } = require('../helpers/UsersHelper');
+const { generateJWT, updateLockout, hasRole } = require('../helpers/UsersHelper');
 
 /**
  * Parameters:
@@ -21,10 +22,12 @@ const { generateJWT, updateLockout } = require('../helpers/UsersHelper');
  * Body: accessible through variable request.body. POST, PUT HTTP methods
  */
 
+/* eslint-disable consistent-return */
 module.exports = {
 
   // Login method
   async login(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /users/login');
     const currentUTC = new Date();
 
@@ -80,9 +83,9 @@ module.exports = {
         data: {
           name: user.name,
           email: user.email,
-          roles: user.roles.map((e) => e.name),
+          layout: hasRole(user._id, 'Administrator') ? 'admin' : 'student',
           active: user.emailConfirmed,
-          'auth-token': authToken,
+          authToken,
         },
       });
     } catch (exc) {
@@ -96,6 +99,7 @@ module.exports = {
 
   // Register method
   async create(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /users/register');
 
     const {
@@ -143,6 +147,7 @@ module.exports = {
 
   // Send password reset e-mail
   async sendRecoverEmail(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /users/password/reset');
     const { email, sandboxMode = false } = request.body;
     const currentUTC = new Date();
@@ -172,10 +177,10 @@ module.exports = {
     const uidgen = new UIDGenerator();
     const token = await uidgen.generate();
 
-    const tokenExpiration = parseInt(process.env.RESET_PASSWORD_EXPIRATION, 10); // In minutes
+    const tokenExpiration = parseInt(constants.RESET_PASSWORD_EXPIRATION, 10); // In minutes
     currentUTC.setMinutes(currentUTC.getMinutes() + tokenExpiration);
 
-    const resetUrl = `${process.env.REACTAPP_HOST}/account/password_reset/${token}`;
+    const resetUrl = `${constants.REACTAPP_HOST}/account/password_reset/${token}`;
 
     // Updating user in database
     await user.updateOne({
@@ -195,7 +200,7 @@ module.exports = {
       'Reset my password',
       resetUrl,
       'This is an automatic e-mail, do NOT respond',
-      process.env.APP_NAME,
+      constants.APP_NAME,
     );
 
     // Dispatch e-mail
@@ -221,6 +226,7 @@ module.exports = {
 
   // Checks the validity of the token
   async checkPasswordResetToken(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to GET /users/password/reset/:token');
 
     const { token } = request.params;
@@ -262,6 +268,7 @@ module.exports = {
 
   // Reset user password given valid token
   async resetPassword(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to POST /users/password/reset/:token');
 
     const { token } = request.params;
@@ -297,7 +304,7 @@ module.exports = {
 
       // TODO: Replace e-mail info with real data as soon as available
       // Generating e-mail
-      const challengeUrl = `${process.env.REACTAPP_HOST}/account/password_reset/challenge/${token}`;
+      const challengeUrl = `${constants.REACTAPP_HOST}/account/password_reset/challenge/${token}`;
 
       const content = await emailTemplate.render(
         'https://mdbootstrap.com/img/logo/mdb-email.png',
@@ -309,7 +316,7 @@ module.exports = {
         'I WILL NOT USE WEAK PASSWORDS EVER MORE',
         challengeUrl,
         'This is an automatic e-mail, do NOT respond',
-        process.env.APP_NAME,
+        constants.APP_NAME,
       );
 
       // Dispatch e-mail
@@ -338,6 +345,7 @@ module.exports = {
 
   // Send account activation e-mail
   async sendAccountActivationEmail(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to POST /users/activate/:token');
 
     const { email, sandboxMode = false } = request.body;
@@ -369,10 +377,10 @@ module.exports = {
     const uidgen = new UIDGenerator();
     const token = await uidgen.generate();
 
-    const tokenExpiration = parseInt(process.env.ACCOUNT_ACTIVATION_EXPIRATION, 10); // In minutes
+    const tokenExpiration = parseInt(constants.ACCOUNT_ACTIVATION_EXPIRATION, 10); // In minutes
     currentUTC.setMinutes(currentUTC.getMinutes() + tokenExpiration);
 
-    const activationUrl = `${process.env.REACTAPP_HOST}/account/activation/${token}`;
+    const activationUrl = `${constants.REACTAPP_HOST}/account/activation/${token}`;
 
     // Updating user in database
     await user.updateOne({
@@ -392,7 +400,7 @@ module.exports = {
       'Reset my password',
       activationUrl,
       'This is an automatic e-mail, do NOT respond',
-      process.env.APP_NAME,
+      constants.APP_NAME,
     );
 
     // Dispatch e-mail
@@ -418,6 +426,7 @@ module.exports = {
 
   // Activate account given valid token
   async activateAccount(request, response) {
+    logger.info(`Request origin: ${request.ip}`);
     logger.info('Inbound request to /users/activate');
 
     const { token } = request.params;
@@ -454,23 +463,23 @@ module.exports = {
 
       // TODO: Replace e-mail info with real data as soon as available
       // Generating e-mail
-      const welcomeUrl = `${process.env.REACTAPP_HOST}/auth/login`;
+      const welcomeUrl = `${constants.REACTAPP_HOST}/auth/login`;
 
       const content = await emailTemplate.render(
         'https://mdbootstrap.com/img/logo/mdb-email.png',
         null,
-        `Welcome to ${process.env.APP_NAME}, your workout companion`,
+        `Welcome to ${constants.APP_NAME}, your workout companion`,
         "Congrats! You're now part of a fantastic project among with a bunch of fantastic people, all of them hunting a healthier life",
-        `Welcome to ${process.env.APP_NAME}, your workout companion`,
+        `Welcome to ${constants.APP_NAME}, your workout companion`,
         `Congrats! You're now part of a fantastic project among with a bunch of fantastic people, all of them hunting a healthier life. Let's start exploring! Login to your brand new account: ${welcomeUrl}`,
         "Let's Go",
         welcomeUrl,
         'This is an automatic e-mail, do NOT respond',
-        process.env.APP_NAME,
+        constants.APP_NAME,
       );
 
       // Dispatch e-mail
-      mailer.sendEmails([{ Email: user.email, Name: user.name }], `Welcome to ${process.env.APP_NAME}, your workout companion`, content, sandboxMode)
+      mailer.sendEmails([{ Email: user.email, Name: user.name }], `Welcome to ${constants.APP_NAME}, your workout companion`, content, sandboxMode)
         .then(() => {
           logger.info(`Welcome e-mail sent successfully to account (${user.email})`);
         })

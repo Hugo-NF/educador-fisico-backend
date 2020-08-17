@@ -1,16 +1,28 @@
 const jwt = require('jsonwebtoken');
 
-const errors = require('../config/errorsEnum');
+const errors = require('../config/errorCodes');
+const constants = require('../config/constants');
 
 const User = require('../models/User');
 const Role = require('../models/Role');
 const Claim = require('../models/Claim');
 
+/* eslint-disable consistent-return */
 class UsersHelper {
   static async generateJWT(user) {
     return jwt.sign({ _id: user._id },
       process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_LIFESPAN });
+      { expiresIn: constants.JWT_LIFESPAN });
+  }
+
+  static async hasRole(userId, role) {
+    const targetRole = await Role.findOne({ name: role });
+    const targetUser = await User.findById(userId);
+
+    if (targetUser) {
+      return targetUser.roles.filter((elem) => elem.equals(targetRole._id)).length > 0;
+    }
+    return false;
   }
 
   static async hasClaim(userId, claim) {
@@ -58,7 +70,8 @@ class UsersHelper {
 
   static authorize(claim = null) {
     return (request, response, next) => {
-      const token = request.header('auth-token');
+      const token = request.header('authToken');
+
       if (!token) {
         return response.status(401).json({
           statusCode: 401,
@@ -87,6 +100,19 @@ class UsersHelper {
         });
       }
     };
+  }
+
+  static currentUserId(request) {
+    const token = request.header('authToken');
+
+    if (!token) return null;
+    try {
+      const verified = jwt.verify(token, process.env.JWT_SECRET);
+
+      return verified._id;
+    } catch (error) {
+      return null;
+    }
   }
 
   static async updateLockout(user, currentUTC) {

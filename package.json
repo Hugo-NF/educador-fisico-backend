@@ -7,7 +7,9 @@
     "start": "node src/server.js",
     "development": "nodemon src/server.js",
     "test": "cross-env NODE_ENV=test node database/seed.js && jest --detectOpenHandles --forceExit --silent --coverage",
-    "seed": "node database/initialSeed.js"
+    "seed": "node database/initialSeed.js",
+    "install:clean": "rm -rf node_modules/ && rm package-lock.json && npm install",
+    "lint": "eslint ./ --ext .js"
   },
   "repository": {
     "type": "git",
@@ -38,7 +40,7 @@
   },
   "devDependencies": {
     "cross-env": "^7.0.2",
-    "eslint": "^7.3.1",
+    "eslint": "^7.4.0",
     "eslint-config-airbnb-base": "^14.2.0",
     "eslint-plugin-import": "^2.22.0",
     "jest": "^26.0.1",
