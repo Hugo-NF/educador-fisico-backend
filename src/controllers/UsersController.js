@@ -22,7 +22,6 @@ const { generateJWT, updateLockout, hasRole } = require('../helpers/UsersHelper'
  * Body: accessible through variable request.body. POST, PUT HTTP methods
  */
 
-/* eslint-disable consistent-return */
 module.exports = {
 
   // Login method
@@ -83,7 +82,6 @@ module.exports = {
         data: {
           name: user.name,
           email: user.email,
-          layout: hasRole(user._id, 'Administrator') ? 'admin' : 'student',
           active: user.emailConfirmed,
           authToken,
         },
@@ -91,6 +89,7 @@ module.exports = {
     } catch (exc) {
       return response.status(500).json({
         statusCode: 500,
+        errorCode: errors.UNKNOWN_ERROR,
         message: 'Login unavailable',
         error: exc,
       });
