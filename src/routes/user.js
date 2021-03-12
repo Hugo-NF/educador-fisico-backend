@@ -130,6 +130,20 @@
  *            _id:
  *              type: string
  *              description: id of newly created user
+ *    SendRecoverEmailRequest:
+ *      type: object
+ *      required:
+ *        - email
+ *        - sandboxMode
+ *      properties:
+ *        email:
+ *          type: string
+ *          description: User's e-mail address
+ *          example: email@email.com
+ *        sandboxMode:
+ *          type: boolean
+ *          description: Enable sandbox mode. All tokens are generated, but e-mails are not sent.
+ *          example: false
  *    ErrorResponse:
  *      type: object
  *      required:
@@ -365,32 +379,34 @@ router.post('/password/reset/:token', celebrate(tokenForgeryCheckValidation, { a
  *    tags:
  *      - Authentication
  *    summary: Send account activation e-mail
- *    description: Used to send account activation e-mail
- *    parameters:
- *      - in: body
- *        name: email
- *        schema:
- *          type: string
- *          example: teste1@gmail.com
- *        required: true
- *        description: user email
- *      - in: body
- *        name: sandboxMode
- *        schema:
- *          type: boolean
- *          example: false
- *          default: false
- *        required: true
- *        description: used to send e-mail or not
+ *    description: Send an activation e-mail with account activation token
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/SendRecoverEmailRequest'
  *    responses:
- *      '409':
+ *      409:
  *          description: User is not in database
- *      '401':
- *          description: This account is locked
- *      '200':
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *      401:
+ *          description: User account is locked
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *      200:
  *          description: E-mail sent successfully
- *      '503':
- *          description: Could not send e-mail
+ *      503:
+ *          description: SMTP server unavailable
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/activate', celebrate(emailRequestValidation, { abortEarly: false }), UsersController.sendAccountActivationEmail);
 
