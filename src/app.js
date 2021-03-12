@@ -31,13 +31,14 @@ mongoose.connect(
 
 const swaggerOptions = {
   swaggerDefinition: {
+    openapi: '3.0.0',
     info: {
       title: 'Treino para Todos API',
       description: 'Informações sobre a API do Treino para Todos',
       contact: {
-        name: 'Equipe Treino para todos',
+        name: 'Equipe Treino para Todos',
         url: 'https://github.com/Hugo-NF/educador-fisico-backend',
-        email: 'hugonfonseca@hotmail.com'
+        email: 'hugonfonseca@hotmail.com',
       },
       servers: ['http://localhost:3000'],
     },
@@ -45,16 +46,16 @@ const swaggerOptions = {
   apis: ['src/routes/*.js'],
   tags: [{
     name: 'circuit',
-    description: 'Circuits operations'
+    description: 'Circuits operations',
   },
   {
     name: 'user',
-    description: 'Users operations'
+    description: 'Users operations',
   },
   {
     name: 'exercise',
-    description: 'Exercises operations'
-  }]
+    description: 'Exercises operations',
+  }],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -74,7 +75,7 @@ application.use('/api/users', userRoutes);
 application.use('/api/exercises', authorize('ManageTraining'), exerciseRoutes);
 application.use('/api/circuits', authorize('ManageTraining'), circuitRoutes);
 application.use('/api/health', authorize(), healthRoutes);
-application.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+application.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 application.use(errors());
 
 module.exports = application;
