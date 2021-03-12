@@ -66,6 +66,70 @@
  *            authToken:
  *              type: string
  *              description: authentication token
+ *    RegisterRequest:
+ *      type: object
+ *      required:
+ *        - name
+ *        - email
+ *        - password
+ *        - birthDate
+ *        - sex
+ *        - phone
+ *        - city
+ *        - state
+ *      properties:
+ *        name:
+ *          type: string
+ *          description: User's display name
+ *          example: Hugo Fonseca
+ *        email:
+ *          type: string
+ *          description: User's e-mail address
+ *          example: email@email.com
+ *        password:
+ *          type: string
+ *          description: User's password
+ *          example: 12345678
+ *        birthDate:
+ *          type: date
+ *          description: User's birth date. Time component is ignored.
+ *          example: "1992-10-08T00:00:00.000Z"
+ *        sex:
+ *          type: string
+ *          description: User's sex
+ *          example: 'Male'
+ *        phone:
+ *          type: object
+ *          properties:
+ *            type:
+ *              type: string
+ *              description: User's phone type
+ *              example: 'Mobile'
+ *            number:
+ *              type: string
+ *              description: User's phone number
+ *              example: '+55 (55) 99999-9999'
+ *        city:
+ *          type: string
+ *          description: User's city
+ *          example: 'Brasilia'
+ *        state:
+ *          type: string
+ *          description: User's state
+ *          example: 'DF'
+ *    RegisterResponse:
+ *      type: object
+ *      properties:
+ *        statusCode:
+ *          type: number
+ *          description: HTTP status code
+ *          example: 200
+ *        data:
+ *          type: object
+ *          properties:
+ *            _id:
+ *              type: string
+ *              description: id of newly created user
  *    ErrorResponse:
  *      type: object
  *      required:
@@ -89,8 +153,8 @@
 /**
  * @swagger
  *   tags:
- *     name: Users
- *     description: Authentication operations
+ *     name: Authentication
+ *     description: Routes to authentication operations
  */
 
 const router = require('express').Router();
@@ -108,13 +172,12 @@ const {
   resetPasswordValidation,
 } = require('../validations/authValidations');
 
-// Login existing user
 /**
  * @swagger
  * /api/users/login:
  *  post:
  *    tags:
- *      - Users
+ *      - Authentication
  *    summary: Autenticate an existing user
  *    description: Get an authentication token using e-mail and password
  *    requestBody:
@@ -151,92 +214,48 @@ const {
  */
 router.post('/login', celebrate(loginValidation, { abortEarly: false }), UsersController.login);
 
-// Register new user
 /**
  * @swagger
  * /api/users/register:
  *  post:
  *    tags:
- *      - login
+ *      - Authentication
  *    summary: Register new user
- *    description: Used to register a new user
- *    parameters:
- *      - in: body
- *        name: name
- *        schema:
- *          type: string
- *          example: Joaozinho
- *        required: true
- *        description: user name
- *      - in: body
- *        name: email
- *        schema:
- *          type: string
- *          example: teste1@gmail.com
- *        required: true
- *        description: user email
- *      - in: body
- *        name: password
- *        schema:
- *          type: string
- *          example: 123654789
- *        required: true
- *        description: user password
- *      - in: body
- *        name: birthDate
- *        schema:
- *          type: date
- *          example: 2020-08-10T00:28Z
- *        required: true
- *        description: user birth date
- *      - in: body
- *        name: sex
- *        schema:
- *          type: string
- *          example: male
- *        required: true
- *        description: user sex
- *      - in: body
- *        name: phone
- *        schema:
- *          type: json
- *          example:
- *            type: mobile
- *            number: +55 (99) 98765-4321
- *            confirmed: false
- *        required: true
- *        description: user phone
- *      - in: body
- *        name: city
- *        schema:
- *          type: string
- *          example: Taguatinga
- *        required: true
- *        description: user city
- *      - in: body
- *        name: state
- *        schema:
- *          type: string
- *          example: DF
- *        required: true
- *        description: user state
+ *    description: Create a new user in database
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/RegisterRequest'
  *    responses:
- *      '200':
+ *       201:
  *          description: user successfully registered
- *      '409':
- *          description: User info uniqueness conflict
- *      '500':
- *          description: Could not register a new user
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/RegisterResponse'
+ *       409:
+ *          description: User already registered with e-mail
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/register', celebrate(registerValidation, { abortEarly: false }), UsersController.create);
 
-// Send password recovery e-mail
 /**
  * @swagger
  * /api/users/password/reset:
  *  post:
  *    tags:
- *      - login
+ *      - Authentication
  *    summary: Send password recovery e-mail
  *    description: Used to send password recovery e-mail
  *    parameters:
@@ -273,7 +292,7 @@ router.post('/password/reset', celebrate(emailRequestValidation, { abortEarly: f
  * /api/users/password/reset/:token:
  *  get:
  *    tags:
- *      - login
+ *      - Authentication
  *    summary: Checks reset password token
  *    description: Used to check reset password token
  *    parameters:
@@ -300,7 +319,7 @@ router.get('/password/reset/:token', celebrate(tokenForgeryCheckValidation, { ab
  * /api/users/password/reset/:token:
  *  post:
  *    tags:
- *      - login
+ *      - Authentication
  *    summary: resets the password token
  *    description: Used to reset password token
  *    parameters:
@@ -344,7 +363,7 @@ router.post('/password/reset/:token', celebrate(tokenForgeryCheckValidation, { a
  * /api/users/activate:
  *  post:
  *    tags:
- *      - login
+ *      - Authentication
  *    summary: Send account activation e-mail
  *    description: Used to send account activation e-mail
  *    parameters:
@@ -381,7 +400,7 @@ router.post('/activate', celebrate(emailRequestValidation, { abortEarly: false }
  * /api/users/activate/:token:
  *  get:
  *    tags:
- *      - login
+ *      - Authentication
  *    summary: Activate account
  *    description: Used to activate an account
  *    parameters:

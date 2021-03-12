@@ -12,7 +12,7 @@ const emailTemplate = require('../../emails/linkAndText');
 const User = require('../models/User');
 const Role = require('../models/Role');
 
-const { generateJWT, updateLockout, hasRole } = require('../helpers/UsersHelper');
+const { generateJWT, updateLockout } = require('../helpers/UsersHelper');
 
 /**
  * Parameters:
@@ -117,7 +117,7 @@ module.exports = {
 
       logger.info(`A new user with e-mail (${email}) was registered`);
       return response.json({
-        statusCode: 200,
+        statusCode: 201,
         data: {
           _id: user._id,
         },
