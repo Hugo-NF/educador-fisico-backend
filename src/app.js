@@ -34,28 +34,26 @@ const swaggerOptions = {
     openapi: '3.0.0',
     info: {
       title: 'Treino para Todos API',
-      description: 'Informações sobre a API do Treino para Todos',
+      description: 'Documentação API do projeto Treino para Todos',
       contact: {
         name: 'Equipe Treino para Todos',
         url: 'https://github.com/Hugo-NF/educador-fisico-backend',
         email: 'hugonfonseca@hotmail.com',
       },
-      servers: ['http://localhost:3000'],
+      termsOfService: 'http://treinoparatodos.com/terms',
+      servers: [
+        {
+          url: 'http://localhost:3000',
+          description: 'Local development',
+        },
+        {
+          url: 'https://treinoparatodos.com.br/v1/',
+          description: 'Production server',
+        },
+      ],
     },
   },
   apis: ['src/routes/*.js'],
-  tags: [{
-    name: 'circuit',
-    description: 'Circuits operations',
-  },
-  {
-    name: 'user',
-    description: 'Users operations',
-  },
-  {
-    name: 'exercise',
-    description: 'Exercises operations',
-  }],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
