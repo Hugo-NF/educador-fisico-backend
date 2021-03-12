@@ -31,7 +31,7 @@ mongoose.connect(
 
 const swaggerOptions = {
   swaggerDefinition: {
-    openapi: '3.0.0',
+    openapi: '3.0.1',
     info: {
       title: 'Treino para Todos API',
       description: 'Documentação API do projeto Treino para Todos',
@@ -41,17 +41,29 @@ const swaggerOptions = {
         email: 'hugonfonseca@hotmail.com',
       },
       termsOfService: 'http://treinoparatodos.com/terms',
-      servers: [
-        {
-          url: 'http://localhost:3000',
-          description: 'Local development',
-        },
-        {
-          url: 'https://treinoparatodos.com.br/v1/',
-          description: 'Production server',
-        },
-      ],
     },
+    servers: [
+      {
+        url: 'http://localhost:3000',
+        description: 'Local development',
+      },
+      {
+        url: 'https://treinoparatodos.com.br/v1/',
+        description: 'Production server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        Token: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Paste your authentication token on the input below',
+        },
+      },
+    },
+    //  security:
+    //  - Token: []
   },
   apis: ['src/routes/*.js'],
 };
