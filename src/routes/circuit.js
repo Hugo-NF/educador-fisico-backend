@@ -3,6 +3,13 @@
  *
  */
 
+/**
+ * @swagger
+ *   tags:
+ *     name: Circuits
+ *     description: Routes to manipulate circuits on database
+ */
+
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
 
@@ -20,9 +27,11 @@ const { idValidation } = require('../validations/utilValidations');
  * /api/circuits:
  *  post:
  *    tags:
- *      - circuit
+ *      - Circuits
  *    summary: Returns a list of circuits
- *    description: Use to request all circuits
+ *    description: Index route to circuits
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: query
  *        name: page
@@ -38,26 +47,46 @@ const { idValidation } = require('../validations/utilValidations');
  *          example: 5
  *        required: false
  *        description: The max results wanted to be shown
- *      - in: body
- *        name: name
- *        schema:
- *          type: string
- *          example: Teste
- *        required: false
- *        description: The name of the circuit wanted to be shown
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: Regex pattern to match names.
  *    responses:
- *      '200':
- *          description: a successful response
- *      '500':
- *          description: Could not retrieve the circuits
+ *       200:
+ *          description: Success
+ *          schema:
+ *            type: object
+ *            properties:
+ *              statusCode:
+ *                type: number
+ *                example: 200
+ *                description: HTTP status code.
+ *              count:
+ *                type: number
+ *                example: 50
+ *                description: Amount of results on this page
+ *
+ *
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/', celebrate(indexValidation, { abortEarly: false }), CircuitsController.index);
+
 /**
  * @swagger
  * /api/circuits/create:
  *  post:
  *    tags:
- *      - circuit
+ *      - Circuits
  *    summary: Create a circuit
  *    description: Used to create a circuit
  *    parameters:
@@ -84,12 +113,13 @@ router.post('/', celebrate(indexValidation, { abortEarly: false }), CircuitsCont
  *          description: Could not create the circuit
  */
 router.post('/create', celebrate(circuitValidation, { abortEarly: false }), CircuitsController.create);
+
 /**
  * @swagger
  * /api/circuits/:id:
  *  get:
  *    tags:
- *      - circuit
+ *      - Circuits
  *    summary: Get a circuit
  *    description: Used to get a circuit
  *    parameters:
@@ -107,12 +137,13 @@ router.post('/create', celebrate(circuitValidation, { abortEarly: false }), Circ
  *          description: Could not retrieve circuit
  */
 router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsController.show);
+
 /**
  * @swagger
  * /api/circuits/:id:
  *  put:
  *    tags:
- *      - circuit
+ *      - Circuits
  *    summary: edit a circuit
  *    description: Used to edit a circuit
  *    parameters:
@@ -140,18 +171,19 @@ router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsContr
  *        required: true
  *        description: The new list of exercises
  *    responses:
- *      '200':
+ *       200:
  *          description: a successful response
- *      '500':
+ *       500:
  *          description: Could not edit the circuit
  */
 router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(circuitValidation, { abortEarly: false }), CircuitsController.edit);
+
 /**
  * @swagger
  * /api/circuits/:id:
  *  delete:
  *    tags:
- *      - circuit
+ *      - Circuits
  *    summary: delete a circuit
  *    description: Used to delete a circuit
  *    parameters:
@@ -163,11 +195,11 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(cir
  *        required: true
  *        description: The id of the circuit to be deleted
  *    responses:
- *      '200':
+ *       200:
  *          description: a successful response
- *      '404':
+ *       404:
  *          description: Circuit could not be found
- *      '500':
+ *       500:
  *          description: Could not delete the circuit
  */
 router.delete('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsController.delete);

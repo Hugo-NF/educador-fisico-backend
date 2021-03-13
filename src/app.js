@@ -62,8 +62,6 @@ const swaggerOptions = {
         },
       },
     },
-    //  security:
-    //  - Token: []
   },
   apis: ['src/routes/*.js'],
 };

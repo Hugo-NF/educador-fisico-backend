@@ -67,9 +67,14 @@ class UsersHelper {
     await User.findOneAndUpdate({ _id: userId }, { $pullAll: { claims: [claimObj._id] } });
   }
 
+  static extractToken(token) {
+    return token.replace('Bearer', '').trim();
+  }
+
   static authorize(claim = null) {
     return (request, response, next) => {
-      const token = request.header('authToken');
+      const rawToken = request.header('Authorization');
+      const token = UsersHelper.extractToken(rawToken);
 
       if (!token) {
         return response.status(401).json({
@@ -102,7 +107,7 @@ class UsersHelper {
   }
 
   static currentUserId(request) {
-    const token = request.header('authToken');
+    const token = request.header('Authorization');
 
     if (!token) return null;
     try {
