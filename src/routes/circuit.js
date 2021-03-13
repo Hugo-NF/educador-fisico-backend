@@ -1,9 +1,4 @@
 /**
- * This file contains all the routes related to the volume entity
- *
- */
-
-/**
  * @swagger
  *   tags:
  *     name: Circuits
@@ -12,8 +7,6 @@
 
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
-
-// const helpers = require('../helpers/VolumeHelper');
 
 // Importing Controllers
 const CircuitsController = require('../controllers/CircuitsController');
@@ -44,7 +37,7 @@ const { idValidation } = require('../validations/utilValidations');
  *        name: max
  *        schema:
  *          type: integer
- *          example: 5
+ *          example: 50
  *        required: false
  *        description: The max results wanted to be shown
  *    requestBody:
@@ -59,19 +52,6 @@ const { idValidation } = require('../validations/utilValidations');
  *    responses:
  *       200:
  *          description: Success
- *          schema:
- *            type: object
- *            properties:
- *              statusCode:
- *                type: number
- *                example: 200
- *                description: HTTP status code.
- *              count:
- *                type: number
- *                example: 50
- *                description: Amount of results on this page
- *
- *
  *       500:
  *          description: Internal server error. Please, consider opening a report to development team.
  *          content:

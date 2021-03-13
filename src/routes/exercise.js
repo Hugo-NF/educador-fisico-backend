@@ -1,8 +1,3 @@
-/**
- * This file contains all the routes related to the exercise entity
- *
- */
-
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
 

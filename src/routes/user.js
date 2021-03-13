@@ -1,8 +1,4 @@
 /**
- * This file contains all the routes related to Authentication operations
- */
-
-/**
  * @swagger
  * components:
  *  schemas:
