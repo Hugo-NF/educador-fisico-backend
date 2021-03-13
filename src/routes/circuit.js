@@ -5,6 +5,30 @@
  *     description: Routes to manipulate circuits on database
  */
 
+/**
+  * @swagger
+  * components:
+  *   schemas:
+  *     IndexResponse:
+  *       type: object
+  *       properties:
+  *         statusCode:
+  *           type: number
+  *           description: HTTP status code
+  *           example: 200
+  *         count:
+  *           type: number
+  *           description: Amount of items in page
+  *           example: 50
+  *         data:
+  *           type: object
+  *           properties:
+  *             circuits:
+  *               type: array
+  *               items:
+  *                 $ref: '#/components/schemas/Circuit'
+  */
+
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
 
@@ -52,6 +76,11 @@ const { idValidation } = require('../validations/utilValidations');
  *    responses:
  *       200:
  *          description: Success
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/IndexResponse'
+ *
  *       500:
  *          description: Internal server error. Please, consider opening a report to development team.
  *          content:
