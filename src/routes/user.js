@@ -35,11 +35,11 @@
  *        email:
  *          type: string
  *          description: User's e-mail address
- *          example: email@email.com
+ *          example: hugonfonseca@hotmail.com
  *        password:
  *          type: string
  *          description: User's password
- *          example: 12345678
+ *          example: 123456789
  *    LoginResponse:
  *      type: object
  *      properties:
@@ -66,6 +66,26 @@
  *            authToken:
  *              type: string
  *              description: authentication token
+ *    CheckPasswordResetResponse:
+ *      type: object
+ *      properties:
+ *        statusCode:
+ *          type: number
+ *          description: HTTP status code
+ *          example: 200
+ *        message:
+ *          type: string
+ *          description: 'Post message'
+ *          example: 'Token is active'
+ *        data:
+ *          type: object
+ *          properties:
+ *            name:
+ *              type: string
+ *              description: name of current user
+ *            email:
+ *              type: string
+ *              description: email of current user
  *    RegisterRequest:
  *      type: object
  *      required:
@@ -130,11 +150,10 @@
  *            _id:
  *              type: string
  *              description: id of newly created user
- *    SendRecoverEmailRequest:
+ *    SendEmailRequest:
  *      type: object
  *      required:
  *        - email
- *        - sandboxMode
  *      properties:
  *        email:
  *          type: string
@@ -142,7 +161,20 @@
  *          example: email@email.com
  *        sandboxMode:
  *          type: boolean
- *          description: Enable sandbox mode. All tokens are generated, but e-mails are not sent.
+ *          description: Enable sandbox mode. All operations are done, but e-mails are not sent.
+ *          example: false
+ *    PasswordResetRequest:
+ *      type: object
+ *      required:
+ *        - password
+ *      properties:
+ *        password:
+ *          type: string
+ *          description: User's e-mail address
+ *          example: 123456789
+ *        sandboxMode:
+ *          type: boolean
+ *          description: Enable sandbox mode. All operations are done, but e-mails are not sent.
  *          example: false
  *    ErrorResponse:
  *      type: object
@@ -244,7 +276,7 @@ router.post('/login', celebrate(loginValidation, { abortEarly: false }), UsersCo
  *            $ref: '#/components/schemas/RegisterRequest'
  *    responses:
  *       201:
- *          description: user successfully registered
+ *          description: User successfully registered
  *          content:
  *            application/json:
  *              schema:
@@ -270,33 +302,35 @@ router.post('/register', celebrate(registerValidation, { abortEarly: false }), U
  *  post:
  *    tags:
  *      - Authentication
- *    summary: Send password recovery e-mail
- *    description: Used to send password recovery e-mail
- *    parameters:
- *      - in: body
- *        name: email
- *        schema:
- *          type: string
- *          example: teste1@gmail.com
- *        required: true
- *        description: user email
- *      - in: body
- *        name: sandboxMode
- *        schema:
- *          type: boolean
- *          example: false
- *          default: false
- *        required: true
- *        description: used to send e-mail or not
+ *    summary: Request a password recovery e-mail
+ *    description: Generate a password recovery token and send a e-mail
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/SendEmailRequest'
  *    responses:
- *      '409':
- *          description: User is not in database
- *      '401':
- *          description: user account is locked
- *      '200':
+ *       200:
  *          description: E-mail sent successfully
- *      '503':
- *          description: Could not send e-mail
+ *       401:
+ *          description: User account is locked
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *          description: User is not in database
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       503:
+ *          description: SMTP server unavailable
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/password/reset', celebrate(emailRequestValidation, { abortEarly: false }), UsersController.sendRecoverEmail);
 
@@ -314,16 +348,40 @@ router.post('/password/reset', celebrate(emailRequestValidation, { abortEarly: f
  *        name: token
  *        schema:
  *          type: string
- *          example: place the token here
+ *          example: Paste password reset token here
  *        required: true
- *        description: Token
+ *        description: Reset password token
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/SendEmailRequest'
  *    responses:
- *      '409':
- *          description: Requested token was not emitted or active
- *      '403':
- *          description: Token is expired or already used
- *      '200':
+ *       200:
  *          description: Token is active
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/CheckPasswordResetResponse'
+ *       403:
+ *          description: Token is expired or already used
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *          description: Requested token was not emitted or active
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/password/reset/:token', celebrate(tokenForgeryCheckValidation, { abortEarly: false }), UsersController.checkPasswordResetToken);
 
@@ -334,40 +392,43 @@ router.get('/password/reset/:token', celebrate(tokenForgeryCheckValidation, { ab
  *  post:
  *    tags:
  *      - Authentication
- *    summary: resets the password token
- *    description: Used to reset password token
+ *    summary: Resets the user's password
+ *    description: Resets the password using emitted token
  *    parameters:
  *      - in: params
  *        name: token
  *        schema:
  *          type: string
- *          example: place the token here
+ *          example: Paste password reset token here
  *        required: true
- *        description: Token
- *      - in: body
- *        name: password
- *        schema:
- *          type: string
- *          example: 123654789
- *        required: true
- *        description: user password
- *      - in: body
- *        name: sandboxMode
- *        schema:
- *          type: boolean
- *          example: false
- *          default: false
- *        required: true
- *        description: used to send e-mail or not
+ *        description: Reset password token
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/PasswordResetRequest'
  *    responses:
- *      '409':
- *          description: Requested token was not emitted or active
- *      '403':
- *          description: Token is expired or was already used
- *      '200':
+ *       200:
  *          description: Password successfully reset
- *      '500':
- *          description: An unknown error occured. Open server logs for depuration
+ *       403:
+ *          description: Token is expired or was already used
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       409:
+ *          description: Requested token was not emitted or active
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/password/reset/:token', celebrate(tokenForgeryCheckValidation, { abortEarly: false }), celebrate(resetPasswordValidation, { abortEarly: false }), UsersController.resetPassword);
 
@@ -385,7 +446,7 @@ router.post('/password/reset/:token', celebrate(tokenForgeryCheckValidation, { a
  *      content:
  *        application/json:
  *          schema:
- *            $ref: '#/components/schemas/SendRecoverEmailRequest'
+ *            $ref: '#/components/schemas/SendEmailRequest'
  *    responses:
  *      409:
  *          description: User is not in database
@@ -417,33 +478,48 @@ router.post('/activate', celebrate(emailRequestValidation, { abortEarly: false }
  *  get:
  *    tags:
  *      - Authentication
- *    summary: Activate account
- *    description: Used to activate an account
+ *    summary: Activate an account
+ *    description: Activate an account using e-mail token
  *    parameters:
  *      - in: params
  *        name: token
  *        schema:
  *          type: string
- *          example: place the token here
+ *          example: Paste activation token here
  *        required: true
- *        description: Token
- *      - in: body
- *        name: sandboxMode
- *        schema:
- *          type: boolean
- *          example: false
- *          default: false
- *        required: true
- *        description: used to send e-mail or not
+ *        description: Account activation token
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              sandboxMode:
+ *                type: boolean
+ *                description: Enable sandbox mode. All operations are done, but e-mails are not sent.
+ *                example: false
  *    responses:
- *      '409':
- *          description: Requested token was not emitted or active
- *      '403':
- *          description: Token is expired or was already used
- *      '200':
+ *      200:
  *          description: Account successfully activated
- *      '500':
- *          description: An unknown error occured. Open server logs for depuration
+ *      403:
+ *          description: Token is expired or was already used
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *      409:
+ *          description: Requested token was not emitted or active
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *      500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/activate/:token', celebrate(tokenForgeryCheckValidation, { abortEarly: false }), UsersController.activateAccount);
 
