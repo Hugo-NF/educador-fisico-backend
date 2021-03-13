@@ -12,8 +12,8 @@ const { celebrate } = require('celebrate');
 const CircuitsController = require('../controllers/CircuitsController');
 
 // Importing Validations
-const { indexValidation, circuitValidation } = require('../validations/circuitValidations');
-const { idValidation } = require('../validations/utilValidations');
+const { circuitValidation } = require('../validations/circuitValidations');
+const { idValidation, indexValidation } = require('../validations/utilValidations');
 
 /**
  * @swagger

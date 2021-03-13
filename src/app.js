@@ -11,6 +11,7 @@ const logger = require('./config/configLogging');
 const userRoutes = require('./routes/user');
 const exerciseRoutes = require('./routes/exercise');
 const circuitRoutes = require('./routes/circuit');
+const routineRoutes = require('./routes/routine');
 const healthRoutes = require('./routes/health');
 
 const { authorize } = require('./helpers/UsersHelper');
@@ -59,6 +60,7 @@ application.use(express.json());
 application.use('/api/users', userRoutes);
 application.use('/api/exercises', authorize('ManageTraining'), exerciseRoutes);
 application.use('/api/circuits', authorize('ManageTraining'), circuitRoutes);
+application.use('/api/routines', authorize('ManageTraining'), routineRoutes);
 application.use('/api/health', authorize(), healthRoutes);
 application.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 application.use(errors());
