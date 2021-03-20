@@ -131,6 +131,8 @@ router.post('/create', celebrate(circuitValidation, { abortEarly: false }), Circ
  *      - Circuits
  *    summary: Get a circuit
  *    description: Retrieve a circuit by id
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: params
  *        name: id
@@ -169,6 +171,8 @@ router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsContr
  *      - Circuits
  *    summary: Edits a circuit
  *    description: Edits a circuit using it's id
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: params
  *        name: id
@@ -213,6 +217,8 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(cir
  *      - Circuits
  *    summary: Delete a circuit
  *    description: Delete a circuit by id
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: params
  *        name: id

@@ -1,6 +1,8 @@
 /**
- * This file contains all the routes related to the user entity
- *
+ * @swagger
+ *   tags:
+ *     name: Health
+ *     description: Routes to manipulate user's health stats checkpoints
  */
 
 const router = require('express').Router();
@@ -18,65 +20,36 @@ const { idValidation, dateSpanValidation } = require('../validations/utilValidat
  * /api/health/create:
  *  post:
  *    tags:
- *      - health
+ *      - Health
  *    summary: Create a health checkpoint
- *    description: Used to create a health checkpoint
- *    parameters:
- *      - in: body
- *        name: measures
- *        schema:
- *          type: json
- *          example:
- *            height: 170
- *            weight: 70
- *            chest: 93
- *            waist: 80
- *            abdomen: 85
- *            hip: 80
- *            forearm: 30
- *            arm: 35
- *            thigh: 50
- *            calf: 40
- *        required: true
- *        description: measures of the user (in centimeters)
- *      - in: body
- *        name: bodyStats
- *        schema:
- *          type: json
- *          example:
- *            imc: 26.7
- *            iac: 18.09
- *            vo2max: 40
- *            fatPercentage: 15
- *        required: true
- *        description: body stats
- *      - in: body
- *        name: ipaq
- *        schema:
- *          type: json
- *          example:
- *            walkPerWeek1a: 2
- *            walkTimePerDay1b: 1
- *            moderateActivityPerWeek2a: 2
- *            moderateActivityTimePerDay2b: 1
- *            vigorousActivityPerWeek3a: 1
- *            vigorousActivityTimePerDay3b: 2
- *            seatedTimeWeekday4a: 40
- *            seatedTimeWeekend4b: 10
- *        required: true
- *        description: ipaq
- *      - in: body
- *        name: objective
- *        schema:
- *          type: string
- *          example: Be a monster
- *        required: true
- *        description: Objective of the user
+ *    description: Insert a new checkpoint in user profile
+ *    security:
+ *      - Token: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Health'
  *    responses:
- *      '200':
- *          description: a successful response
- *      '500':
- *          description: Error while saving new checkpoint to user
+ *       201:
+ *          description: Checkpoint successfully added
+ *          content:
+ *            application/json:
+ *              schema:
+ *                properties:
+ *                  statusCode:
+ *                    type: number
+ *                    description: HTTP status code
+ *                  message:
+ *                    type: string
+ *                    description: optional application description
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/create', celebrate(healthValidation), HealthController.create);
 /**
@@ -84,29 +57,39 @@ router.post('/create', celebrate(healthValidation), HealthController.create);
  * /api/health/:
  *  post:
  *    tags:
- *      - health
+ *      - Health
  *    summary: Get a health checkpoint
- *    description: Used to get a health checkpoint
+ *    description: Get all checkpoints in between startDate and endDate
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: body
  *        name: startDate
  *        schema:
  *          type: date
- *          example: 2020-08-10T00:28Z
+ *          example: 2020-08-10T00:00Z
  *        required: false
  *        description: start date to search for a health checkpoint
  *      - in: body
  *        name: endDate
  *        schema:
  *          type: date
- *          example: 2020-08-10T00:28Z
+ *          example: 2020-09-10T00:00Z
  *        required: false
  *        description: end date to search for a health checkpoint
  *    responses:
- *      '200':
- *          description: Checkpoints between ${startDate} and ${endDate} returned to user (${id})
- *      '500':
- *          description: Could not retrieve health checkpoints for user
+ *       200:
+ *          description: Success. Array of checkpoints between ${startDate} and ${endDate} returned to user (${id})
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Health'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/', celebrate(dateSpanValidation), HealthController.show);
 /**
@@ -114,9 +97,11 @@ router.post('/', celebrate(dateSpanValidation), HealthController.show);
  * /api/health/:id:
  *  delete:
  *    tags:
- *      - health
+ *      - Health
  *    summary: delete a health checkpoint
  *    description: Used to delete a health checkpoint
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: params
  *        name: id
@@ -126,12 +111,20 @@ router.post('/', celebrate(dateSpanValidation), HealthController.show);
  *        required: true
  *        description: Id of the health checkpoint to delete
  *    responses:
- *      '200':
- *          description: A successful response
- *      '404':
- *          description: Health checkpoint could not be found
- *      '500':
- *          description: Could not delete health checkpoint
+ *       200:
+ *          description: Checkpoint deleted
+ *       404:
+ *          description: Checkpoint not found with id param.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.delete('/:id', celebrate(idValidation), HealthController.delete);
 
