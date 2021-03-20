@@ -1,3 +1,10 @@
+/**
+ * @swagger
+ *   tags:
+ *     name: Exercises
+ *     description: Routes to manipulate exercises on database
+ */
+
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
 
@@ -13,9 +20,11 @@ const { idValidation, indexValidation } = require('../validations/utilValidation
  * /api/exercises:
  *  post:
  *    tags:
- *      - exercise
+ *      - Exercises
  *    summary: Returns a list of exercise
  *    description: Use to request all exercise
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: query
  *        name: page
@@ -50,9 +59,11 @@ router.post('/', celebrate(indexValidation, { abortEarly: false }), ExercisesCon
  * /api/exercises/create:
  *  post:
  *    tags:
- *      - exercise
+ *      - Exercises
  *    summary: Create a exercise
  *    description: Used to create a exercise
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: body
  *        name: name
@@ -80,9 +91,11 @@ router.post('/create', celebrate(exerciseValidation, { abortEarly: false }), Exe
  * /api/exercises/:id:
  *  get:
  *    tags:
- *      - exercise
+ *      - Exercises
  *    summary: Get an exercise
  *    description: Used to get an exercise
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: params
  *        name: id
@@ -105,9 +118,11 @@ router.get('/:id', celebrate(idValidation, { abortEarly: false }), ExercisesCont
  * /api/exercises/:id:
  *  put:
  *    tags:
- *      - exercise
+ *      - Exercises
  *    summary: edit a exercise
  *    description: Used to edit a exercise
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: params
  *        name: id
@@ -144,9 +159,11 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(exe
  * /api/exercises/:id:
  *  delete:
  *    tags:
- *      - exercise
+ *      - Exercises
  *    summary: Delete an exercise
  *    description: Used to delete an exercise
+ *    security:
+ *      - Token: []
  *    parameters:
  *      - in: params
  *        name: id
