@@ -55,7 +55,7 @@ module.exports = {
 
       logger.info(`/circuit/create created ${circuit._id} record`);
       return response.json({
-        statusCode: 200,
+        statusCode: 201,
         data: {
           circuit: await (await circuit.save()).populate('exercises.exercise').execPopulate(),
         },

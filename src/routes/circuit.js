@@ -96,30 +96,30 @@ router.post('/', celebrate(indexValidation, { abortEarly: false }), CircuitsCont
  *  post:
  *    tags:
  *      - Circuits
- *    summary: Create a circuit
- *    description: Used to create a circuit
- *    parameters:
- *      - in: body
- *        name: name
- *        schema:
- *          type: string
- *          example: Circuito1
- *        required: true
- *        description: The name of the circuit to be created
- *      - in: body
- *        name: exercises
- *        schema:
- *          type: json
- *          example:
- *              name: Supino
- *              video: youtube.com/url
- *        required: true
- *        description: List of exercises to be in the circuit
+ *    summary: Create a new circuit
+ *    description: Create a new circuit using exercises from the database
+ *    security:
+ *      - Token: []
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Circuit'
+ *
  *    responses:
- *      '200':
- *          description: a successful response
- *      '500':
- *          description: Could not create the circuit
+ *       201:
+ *          description: Circuit created
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Circuit'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/create', celebrate(circuitValidation, { abortEarly: false }), CircuitsController.create);
 
@@ -130,7 +130,7 @@ router.post('/create', celebrate(circuitValidation, { abortEarly: false }), Circ
  *    tags:
  *      - Circuits
  *    summary: Get a circuit
- *    description: Used to get a circuit
+ *    description: Retrieve a circuit by id
  *    parameters:
  *      - in: params
  *        name: id
@@ -138,12 +138,26 @@ router.post('/create', celebrate(circuitValidation, { abortEarly: false }), Circ
  *          type: string
  *          example: 123
  *        required: true
- *        description: The id of the circuit to be got
+ *        description: The id of the circuit to be retrieved
  *    responses:
- *      '200':
- *          description: a successful response
- *      '500':
- *          description: Could not retrieve circuit
+ *       200:
+ *          description: Circuit found
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Circuit'
+ *       404:
+ *          description: Circuit could not be found using id param
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsController.show);
 
@@ -153,8 +167,8 @@ router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsContr
  *  put:
  *    tags:
  *      - Circuits
- *    summary: edit a circuit
- *    description: Used to edit a circuit
+ *    summary: Edits a circuit
+ *    description: Edits a circuit using it's id
  *    parameters:
  *      - in: params
  *        name: id
@@ -163,27 +177,31 @@ router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsContr
  *          example: 123
  *        required: true
  *        description: The id of the circuit to be edited
- *      - in: body
- *        name: name
- *        schema:
- *          type: string
- *          example: Circuito2
- *        required: true
- *        description: The new name of the circuit
- *      - in: body
- *        name: exercises
- *        schema:
- *          type: json
- *          example:
- *              name: Supino
- *              video: youtube.com/url
- *        required: true
- *        description: The new list of exercises
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Circuit'
  *    responses:
  *       200:
- *          description: a successful response
+ *          description: Circuit successfully edited
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Circuit'
+ *       404:
+ *          description: Circuit could not be found using id param
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  *       500:
- *          description: Could not edit the circuit
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(circuitValidation, { abortEarly: false }), CircuitsController.edit);
 
@@ -193,8 +211,8 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(cir
  *  delete:
  *    tags:
  *      - Circuits
- *    summary: delete a circuit
- *    description: Used to delete a circuit
+ *    summary: Delete a circuit
+ *    description: Delete a circuit by id
  *    parameters:
  *      - in: params
  *        name: id
@@ -205,11 +223,23 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(cir
  *        description: The id of the circuit to be deleted
  *    responses:
  *       200:
- *          description: a successful response
+ *          description: Circuit successfully deleted and returns it.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Circuit'
  *       404:
- *          description: Circuit could not be found
+ *          description: Circuit could not be found using id param
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  *       500:
- *          description: Could not delete the circuit
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.delete('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsController.delete);
 
