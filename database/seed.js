@@ -13,6 +13,7 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
     './src/models/User',
     './src/models/Exercise',
     './src/models/Circuit',
+    './src/models/Routine',
     './src/models/Health',
   ]);
 
@@ -214,6 +215,19 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
       ],
     },
     {
+      model: 'Routine',
+      documents: [
+        {
+          _id: '604c18192b542e08846365ab',
+          name: 'Ombro avançado',
+          interval: 40,
+          circuits: [{
+            circuit: '5eed3320725afd09805b72c6',
+          }],
+        },
+      ],
+    },
+    {
       model: 'Health',
       documents: [
         {
@@ -252,7 +266,7 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
   ];
 
   // Clear specified collections
-  seeder.clearModels(['Role', 'Claim', 'User', 'Exercise', 'Circuit', 'Health'], () => {
+  seeder.clearModels(['Role', 'Claim', 'User', 'Exercise', 'Circuit', 'Routine', 'Health'], () => {
     // Callback to populate DB once collections have been cleared
     seeder.populateModels(data, () => {
       seeder.disconnect();
