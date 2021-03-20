@@ -5,8 +5,8 @@ const { celebrate } = require('celebrate');
 const ExercisesController = require('../controllers/ExercisesController');
 
 // Importing Validations
-const { indexValidation, exerciseValidation } = require('../validations/exerciseValidations');
-const { idValidation } = require('../validations/utilValidations');
+const { exerciseValidation } = require('../validations/exerciseValidations');
+const { idValidation, indexValidation } = require('../validations/utilValidations');
 
 /**
  * @swagger

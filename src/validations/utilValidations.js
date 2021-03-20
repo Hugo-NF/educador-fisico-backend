@@ -6,6 +6,16 @@ const idValidation = {
   }),
 };
 
+const indexValidation = {
+  [Segments.QUERY]: Joi.object().keys({
+    page: Joi.number().min(1),
+    max: Joi.number().min(1),
+  }),
+  [Segments.BODY]: Joi.object().keys({
+    name: Joi.string().allow(''),
+  }),
+};
+
 const dateSpanValidation = {
   [Segments.BODY]: Joi.object().keys({
     startDate: Joi.date(),
@@ -15,5 +25,6 @@ const dateSpanValidation = {
 
 module.exports = {
   idValidation,
+  indexValidation,
   dateSpanValidation,
 };

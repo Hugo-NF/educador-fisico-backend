@@ -1,15 +1,5 @@
 const { Segments, Joi } = require('celebrate');
 
-const indexValidation = {
-  [Segments.QUERY]: Joi.object().keys({
-    page: Joi.number().min(1),
-    max: Joi.number().min(1),
-  }),
-  [Segments.BODY]: Joi.object().keys({
-    name: Joi.string().allow(''),
-  }),
-};
-
 const exerciseValidation = {
   [Segments.BODY]: Joi.object().keys({
     name: Joi.string().required(),
@@ -18,6 +8,5 @@ const exerciseValidation = {
 };
 
 module.exports = {
-  indexValidation,
   exerciseValidation,
 };
