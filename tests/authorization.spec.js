@@ -5,11 +5,11 @@ const errors = require('../src/config/errorCodes');
 const UsersHelper = require('../src/helpers/UsersHelper');
 
 async function mockRoute(req, res) {
-  return res.json({ statusCode: 200, message: 'authorized' });
+  return res.json({ statusCode: 401, message: 'authorized' });
 }
 
 beforeAll(() => {
-  app.get('/exercises', UsersHelper.authorize('ManageExercises'), mockRoute);
+  app.get('/rola', UsersHelper.authorize('ManageExercises'), mockRoute);
   app.get('/training', UsersHelper.authorize('ManageTraining'), mockRoute);
   app.get('/students', UsersHelper.authorize('ManageStudents'), mockRoute);
   app.get('/permissions', UsersHelper.authorize('ManagePermissions'), mockRoute);
@@ -28,8 +28,8 @@ describe('Authorization', () => {
     expect(response.body.data).toHaveProperty('authToken');
 
     response = await request(app)
-      .get('/exercises')
-      .set({ authToken: response.body.data.authToken });
+      .get('/rola')
+      .set({ Authorization: response.body.data.authToken });
 
     expect(response.status).toBe(200);
     expect(response.body.message).toBe('authorized');
@@ -39,7 +39,7 @@ describe('Authorization', () => {
 
   it('should reject - jwt missing', async (done) => {
     const responseRoute1 = await request(app)
-      .get('/exercises');
+      .get('/rola');
 
     expect(responseRoute1.status).toBe(401);
     expect(responseRoute1.body.errorCode).toBe(errors.MISSING_AUTH_TOKEN);
@@ -48,8 +48,8 @@ describe('Authorization', () => {
 
   it('should reject - jwt payload compromissed', async (done) => {
     const responseRoute1 = await request(app)
-      .get('/exercises')
-      .set({ authToken: 'yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI4NzE5ZDA4ZS03OGNlLTRjODAtYjkzNi03MWIyYTI1OGNiZDUiLCJpYXQiOjE1OTIwMTA4NzcsImV4cCI6MTU5NDYwMjg3N30.w5Ap6DoAIlmUolHgh5ZmsR8nNjRBOOXTtJiXBdqq1Gk' });
+      .get('/rola')
+      .set({ Authorization: 'Bearer yJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJfaWQiOiI4NzE5ZDA4ZS03OGNlLTRjODAtYjkzNi03MWIyYTI1OGNiZDUiLCJpYXQiOjE1OTIwMTA4NzcsImV4cCI6MTU5NDYwMjg3N30.w5Ap6DoAIlmUolHgh5ZmsR8nNjRBOOXTtJiXBdqq1Gk' });
 
     expect(responseRoute1.status).toBe(401);
     expect(responseRoute1.body.errorCode).toBe(errors.JWT_FORGED);
@@ -68,7 +68,7 @@ describe('Authorization', () => {
     expect(login.body.data).toHaveProperty('authToken');
 
     const responseRoute1 = await request(app)
-      .get('/exercises')
+      .get('/rola')
       .set({ authToken: login.body.data.authToken });
 
     expect(responseRoute1.status).toBe(200);
@@ -95,7 +95,7 @@ describe('Authorization', () => {
     expect(login.body.data).toHaveProperty('authToken');
 
     const responseRoute1 = await request(app)
-      .get('/exercises')
+      .get('/rola')
       .set({ authToken: login.body.data.authToken });
 
     expect(responseRoute1.status).toBe(200);

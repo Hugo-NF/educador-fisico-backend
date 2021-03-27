@@ -74,14 +74,15 @@ class UsersHelper {
   static authorize(claim = null) {
     return (request, response, next) => {
       const rawToken = request.header('Authorization');
-      const token = UsersHelper.extractToken(rawToken);
 
-      if (!token) {
+      if (!rawToken) {
         return response.status(401).json({
           statusCode: 401,
           errorCode: errors.MISSING_AUTH_TOKEN,
         });
       }
+
+      const token = UsersHelper.extractToken(rawToken);
 
       try {
         const verified = jwt.verify(token, process.env.JWT_SECRET);

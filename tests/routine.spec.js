@@ -17,7 +17,7 @@ describe('Routine CRUD', () => {
   it('should return all routines successfully', async (done) => {
     const response = await request(app)
       .post('/api/routines/')
-      .set({ authToken });
+      .set({ Authorization: authToken });
 
     expect(response.status).toBe(200);
     expect(response.body.count).toBe(1);
@@ -27,7 +27,7 @@ describe('Routine CRUD', () => {
   it('should register a new routine successfully', async (done) => {
     const response = await request(app)
       .post('/api/routines/create')
-      .set({ authToken })
+      .set({ Authorization: authToken })
       .send({
         name: 'Ombros',
         interval: 60,
@@ -44,7 +44,7 @@ describe('Routine CRUD', () => {
   it('should state bad request on create', async (done) => {
     const response = await request(app)
       .post('/api/routines/create')
-      .set({ authToken })
+      .set({ Authorization: authToken })
       .send({
         name: 'Rotine fail',
       });
@@ -57,7 +57,7 @@ describe('Routine CRUD', () => {
   it('should return the routine successfully', async (done) => {
     const response = await request(app)
       .get('/api/routines/604c18192b542e08846365ab')
-      .set({ authToken });
+      .set({ Authorization: authToken });
 
     expect(response.status).toBe(200);
     expect(response.body.data).toHaveProperty('routine');
@@ -67,7 +67,7 @@ describe('Routine CRUD', () => {
   it('should return route not found (aka 404) on show', async (done) => {
     const response = await request(app)
       .get('/api/routines/604c18192b542e08846365ac')
-      .set({ authToken });
+      .set({ Authorization: authToken });
 
     expect(response.status).toBe(404);
     expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
@@ -77,11 +77,11 @@ describe('Routine CRUD', () => {
   it('should edit the circuit successfully', async (done) => {
     const response = await request(app)
       .get('/api/routines/604c18192b542e08846365ab')
-      .set({ authToken });
+      .set({ Authorization: authToken });
 
     const response2 = await request(app)
       .put('/api/routines/604c18192b542e08846365ab')
-      .set({ authToken })
+      .set({ Authorization: authToken })
       .send({
         name: 'Ombro Avançado - Editado',
         interval: 50,
@@ -99,7 +99,7 @@ describe('Routine CRUD', () => {
   it('should return route not found (aka 404) on edit', async (done) => {
     const response = await request(app)
       .put('/api/routines/604c18192b542e08846365ac')
-      .set({ authToken })
+      .set({ Authorization: authToken })
       .send({
         name: 'Ombro Avançado - Editado',
         interval: 50,
@@ -115,17 +115,17 @@ describe('Routine CRUD', () => {
 
   it('should delete the circuit successfully', async (done) => {
     const response = await request(app)
-      .get('/api/routines/604c18192b542e08846365ab').set({ authToken });
+      .get('/api/routines/604c18192b542e08846365ab').set({ Authorization: authToken });
 
     expect(response.status).toBe(200);
 
     const response2 = await request(app)
-      .delete('/api/routines/604c18192b542e08846365ab').set({ authToken });
+      .delete('/api/routines/604c18192b542e08846365ab').set({ Authorization: authToken });
 
     expect(response2.status).toBe(200);
 
     const response3 = await request(app)
-      .get('/api/routines/604c18192b542e08846365ab').set({ authToken });
+      .get('/api/routines/604c18192b542e08846365ab').set({ Authorization: authToken });
 
     expect(response3.status).toBe(404);
 
@@ -134,7 +134,7 @@ describe('Routine CRUD', () => {
 
   it('should return route not found (aka 404) on delete', async (done) => {
     const response = await request(app)
-      .delete('/api/routines/604c18192b542e08846365ac').set({ authToken });
+      .delete('/api/routines/604c18192b542e08846365ac').set({ Authorization: authToken });
 
     expect(response.status).toBe(404);
     expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
