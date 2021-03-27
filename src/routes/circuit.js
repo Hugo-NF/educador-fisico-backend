@@ -9,7 +9,7 @@
   * @swagger
   * components:
   *   schemas:
-  *     IndexResponse:
+  *     CircuitIndexResponse:
   *       type: object
   *       properties:
   *         statusCode:
@@ -79,7 +79,7 @@ const { idValidation, indexValidation } = require('../validations/utilValidation
  *          content:
  *            application/json:
  *              schema:
- *                $ref: '#/components/schemas/IndexResponse'
+ *                $ref: '#/components/schemas/CircuitIndexResponse'
  *
  *       500:
  *          description: Internal server error. Please, consider opening a report to development team.

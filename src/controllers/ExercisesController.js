@@ -57,7 +57,7 @@ module.exports = {
 
       logger.info(`Exercise ${exercise._id} created successfully`);
       return response.json({
-        statusCode: 200,
+        statusCode: 201,
         data: {
           exercise,
         },

@@ -5,6 +5,30 @@
  *     description: Routes to manipulate exercises on database
  */
 
+/**
+  * @swagger
+  * components:
+  *   schemas:
+  *     ExerciseIndexResponse:
+  *       type: object
+  *       properties:
+  *         statusCode:
+  *           type: number
+  *           description: HTTP status code
+  *           example: 200
+  *         count:
+  *           type: number
+  *           description: Amount of items in page
+  *           example: 50
+  *         data:
+  *           type: object
+  *           properties:
+  *             circuits:
+  *               type: array
+  *               items:
+  *                 $ref: '#/components/schemas/Exercise'
+  */
+
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
 
@@ -22,7 +46,7 @@ const { idValidation, indexValidation } = require('../validations/utilValidation
  *    tags:
  *      - Exercises
  *    summary: Returns a list of exercise
- *    description: Use to request all exercise
+ *    description: Use to request or filter all exercises
  *    security:
  *      - Token: []
  *    parameters:
@@ -40,20 +64,32 @@ const { idValidation, indexValidation } = require('../validations/utilValidation
  *          example: 5
  *        required: false
  *        description: The max results wanted to be shown
- *      - in: body
- *        name: name
- *        schema:
- *          type: string
- *          example: Exercicio1
- *        required: false
- *        description: The name of the exercise wanted to be shown
+ *    requestBody:
+ *      content:
+ *        application/json:
+ *          schema:
+ *            type: object
+ *            properties:
+ *              name:
+ *                type: string
+ *                description: Regex pattern to match names.
  *    responses:
- *      '200':
- *          description: a successful response
- *      '500':
- *          description: Could not retrieve the exercise
+ *       200:
+ *          description: Search successfull
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ExerciseIndexResponse'
+ *
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/', celebrate(indexValidation, { abortEarly: false }), ExercisesController.index);
+
 /**
  * @swagger
  * /api/exercises/create:
@@ -61,31 +97,37 @@ router.post('/', celebrate(indexValidation, { abortEarly: false }), ExercisesCon
  *    tags:
  *      - Exercises
  *    summary: Create a exercise
- *    description: Used to create a exercise
+ *    description: Create a new exercise in database
  *    security:
  *      - Token: []
- *    parameters:
- *      - in: body
- *        name: name
- *        schema:
- *          type: string
- *          example: Exercicio1
- *        required: true
- *        description: The name of the exercise to be created
- *      - in: body
- *        name: video
- *        schema:
- *          type: string
- *          example: youtube.com/url
- *        required: false
- *        description: url of the video
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Exercise'
  *    responses:
- *      '200':
- *          description: a successful response
- *      '500':
- *          description: Could not create the exercise
+ *       201:
+ *          description: Exercise created and returned.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Exercise'
+ *       404:
+ *          description: Exercise could not be found using id param
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.post('/create', celebrate(exerciseValidation, { abortEarly: false }), ExercisesController.create);
+
 /**
  * @swagger
  * /api/exercises/:id:
@@ -93,7 +135,7 @@ router.post('/create', celebrate(exerciseValidation, { abortEarly: false }), Exe
  *    tags:
  *      - Exercises
  *    summary: Get an exercise
- *    description: Used to get an exercise
+ *    description: Find a exercise by it's ID
  *    security:
  *      - Token: []
  *    parameters:
@@ -105,22 +147,35 @@ router.post('/create', celebrate(exerciseValidation, { abortEarly: false }), Exe
  *        required: true
  *        description: The id of the circuit to be showed
  *    responses:
- *      '200':
- *          description: a successful response
- *      '404':
- *          description: Exercise could not be found
- *      '500':
- *          description: Could not retrieve exercise
+ *       200:
+ *          description: Exercise found and returned.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Exercise'
+ *       404:
+ *          description: Exercise could not be found using id param
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/:id', celebrate(idValidation, { abortEarly: false }), ExercisesController.show);
+
 /**
  * @swagger
  * /api/exercises/:id:
  *  put:
  *    tags:
  *      - Exercises
- *    summary: edit a exercise
- *    description: Used to edit a exercise
+ *    summary: Edit a exercise
+ *    description: Edits an exercise from body params
  *    security:
  *      - Token: []
  *    parameters:
@@ -131,29 +186,35 @@ router.get('/:id', celebrate(idValidation, { abortEarly: false }), ExercisesCont
  *          example: 123
  *        required: true
  *        description: The id of the exercise to be edited
- *      - in: body
- *        name: name
- *        schema:
- *          type: string
- *          example: Supino
- *        required: true
- *        description: The new name of the exercise
- *      - in: body
- *        name: video
- *        schema:
- *          type: String
- *          example: youtube.com/url
- *        required: false
- *        description: url of the video
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Exercise'
+ *
  *    responses:
- *      '200':
- *          description: a successful response
- *      '404':
- *          description: Exercise could not be found
- *      '500':
- *          description: Could not edit exercise
+ *       200:
+ *          description: Exercise successfully edited and returns the new object.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Exercise'
+ *       404:
+ *          description: Exercise could not be found using id param
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(exerciseValidation, { abortEarly: false }), ExercisesController.edit);
+
 /**
  * @swagger
  * /api/exercises/:id:
@@ -161,7 +222,7 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(exe
  *    tags:
  *      - Exercises
  *    summary: Delete an exercise
- *    description: Used to delete an exercise
+ *    description: Delete an exercise by ID
  *    security:
  *      - Token: []
  *    parameters:
@@ -173,12 +234,24 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(exe
  *        required: true
  *        description: The id of the circuit to be deleted
  *    responses:
- *      '200':
- *          description: a successful response
- *      '404':
- *          description: Exercise could not be found
- *      '500':
- *          description: Could not delete the exercise
+ *       200:
+ *          description: Exercise successfully deleted and returns it.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Exercise'
+ *       404:
+ *          description: Exercise could not be found using id param
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.delete('/:id', celebrate(idValidation, { abortEarly: false }), ExercisesController.delete);
 

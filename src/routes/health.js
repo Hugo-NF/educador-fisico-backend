@@ -98,8 +98,8 @@ router.post('/', celebrate(dateSpanValidation), HealthController.show);
  *  delete:
  *    tags:
  *      - Health
- *    summary: delete a health checkpoint
- *    description: Used to delete a health checkpoint
+ *    summary: Removes a checkpoint from Health series
+ *    description: Use to delete a health checkpoint
  *    security:
  *      - Token: []
  *    parameters:
