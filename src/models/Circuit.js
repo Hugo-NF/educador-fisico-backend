@@ -22,7 +22,7 @@ const mongoose = require('mongoose');
  *              properties:
  *                exercise:
  *                  type: object
- *                  $ref: '#/components/schemas/Circuit'
+ *                  $ref: '#/components/schemas/Exercise'
  *                repetitions:
  *                  type: number
  *                  description: Circuit repetitions

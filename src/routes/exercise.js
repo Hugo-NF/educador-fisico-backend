@@ -23,7 +23,7 @@
   *         data:
   *           type: object
   *           properties:
-  *             circuits:
+  *             exercises:
   *               type: array
   *               items:
   *                 $ref: '#/components/schemas/Exercise'
@@ -113,12 +113,6 @@ router.post('/', celebrate(indexValidation, { abortEarly: false }), ExercisesCon
  *            application/json:
  *              schema:
  *                $ref: '#/components/schemas/Exercise'
- *       404:
- *          description: Exercise could not be found using id param
- *          content:
- *            application/json:
- *              schema:
- *                $ref: '#/components/schemas/ErrorResponse'
  *       500:
  *          description: Internal server error. Please, consider opening a report to development team.
  *          content:
@@ -135,7 +129,7 @@ router.post('/create', celebrate(exerciseValidation, { abortEarly: false }), Exe
  *    tags:
  *      - Exercises
  *    summary: Get an exercise
- *    description: Find a exercise by it's ID
+ *    description: Find a exercise by its ID
  *    security:
  *      - Token: []
  *    parameters:
