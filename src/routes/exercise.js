@@ -226,7 +226,7 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(exe
  *          type: string
  *          example: 123
  *        required: true
- *        description: The id of the circuit to be deleted
+ *        description: The id of the exercise to be deleted
  *    responses:
  *       200:
  *          description: Exercise successfully deleted and returns it.

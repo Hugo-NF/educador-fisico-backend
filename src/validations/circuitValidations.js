@@ -2,7 +2,8 @@ const { Segments, Joi } = require('celebrate');
 
 const circuitValidation = {
   [Segments.BODY]: Joi.object().keys({
-    name: Joi.string(),
+    _id: Joi.string(),
+    name: Joi.string().required(),
     exercises: Joi.array().required().items(Joi.object().keys({
       exercise: Joi.string().required(),
       repetitions: Joi.number().min(1),

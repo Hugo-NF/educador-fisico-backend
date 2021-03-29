@@ -161,7 +161,92 @@ router.post('/create', celebrate(routineValidation, { abortEarly: false }), Rout
  *                $ref: '#/components/schemas/ErrorResponse'
  */
 router.get('/:id', celebrate(idValidation, { abortEarly: false }), RoutinesController.show);
+
+/**
+ * @swagger
+ * /api/routines/:id:
+ *  put:
+ *    tags:
+ *      - Routine
+ *    summary: Edit a routine
+ *    description: Edits an routine from body params
+ *    security:
+ *      - Token: []
+ *    parameters:
+ *      - in: params
+ *        name: id
+ *        schema:
+ *          type: string
+ *          example: 123
+ *        required: true
+ *        description: The id of the routine to be edited
+ *    requestBody:
+ *      required: true
+ *      content:
+ *        application/json:
+ *          schema:
+ *            $ref: '#/components/schemas/Routine'
+ *
+ *    responses:
+ *       200:
+ *          description: Routine successfully edited and returns the new object.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Routine'
+ *       404:
+ *          description: Routine could not be found using id param
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ */
 router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(routineValidation, { abortEarly: false }), RoutinesController.edit);
+
+/**
+ * @swagger
+ * /api/routines/:id:
+ *  delete:
+ *    tags:
+ *      - Routines
+ *    summary: Delete an routine
+ *    description: Delete an routine by ID
+ *    security:
+ *      - Token: []
+ *    parameters:
+ *      - in: params
+ *        name: id
+ *        schema:
+ *          type: string
+ *          example: 123
+ *        required: true
+ *        description: The id of the routine to be deleted
+ *    responses:
+ *       200:
+ *          description: Routine successfully deleted and returns it.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/Routine'
+ *       404:
+ *          description: Routine could not be found using id param
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ *       500:
+ *          description: Internal server error. Please, consider opening a report to development team.
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/ErrorResponse'
+ */
 router.delete('/:id', celebrate(idValidation, { abortEarly: false }), RoutinesController.delete);
 
 module.exports = router;
