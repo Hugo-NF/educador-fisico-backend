@@ -9,7 +9,7 @@ module.exports = {
   // Index method
   async index(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /circuit/index');
+    logger.info('Inbound request to /circuits/index');
 
     const { page = 1, max = null } = request.query;
     const { name = '' } = request.body;
@@ -25,7 +25,7 @@ module.exports = {
         .skip((maxPage * page) - maxPage)
         .limit(maxPage);
 
-      logger.info(`Inbound request to /circuit/index returned ${count} records`);
+      logger.info(`Inbound request to /circuits/index returned ${count} records`);
       return response.json({
         statusCode: 200,
         count,
@@ -34,7 +34,7 @@ module.exports = {
         },
       });
     } catch (exc) {
-      logger.info(`Exception while running /circuit/index. Details: ${exc}`);
+      logger.info(`Exception while running /circuits/index. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
@@ -46,22 +46,22 @@ module.exports = {
 
   async create(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /circuit/create');
+    logger.info('Inbound request to /circuits/create');
 
     const { name, exercises } = request.body;
 
     try {
       const circuit = new Circuit({ name, exercises });
 
-      logger.info(`/circuit/create created ${circuit._id} record`);
+      logger.info(`/circuits/create created ${circuit._id} record`);
       return response.json({
-        statusCode: 200,
+        statusCode: 201,
         data: {
           circuit: await (await circuit.save()).populate('exercises.exercise').execPopulate(),
         },
       });
     } catch (exc) {
-      logger.error(`Exception while running /circuit/create. Details: ${exc}`);
+      logger.error(`Exception while running /circuits/create. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
@@ -74,14 +74,14 @@ module.exports = {
   // Show method
   async show(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /circuit/show');
+    logger.info('Inbound request to /circuits/show');
 
     const { id } = request.params;
 
     try {
       const circuit = await Circuit.findById(id).populate('exercises.exercise');
       if (circuit == null) {
-        logger.error(`/circuit/show: Could not find circuit with ObjectId(${id})`);
+        logger.error(`/circuits/show: Could not find circuit with ObjectId(${id})`);
 
         return response.status(404).json({
           statusCode: 404,
@@ -90,7 +90,7 @@ module.exports = {
         });
       }
 
-      logger.info(`Request to /circuit/show successfully returned ObjectId(${id})`);
+      logger.info(`Request to /circuits/show successfully returned ObjectId(${id})`);
       return response.json({
         statusCode: 200,
         data: {
@@ -98,7 +98,7 @@ module.exports = {
         },
       });
     } catch (exc) {
-      logger.error(`Error while running /circuit/show. Details: ${exc}`);
+      logger.error(`Error while running /circuits/show. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
@@ -111,7 +111,7 @@ module.exports = {
   // Edit method
   async edit(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /circuit/edit');
+    logger.info('Inbound request to /circuits/edit');
 
     const { id } = request.params;
     const { name, exercises } = request.body;
@@ -119,7 +119,7 @@ module.exports = {
     try {
       const circuit = await Circuit.findByIdAndUpdate(id, { name, exercises }, { new: true }).populate('exercises.exercise');
       if (circuit == null) {
-        logger.error(`/circuit/edit: Could not find circuit with ObjectId(${id})`);
+        logger.error(`/circuits/edit: Could not find circuit with ObjectId(${id})`);
 
         return response.status(404).json({
           statusCode: 404,
@@ -128,7 +128,7 @@ module.exports = {
         });
       }
 
-      logger.info(`Request to /circuit/edit successfully edited ObjectId(${id})`);
+      logger.info(`Request to /circuits/edit successfully edited ObjectId(${id})`);
       return response.json({
         statusCode: 200,
         data: {
@@ -136,7 +136,7 @@ module.exports = {
         },
       });
     } catch (exc) {
-      logger.error(`Error while running /circuit/edit. Details: ${exc}`);
+      logger.error(`Error while running /circuits/edit. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
@@ -149,14 +149,14 @@ module.exports = {
   // Delete method
   async delete(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /circuit/delete');
+    logger.info('Inbound request to /circuits/delete');
 
     const { id } = request.params;
 
     try {
       const circuit = await Circuit.findByIdAndDelete(id);
       if (circuit == null) {
-        logger.error(`/circuit/delete: Could not find circuit with ObjectId(${id})`);
+        logger.error(`/circuits/delete: Could not find circuit with ObjectId(${id})`);
 
         return response.status(404).json({
           statusCode: 404,
@@ -164,14 +164,14 @@ module.exports = {
           message: 'Circuit could not be found',
         });
       }
-      logger.info(`Request to /circuit/delete successfully deleted ObjectId(${id})`);
+      logger.info(`Request to /circuits/delete successfully deleted ObjectId(${id})`);
 
       return response.json({
         statusCode: 200,
         data: { circuit },
       });
     } catch (exc) {
-      logger.error(`Error while running /circuit/delete. Details: ${exc}`);
+      logger.error(`Error while running /circuits/delete. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,

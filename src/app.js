@@ -11,6 +11,7 @@ const logger = require('./config/configLogging');
 const userRoutes = require('./routes/user');
 const exerciseRoutes = require('./routes/exercise');
 const circuitRoutes = require('./routes/circuit');
+const routineRoutes = require('./routes/routine');
 const healthRoutes = require('./routes/health');
 
 const { authorize } = require('./helpers/UsersHelper');
@@ -31,16 +32,39 @@ mongoose.connect(
 
 const swaggerOptions = {
   swaggerDefinition: {
+    openapi: '3.0.1',
     info: {
       title: 'Treino para Todos API',
-      description: 'Informações sobre a API do Treino para Todos',
+      description: 'Documentação API do projeto Treino para Todos',
       contact: {
-        name: 'Mota',
+        name: 'Equipe Treino para Todos',
+        url: 'https://github.com/Hugo-NF/educador-fisico-backend',
+        email: 'hugonfonseca@hotmail.com',
       },
-      servers: ['http://localhost:3000'],
+      termsOfService: 'http://treinoparatodos.com/terms',
+    },
+    servers: [
+      {
+        url: `http://localhost:${process.env.PORT}`,
+        description: 'Local development',
+      },
+      {
+        url: 'https://treinoparatodos.com.br/v1/',
+        description: 'Production server',
+      },
+    ],
+    components: {
+      securitySchemes: {
+        Token: {
+          type: 'http',
+          scheme: 'bearer',
+          bearerFormat: 'JWT',
+          description: 'Paste your authentication token on the input below',
+        },
+      },
     },
   },
-  apis: ['src/routes/*.js'],
+  apis: ['src/routes/*.js', 'src/models/*.js'],
 };
 
 const swaggerDocs = swaggerJsDoc(swaggerOptions);
@@ -59,8 +83,9 @@ application.use(express.json());
 application.use('/api/users', userRoutes);
 application.use('/api/exercises', authorize('ManageTraining'), exerciseRoutes);
 application.use('/api/circuits', authorize('ManageTraining'), circuitRoutes);
+application.use('/api/routines', authorize('ManageTraining'), routineRoutes);
 application.use('/api/health', authorize(), healthRoutes);
-application.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+application.use('/', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
 application.use(errors());
 
 module.exports = application;

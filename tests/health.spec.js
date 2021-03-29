@@ -18,7 +18,7 @@ describe('Health', () => {
   it('should add a checkpoint successfully', async (done) => {
     const response = await request(app)
       .post('/api/health/create')
-      .set({ authToken })
+      .set({ Authorization: authToken })
       .send({
         measures: {
           height: 180,
@@ -58,7 +58,7 @@ describe('Health', () => {
     // The user information is retrieved from request headers
     const response = await request(app)
       .post('/api/health/')
-      .set({ authToken });
+      .set({ Authorization: authToken });
 
     expect(response.status).toBe(200);
     expect(response.body.data.length).toBe(2);
@@ -68,7 +68,7 @@ describe('Health', () => {
   it('should return health checkpoints between two dates', async (done) => {
     const response = await request(app)
       .post('/api/health')
-      .set({ authToken })
+      .set({ Authorization: authToken })
       .send({
         startDate: new Date(1998, 6, 15), // Any very early date
         endDate: testStarted,
@@ -83,7 +83,7 @@ describe('Health', () => {
   it('should return health checkpoints between one date and now', async (done) => {
     const response = await request(app)
       .post('/api/health')
-      .set({ authToken })
+      .set({ Authorization: authToken })
       .send({
         startDate: testStarted, // Mudar a data
       });
@@ -99,7 +99,7 @@ describe('Health', () => {
   it('should delete the health checkpoint successfully', async (done) => {
     const response = await request(app)
       .delete('/api/health/5f382c26c21c6b7f70227f5e')
-      .set({ authToken });
+      .set({ Authorization: authToken });
 
     expect(response.body.data).toHaveProperty('_id');
     expect(response.body.data).toHaveProperty('measures');
@@ -113,7 +113,7 @@ describe('Health', () => {
   it('should NOT delete the health checkpoint, a.k.a Unauthorized (403)', async (done) => {
     const response = await request(app)
       .delete('/api/health/5eed3357725afd0980c272c7')
-      .set({ authToken });
+      .set({ Authorization: authToken });
 
     expect(response.status).toBe(403);
     expect(response.body.errorCode).toBe(errors.RESOURCE_OWNERSHIP_MISMATCH);
@@ -124,7 +124,7 @@ describe('Health', () => {
   it('should NOT delete the health checkpoint, a.k.a Not Found (404)', async (done) => {
     const response = await request(app)
       .delete('/api/health/5f382b5076119f513dcd055f')
-      .set({ authToken });
+      .set({ Authorization: authToken });
 
     expect(response.status).toBe(404);
     expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);

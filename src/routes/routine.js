@@ -1,15 +1,15 @@
 /**
  * @swagger
  *   tags:
- *     name: Circuits
- *     description: Routes to manipulate circuits on database
+ *     name: Routines
+ *     description: Routes to manipulate routines on database
  */
 
 /**
   * @swagger
   * components:
   *   schemas:
-  *     CircuitIndexResponse:
+  *     RoutineIndexResponse:
   *       type: object
   *       properties:
   *         statusCode:
@@ -23,30 +23,30 @@
   *         data:
   *           type: object
   *           properties:
-  *             circuits:
+  *             routines:
   *               type: array
   *               items:
-  *                 $ref: '#/components/schemas/Circuit'
+  *                 $ref: '#/components/schemas/Routine'
   */
 
 const router = require('express').Router();
 const { celebrate } = require('celebrate');
 
 // Importing Controllers
-const CircuitsController = require('../controllers/CircuitsController');
+const RoutinesController = require('../controllers/RoutinesController');
 
 // Importing Validations
-const { circuitValidation } = require('../validations/circuitValidations');
+const { routineValidation } = require('../validations/routineValidations');
 const { idValidation, indexValidation } = require('../validations/utilValidations');
 
 /**
  * @swagger
- * /api/circuits:
+ * /api/routines:
  *  post:
  *    tags:
- *      - Circuits
- *    summary: Returns a list of circuits
- *    description: Index route to circuits
+ *      - Routines
+ *    summary: Returns a list of routines
+ *    description: Index route to routines
  *    security:
  *      - Token: []
  *    parameters:
@@ -79,7 +79,7 @@ const { idValidation, indexValidation } = require('../validations/utilValidation
  *          content:
  *            application/json:
  *              schema:
- *                $ref: '#/components/schemas/CircuitIndexResponse'
+ *                $ref: '#/components/schemas/RoutineIndexResponse'
  *
  *       500:
  *          description: Internal server error. Please, consider opening a report to development team.
@@ -88,16 +88,16 @@ const { idValidation, indexValidation } = require('../validations/utilValidation
  *              schema:
  *                $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/', celebrate(indexValidation, { abortEarly: false }), CircuitsController.index);
+router.post('/', celebrate(indexValidation, { abortEarly: false }), RoutinesController.index);
 
 /**
  * @swagger
- * /api/circuits/create:
+ * /api/routines/create:
  *  post:
  *    tags:
- *      - Circuits
- *    summary: Create a new circuit
- *    description: Create a new circuit using exercises from the database
+ *      - Routines
+ *    summary: Create a routine
+ *    description: Create a new routine in database
  *    security:
  *      - Token: []
  *    requestBody:
@@ -105,15 +105,14 @@ router.post('/', celebrate(indexValidation, { abortEarly: false }), CircuitsCont
  *      content:
  *        application/json:
  *          schema:
- *            $ref: '#/components/schemas/Circuit'
- *
+ *            $ref: '#/components/schemas/Routine'
  *    responses:
  *       201:
- *          description: Circuit created
+ *          description: Routine created and returned.
  *          content:
  *            application/json:
  *              schema:
- *                $ref: '#/components/schemas/Circuit'
+ *                $ref: '#/components/schemas/Routine'
  *       500:
  *          description: Internal server error. Please, consider opening a report to development team.
  *          content:
@@ -121,16 +120,16 @@ router.post('/', celebrate(indexValidation, { abortEarly: false }), CircuitsCont
  *              schema:
  *                $ref: '#/components/schemas/ErrorResponse'
  */
-router.post('/create', celebrate(circuitValidation, { abortEarly: false }), CircuitsController.create);
+router.post('/create', celebrate(routineValidation, { abortEarly: false }), RoutinesController.create);
 
 /**
  * @swagger
- * /api/circuits/:id:
+ * /api/routines/:id:
  *  get:
  *    tags:
- *      - Circuits
- *    summary: Get a circuit
- *    description: Retrieve a circuit by id
+ *      - Routines
+ *    summary: Get an routine
+ *    description: Find a routine by its ID
  *    security:
  *      - Token: []
  *    parameters:
@@ -140,16 +139,16 @@ router.post('/create', celebrate(circuitValidation, { abortEarly: false }), Circ
  *          type: string
  *          example: 123
  *        required: true
- *        description: The id of the circuit to be retrieved
+ *        description: The id of the routine to be showed
  *    responses:
  *       200:
- *          description: Circuit found
+ *          description: Routine found and returned.
  *          content:
  *            application/json:
  *              schema:
- *                $ref: '#/components/schemas/Circuit'
+ *                $ref: '#/components/schemas/Routine'
  *       404:
- *          description: Circuit could not be found using id param
+ *          description: Routine could not be found using id param
  *          content:
  *            application/json:
  *              schema:
@@ -161,16 +160,16 @@ router.post('/create', celebrate(circuitValidation, { abortEarly: false }), Circ
  *              schema:
  *                $ref: '#/components/schemas/ErrorResponse'
  */
-router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsController.show);
+router.get('/:id', celebrate(idValidation, { abortEarly: false }), RoutinesController.show);
 
 /**
  * @swagger
- * /api/circuits/:id:
+ * /api/routines/:id:
  *  put:
  *    tags:
- *      - Circuits
- *    summary: Edits a circuit
- *    description: Edits a circuit using it's id
+ *      - Routine
+ *    summary: Edit a routine
+ *    description: Edits an routine from body params
  *    security:
  *      - Token: []
  *    parameters:
@@ -180,22 +179,23 @@ router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsContr
  *          type: string
  *          example: 123
  *        required: true
- *        description: The id of the circuit to be edited
+ *        description: The id of the routine to be edited
  *    requestBody:
  *      required: true
  *      content:
  *        application/json:
  *          schema:
- *            $ref: '#/components/schemas/Circuit'
+ *            $ref: '#/components/schemas/Routine'
+ *
  *    responses:
  *       200:
- *          description: Circuit successfully edited
+ *          description: Routine successfully edited and returns the new object.
  *          content:
  *            application/json:
  *              schema:
- *                $ref: '#/components/schemas/Circuit'
+ *                $ref: '#/components/schemas/Routine'
  *       404:
- *          description: Circuit could not be found using id param
+ *          description: Routine could not be found using id param
  *          content:
  *            application/json:
  *              schema:
@@ -207,16 +207,16 @@ router.get('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsContr
  *              schema:
  *                $ref: '#/components/schemas/ErrorResponse'
  */
-router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(circuitValidation, { abortEarly: false }), CircuitsController.edit);
+router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(routineValidation, { abortEarly: false }), RoutinesController.edit);
 
 /**
  * @swagger
- * /api/circuits/:id:
+ * /api/routines/:id:
  *  delete:
  *    tags:
- *      - Circuits
- *    summary: Delete a circuit
- *    description: Delete a circuit by id
+ *      - Routines
+ *    summary: Delete an routine
+ *    description: Delete an routine by ID
  *    security:
  *      - Token: []
  *    parameters:
@@ -226,16 +226,16 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(cir
  *          type: string
  *          example: 123
  *        required: true
- *        description: The id of the circuit to be deleted
+ *        description: The id of the routine to be deleted
  *    responses:
  *       200:
- *          description: Circuit successfully deleted and returns it.
+ *          description: Routine successfully deleted and returns it.
  *          content:
  *            application/json:
  *              schema:
- *                $ref: '#/components/schemas/Circuit'
+ *                $ref: '#/components/schemas/Routine'
  *       404:
- *          description: Circuit could not be found using id param
+ *          description: Routine could not be found using id param
  *          content:
  *            application/json:
  *              schema:
@@ -247,6 +247,6 @@ router.put('/:id', celebrate(idValidation, { abortEarly: false }), celebrate(cir
  *              schema:
  *                $ref: '#/components/schemas/ErrorResponse'
  */
-router.delete('/:id', celebrate(idValidation, { abortEarly: false }), CircuitsController.delete);
+router.delete('/:id', celebrate(idValidation, { abortEarly: false }), RoutinesController.delete);
 
 module.exports = router;

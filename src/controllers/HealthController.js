@@ -98,7 +98,7 @@ module.exports = {
 
       logger.info(`User (${id}) added a new health checkpoint successfully`);
       return response.json({
-        statusCode: 200,
+        statusCode: 201,
         message: 'New checkpoint successfully added',
       });
     } catch (exc) {

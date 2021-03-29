@@ -22,13 +22,13 @@
             "files": ["database/*.js"],
             "rules": {
                 "no-use-before-define": "warn"
-            } 
+            }
         }
     ],
     "rules": {
         "no-underscore-dangle": "off",
         "max-len": "off",
-        "consistent-return": "warn",
+        "consistent-return": "off",
         "no-unused-vars": "warn"
     }
 }

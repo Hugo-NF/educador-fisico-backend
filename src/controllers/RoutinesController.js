@@ -3,13 +3,13 @@ const errors = require('../config/errorCodes');
 
 const escapeRegex = require('../helpers/EscapeRegex');
 
-const Exercise = require('../models/Exercise');
+const Routine = require('../models/Routine');
 
 module.exports = {
   // Index method
   async index(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /exercises/index');
+    logger.info('Inbound request to /routines/index');
 
     const { page = 1, max = null } = request.query;
     const { name = '' } = request.body;
@@ -17,27 +17,27 @@ module.exports = {
     try {
       const searchRegex = new RegExp(escapeRegex(name), 'gi');
 
-      const count = await Exercise.countDocuments({ name: searchRegex });
+      const count = await Routine.countDocuments({ name: searchRegex });
       const maxPage = max === null ? count : max;
 
-      const exercises = await Exercise.find({ name: searchRegex })
+      const routines = await Routine.find({ name: searchRegex })
         .skip((maxPage * page) - maxPage)
         .limit(maxPage);
 
-      logger.info(`Request to /exercises/index returned ${count} records`);
+      logger.info(`Request to /routines/index returned ${count} records`);
       return response.json({
         statusCode: 200,
         count,
         data: {
-          exercises,
+          routines,
         },
       });
     } catch (exc) {
-      logger.error(`Exception raised while running /exercises/index. Details: ${exc}`);
+      logger.error(`Exception raised while running /routines/index. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: 'Could not show index of exercises',
+        message: 'Could not show index of routines',
         error: exc,
       });
     }
@@ -46,29 +46,29 @@ module.exports = {
   // Register method
   async create(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /exercises/create');
+    logger.info('Inbound request to /routines/create');
 
-    const { name, video } = request.body;
+    const { name, interval, circuits } = request.body;
 
     try {
-      const exercise = new Exercise({ name, video });
+      const routine = new Routine({ name, interval, circuits });
 
-      await exercise.save();
+      await routine.save();
 
-      logger.info(`Exercise ${exercise._id} created successfully`);
+      logger.info(`Routine ${routine._id} created successfully`);
       return response.json({
-        statusCode: 201,
+        statusCode: 200,
         data: {
-          exercise,
+          routine,
         },
       });
     } catch (exc) {
-      logger.error(`Exception raised while running /exercises/create. Details: ${exc}`);
+      logger.error(`Exception raised while running /routines/create. Details: ${exc}`);
 
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: 'Could not create a new exercise',
+        message: 'Could not create a new routine',
         error: exc,
       });
     }
@@ -77,34 +77,34 @@ module.exports = {
   // Show method
   async show(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /exercises/show');
+    logger.info('Inbound request to /routines/show');
 
     const { id } = request.params;
 
     try {
-      const exercise = await Exercise.findById(id);
-      if (exercise == null) {
-        logger.error(`/exercises/show: Could not find exercise with ObjectId(${id})`);
+      const routine = await Routine.findById(id);
+      if (routine == null) {
+        logger.error(`/routines/show: Could not find routine with ObjectId(${id})`);
         return response.status(404).json({
           statusCode: 404,
           errorCode: errors.RESOURCE_NOT_IN_DATABASE,
-          message: 'Exercise could not be found',
+          message: 'Routine could not be found',
         });
       }
 
-      logger.info(`Request to /exercises/show successfully returned ObjectId(${id})`);
+      logger.info(`Request to /routines/show successfully returned ObjectId(${id})`);
       return response.json({
         statusCode: 200,
         data: {
-          exercise,
+          routine,
         },
       });
     } catch (exc) {
-      logger.error(`Error while running /exercises/show. Details: ${exc}`);
+      logger.error(`Error while running /routines/show. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: `Could not retrieve exercise with id: ${id}`,
+        message: `Could not retrieve routine with id: ${id}`,
         error: exc,
       });
     }
@@ -113,36 +113,36 @@ module.exports = {
   // Edit method
   async edit(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /exercises/edit');
+    logger.info('Inbound request to /routines/edit');
 
-    const { name, video } = request.body;
+    const { name, interval, circuits } = request.body;
     const { id } = request.params;
 
     try {
-      const exercise = await Exercise.findByIdAndUpdate(id, { name, video }, { new: true });
-      if (exercise == null) {
-        logger.error(`/exercises/edit: Could not find exercise with ObjectId(${id})`);
+      const routine = await Routine.findByIdAndUpdate(id, { name, interval, circuits }, { new: true });
+      if (routine == null) {
+        logger.error(`/routines/edit: Could not find routine with ObjectId(${id})`);
 
         return response.status(404).json({
           statusCode: 404,
           errorCode: errors.RESOURCE_NOT_IN_DATABASE,
-          message: 'Exercise could not be found',
+          message: 'Routine could not be found',
         });
       }
 
-      logger.info(`Request to /exercises/edit successfully edited ObjectId(${id})`);
+      logger.info(`Request to /routines/edit successfully edited ObjectId(${id})`);
       return response.json({
         statusCode: 200,
         data: {
-          exercise,
+          routine,
         },
       });
     } catch (exc) {
-      logger.error(`Error while running /exercises/edit. Details: ${exc}`);
+      logger.error(`Error while running /routines/edit. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: `Could not edit exercise with ${id}`,
+        message: `Could not edit routine with ${id}`,
         error: exc,
       });
     }
@@ -151,33 +151,33 @@ module.exports = {
   // Delete method
   async delete(request, response) {
     logger.info(`Request origin: ${request.ip}`);
-    logger.info('Inbound request to /exercises/delete');
+    logger.info('Inbound request to /routines/delete');
 
     const { id } = request.params;
 
     try {
-      const exercise = await Exercise.findByIdAndDelete(id);
-      if (exercise == null) {
-        logger.error(`/exercises/delete: Could not find exercise with ObjectId(${id})`);
+      const routine = await Routine.findByIdAndDelete(id);
+      if (routine == null) {
+        logger.error(`/routines/delete: Could not find routine with ObjectId(${id})`);
 
         return response.status(404).json({
           statusCode: 404,
           errorCode: errors.RESOURCE_NOT_IN_DATABASE,
-          message: 'Exercise could not be found',
+          message: 'Routine could not be found',
         });
       }
 
-      logger.info(`Request to /exercises/delete successfully deleted ObjectId(${id})`);
+      logger.info(`Request to /routines/delete successfully deleted ObjectId(${id})`);
       return response.json({
         statusCode: 200,
-        data: { exercise },
+        data: { routine },
       });
     } catch (exc) {
-      logger.error(`Error while running /exercises/delete. Details: ${exc}`);
+      logger.error(`Error while running /routines/delete. Details: ${exc}`);
       return response.status(500).json({
         statusCode: 500,
         errorCode: errors.UNKNOWN_ERROR,
-        message: `Could not delete exercise with ${id}`,
+        message: `Could not delete routine with ${id}`,
         error: exc,
       });
     }

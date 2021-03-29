@@ -7,7 +7,6 @@ const User = require('../models/User');
 const Role = require('../models/Role');
 const Claim = require('../models/Claim');
 
-/* eslint-disable consistent-return */
 class UsersHelper {
   static async generateJWT(user) {
     return jwt.sign({ _id: user._id },
@@ -68,16 +67,22 @@ class UsersHelper {
     await User.findOneAndUpdate({ _id: userId }, { $pullAll: { claims: [claimObj._id] } });
   }
 
+  static extractToken(token) {
+    return token.replace('Bearer', '').trim();
+  }
+
   static authorize(claim = null) {
     return (request, response, next) => {
-      const token = request.header('authToken');
+      const rawToken = request.header('Authorization');
 
-      if (!token) {
+      if (!rawToken) {
         return response.status(401).json({
           statusCode: 401,
           errorCode: errors.MISSING_AUTH_TOKEN,
         });
       }
+
+      const token = UsersHelper.extractToken(rawToken);
 
       try {
         const verified = jwt.verify(token, process.env.JWT_SECRET);
@@ -103,7 +108,7 @@ class UsersHelper {
   }
 
   static currentUserId(request) {
-    const token = request.header('authToken');
+    const token = request.header('Authorization');
 
     if (!token) return null;
     try {

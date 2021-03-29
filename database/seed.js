@@ -13,6 +13,7 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
     './src/models/User',
     './src/models/Exercise',
     './src/models/Circuit',
+    './src/models/Routine',
     './src/models/Health',
   ]);
 
@@ -187,8 +188,19 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
           city: 'Ceilândia',
           state: 'DF',
           accessFailedCount: 0,
-          roles: [adminId],
           healthCheckpoints: [healthCheckpointId, mongoose.Types.ObjectId('5f382b5076119f513dcd055f')],
+        },
+        {
+          _id: 'f213dfbf-2ae0-43d8-aacb-d4aa38926081',
+          name: 'Hugo Fonseca',
+          email: 'hugopermissions@hotmail.com',
+          emailConfirmed: false,
+          password: '123456789',
+          birthDate: '1998-06-15T00:00:00.000Z',
+          sex: 'Male',
+          phone: { type: 'Mobile', number: '+55(61)99110-1515' },
+          city: 'Ceilândia',
+          state: 'DF',
         },
       ],
     },
@@ -209,6 +221,19 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
             exercise: '5eed3320725afd09805b72c6',
             repetitions: 15,
             charge: 120,
+          }],
+        },
+      ],
+    },
+    {
+      model: 'Routine',
+      documents: [
+        {
+          _id: '604c18192b542e08846365ab',
+          name: 'Ombro avançado',
+          interval: 40,
+          circuits: [{
+            circuit: '5eed3320725afd09805b72c6',
           }],
         },
       ],
@@ -252,7 +277,7 @@ seeder.connect(connection, { useNewUrlParser: true, useUnifiedTopology: true }, 
   ];
 
   // Clear specified collections
-  seeder.clearModels(['Role', 'Claim', 'User', 'Exercise', 'Circuit', 'Health'], () => {
+  seeder.clearModels(['Role', 'Claim', 'User', 'Exercise', 'Circuit', 'Routine', 'Health'], () => {
     // Callback to populate DB once collections have been cleared
     seeder.populateModels(data, () => {
       seeder.disconnect();

@@ -12,11 +12,11 @@ beforeAll(async () => {
   authToken = response.body.data.authToken;
 });
 
-// Circuit feature
-describe('Circuit CRUD', () => {
-  it('should return all circuits successfully', async (done) => {
+// Routine feature
+describe('Routine CRUD', () => {
+  it('should return all routines successfully', async (done) => {
     const response = await request(app)
-      .post('/api/circuits/')
+      .post('/api/routines/')
       .set({ Authorization: authToken });
 
     expect(response.status).toBe(200);
@@ -24,30 +24,29 @@ describe('Circuit CRUD', () => {
     done();
   });
 
-  it('should register a new circuit successfully', async (done) => {
+  it('should register a new routine successfully', async (done) => {
     const response = await request(app)
-      .post('/api/circuits/create')
+      .post('/api/routines/create')
       .set({ Authorization: authToken })
       .send({
-        name: 'Elevação Frontal - Avançado',
-        exercises: [{
-          exercise: '5eed3be55d28c2255016b868',
-          repetitions: 15,
-          weight: 120,
+        name: 'Ombros',
+        interval: 60,
+        circuits: [{
+          circuit: '5eed3320725afd09805b72c6',
         }],
       });
 
     expect(response.status).toBe(200);
-    expect(response.body.data.circuit).toHaveProperty('_id');
+    expect(response.body.data.routine).toHaveProperty('_id');
     done();
   });
 
   it('should state bad request on create', async (done) => {
     const response = await request(app)
-      .post('/api/circuits/create')
+      .post('/api/routines/create')
       .set({ Authorization: authToken })
       .send({
-        name: 'Elevação Lateral - Avançado',
+        name: 'Rotine fail',
       });
 
     expect(response.status).toBe(400);
@@ -55,18 +54,20 @@ describe('Circuit CRUD', () => {
     done();
   });
 
-  it('should return the circuit successfully', async (done) => {
+  it('should return the routine successfully', async (done) => {
     const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c7').set({ Authorization: authToken });
+      .get('/api/routines/604c18192b542e08846365ab')
+      .set({ Authorization: authToken });
 
     expect(response.status).toBe(200);
-    expect(response.body.data).toHaveProperty('circuit');
+    expect(response.body.data).toHaveProperty('routine');
     done();
   });
 
   it('should return route not found (aka 404) on show', async (done) => {
     const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c4').set({ Authorization: authToken });
+      .get('/api/routines/604c18192b542e08846365ac')
+      .set({ Authorization: authToken });
 
     expect(response.status).toBe(404);
     expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
@@ -75,38 +76,35 @@ describe('Circuit CRUD', () => {
 
   it('should edit the circuit successfully', async (done) => {
     const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c7').set({ Authorization: authToken });
-    expect(response.status).toBe(200);
+      .get('/api/routines/604c18192b542e08846365ab')
+      .set({ Authorization: authToken });
 
     const response2 = await request(app)
-      .put('/api/circuits/5eed3357725afd09805b72c7')
+      .put('/api/routines/604c18192b542e08846365ab')
       .set({ Authorization: authToken })
       .send({
-        name: 'Elevação Lateral - Editado',
-        exercises: [{
-          exercise: '5ef790361968bd468a6f9ddb',
-          repetitions: 25,
-          weight: 100,
+        name: 'Ombro Avançado - Editado',
+        interval: 50,
+        circuits: [{
+          circuit: '5eed3320725afd09805b72c6',
         }],
       });
 
     expect(response2.status).toBe(200);
-    expect(response2.body.data.circuit._id).toBe(response.body.data.circuit._id);
-    expect(response2.body.data.circuit.name).toBe('Elevação Lateral - Editado');
-    expect(response2.body.data.circuit.name).not.toBe(response.body.data.circuit.name);
+    expect(response2.body.data.routine._id).toBe(response.body.data.routine._id);
+    expect(response2.body.data.routine.name).not.toBe(response.body.data.routine.name);
     done();
   });
 
   it('should return route not found (aka 404) on edit', async (done) => {
     const response = await request(app)
-      .put('/api/circuits/5eed3357725afd09805b72c9')
+      .put('/api/routines/604c18192b542e08846365ac')
       .set({ Authorization: authToken })
       .send({
-        name: 'Bodybuilder Editado',
-        exercises: [{
-          exercise: '5ef790361968bd468a6f9ddb',
-          repetitions: 25,
-          weight: 100,
+        name: 'Ombro Avançado - Editado',
+        interval: 50,
+        circuits: [{
+          circuit: '5eed3320725afd09805b72c6',
         }],
       });
 
@@ -117,17 +115,17 @@ describe('Circuit CRUD', () => {
 
   it('should delete the circuit successfully', async (done) => {
     const response = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c7').set({ Authorization: authToken });
+      .get('/api/routines/604c18192b542e08846365ab').set({ Authorization: authToken });
 
     expect(response.status).toBe(200);
 
     const response2 = await request(app)
-      .delete('/api/circuits/5eed3357725afd09805b72c7').set({ Authorization: authToken });
+      .delete('/api/routines/604c18192b542e08846365ab').set({ Authorization: authToken });
 
     expect(response2.status).toBe(200);
 
     const response3 = await request(app)
-      .get('/api/circuits/5eed3357725afd09805b72c7').set({ Authorization: authToken });
+      .get('/api/routines/604c18192b542e08846365ab').set({ Authorization: authToken });
 
     expect(response3.status).toBe(404);
 
@@ -136,7 +134,7 @@ describe('Circuit CRUD', () => {
 
   it('should return route not found (aka 404) on delete', async (done) => {
     const response = await request(app)
-      .delete('/api/circuits/5eed3357725afd09805b72c4').set({ Authorization: authToken });
+      .delete('/api/routines/604c18192b542e08846365ac').set({ Authorization: authToken });
 
     expect(response.status).toBe(404);
     expect(response.body.errorCode).toBe(errors.RESOURCE_NOT_IN_DATABASE);
